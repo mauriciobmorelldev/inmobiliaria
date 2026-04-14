@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-background": "#1b1b1c",
+                    "background": "#fcf8f9",
+                    "surface-bright": "#fcf8f9",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#261900",
+                    "primary-fixed-dim": "#b8cbbc",
+                    "surface-container-high": "#eae7e8",
+                    "outline-variant": "#c3c8c2",
+                    "outline": "#737873",
+                    "surface-tint": "#516256",
+                    "on-surface-variant": "#434844",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-container": "#ad8a45",
+                    "secondary-fixed-dim": "#b9c7e4",
+                    "inverse-surface": "#303031",
+                    "surface-variant": "#e5e2e3",
+                    "on-tertiary-fixed-variant": "#5d4201",
+                    "secondary-container": "#d2e0fe",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#f3f0f1",
+                    "primary": "#07160d",
+                    "on-tertiary": "#ffffff",
+                    "secondary": "#515f78",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#dcd9da",
+                    "on-secondary-fixed-variant": "#39475f",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#e5e2e3",
+                    "tertiary": "#1c1200",
+                    "on-primary-container": "#819386",
+                    "on-secondary-container": "#55637d",
+                    "on-secondary-fixed": "#0d1c32",
+                    "inverse-primary": "#b8cbbc",
+                    "tertiary-container": "#362500",
+                    "surface": "#fcf8f9",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#0f1f15",
+                    "on-primary-fixed-variant": "#3a4b3f",
+                    "surface-container-low": "#f6f3f4",
+                    "primary-fixed": "#d4e7d8",
+                    "surface-container": "#f0edee",
+                    "on-surface": "#1b1b1c",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#e9c176",
+                    "secondary-fixed": "#d6e3ff",
+                    "tertiary-fixed": "#ffdea5",
+                    "primary-container": "#1b2b21"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- Sidebar Navigation Shell -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#eae7e8] dark:bg-[#1b2b21] flex flex-col py-6 space-y-2 z-50 overflow-y-auto">
+<!-- Brand / Header -->
+<div class="px-6 mb-8">
+<h1 class="text-xl font-manrope font-black text-[#07160d] dark:text-[#fcf8f9] mb-1 uppercase tracking-tighter">LUXE CURATOR</h1>
+<div class="flex items-center space-x-3 mt-6">
+<div class="w-10 h-10 rounded-full bg-surface-container-lowest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Professional portrait of a luxury real estate portfolio lead in a well-lit studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXxqQRPGUAinwm_blW29skM-QqQ-lj9Uw3c32kMM10x7g-lPxMvRWEf2apHjeLuvA_N2718xkfYM7Pcu-uRqjap07dkswGHomCXHAP-VDshhzVjg_UvD99RgxftNlW9EuAFYl0yGtYmCDA5M2LqmwsoZoTdimWmfPqtVRDH7UlkDd2eZMTKlAgR3SAGEXPWV6kNhmE2zEjgNrNY4G7W5DdF1Mkl0IlzcAKPIwFISGlZ_IVVU-Mo0bF9fmS80EEe-TOmLy_77obLw"/>
+</div>
+<div>
+<p class="font-inter text-sm font-semibold text-[#07160d] dark:text-[#fcf8f9]">Administración</p>
+<p class="text-[10px] text-[#07160d]/60 dark:text-[#fcf8f9]/60 uppercase tracking-widest">Líder de Cartera</p>
+</div>
+</div>
+</div>
+<!-- Main Navigation Tabs -->
+<nav class="flex-1 space-y-1">
+<a class="flex items-center text-[#07160d]/70 dark:text-[#fcf8f9]/70 px-4 py-3 ml-2 mr-2 hover:bg-[#ffffff]/50 dark:hover:bg-[#07160d]/50 transition-all font-inter text-sm font-semibold group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg">dashboard</span>
+                Panel
+            </a>
+<a class="flex items-center bg-[#ffffff] dark:bg-[#07160d] text-[#07160d] dark:text-[#fcf8f9] rounded-lg shadow-sm px-4 py-3 ml-2 mr-2 font-inter text-sm font-semibold translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined mr-3 text-lg">domain</span>
+                Inventario
+            </a>
+<a class="flex items-center text-[#07160d]/70 dark:text-[#fcf8f9]/70 px-4 py-3 ml-2 mr-2 hover:bg-[#ffffff]/50 dark:hover:bg-[#07160d]/50 transition-all font-inter text-sm font-semibold group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg">person_search</span>
+                Prospectos
+            </a>
+<a class="flex items-center text-[#07160d]/70 dark:text-[#fcf8f9]/70 px-4 py-3 ml-2 mr-2 hover:bg-[#ffffff]/50 dark:hover:bg-[#07160d]/50 transition-all font-inter text-sm font-semibold group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg">group</span>
+                Equipo
+            </a>
+<a class="flex items-center text-[#07160d]/70 dark:text-[#fcf8f9]/70 px-4 py-3 ml-2 mr-2 hover:bg-[#ffffff]/50 dark:hover:bg-[#07160d]/50 transition-all font-inter text-sm font-semibold group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg">insights</span>
+                Análisis
+            </a>
+</nav>
+<!-- CTA Button -->
+<div class="px-4 py-4">
+<button class="w-full bg-primary text-on-primary py-3 px-4 rounded-lg font-inter text-sm font-bold flex items-center justify-center space-x-2 shadow-[0_10px_20px_-10px_rgba(7,22,13,0.3)] hover:scale-[1.02] transition-transform">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>Añadir Propiedad</span>
+</button>
+</div>
+<!-- Footer Navigation -->
+<div class="pt-4 border-t border-[#c3c8c2]/15">
+<a class="flex items-center text-[#07160d]/70 dark:text-[#fcf8f9]/70 px-4 py-3 ml-2 mr-2 hover:bg-[#ffffff]/50 dark:hover:bg-[#07160d]/50 transition-all font-inter text-sm font-semibold" href="#">
+<span class="material-symbols-outlined mr-3 text-lg">settings</span>
+                Ajustes
+            </a>
+<a class="flex items-center text-[#07160d]/70 dark:text-[#fcf8f9]/70 px-4 py-3 ml-2 mr-2 hover:bg-[#ffffff]/50 dark:hover:bg-[#07160d]/50 transition-all font-inter text-sm font-semibold" href="#">
+<span class="material-symbols-outlined mr-3 text-lg">help</span>
+                Soporte
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen">
+<!-- Header Section -->
+<header class="sticky top-0 bg-surface/80 backdrop-blur-xl z-40 px-8 py-10 flex flex-col md:flex-row md:items-end justify-between">
+<div class="space-y-1">
+<h2 class="text-3xl font-extrabold tracking-tighter text-primary">Inventario de Propiedades</h2>
+<p class="text-on-surface-variant text-sm font-medium">Gestionando 128 listados curados en 4 regiones.</p>
+</div>
+<div class="mt-6 md:mt-0 flex items-center space-x-3">
+<!-- Search Bar -->
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors">search</span>
+<input class="pl-10 pr-4 py-2.5 bg-surface-container-low border-none rounded-lg text-sm w-72 focus:ring-1 focus:ring-primary transition-all" placeholder="Buscar por nombre, agente o ID..." type="text"/>
+</div>
+<!-- Filter Toggle -->
+<button class="bg-surface-container-high text-on-surface px-4 py-2.5 rounded-lg flex items-center space-x-2 text-sm font-semibold hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+<span>Filtros</span>
+</button>
+</div>
+</header>
+<!-- Table Container -->
+<div class="px-8 pb-20">
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)] overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-none">
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-outline">Propiedad</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-outline">Ubicación</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-outline">Precio</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-outline">Estado</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-outline">Agente</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-outline">Fecha</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-outline text-right">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center space-x-4">
+<div class="w-16 h-12 rounded-lg overflow-hidden bg-surface-container-high flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Modern architectural villa with floor to ceiling windows and clean white concrete lines at dusk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEfPWHqkEZjGb3iHmfCIoyAv4yc0qQBMb2p0jWZXUzFmjHzPrzLeAo_iwN5H1eqLNuyoY5X5dNd_r5-cFld1eWbsDI4eEUfiNqGnjZUfeaLzANSyMfGUwTlOkQ0f8FZN3TPE4pVtjMyVngjD_2UEFyk5m9iylE6sdM1AxVT5ekcRuQVs8A_QqF-oVpOiG9R26kI35qpaoml3mrRsbCrAM6gt362zsPSusyLuQLCfvLdwxNku2UrZ1pOMgFQvPnTR-IwBL8Vno-wQ"/>
+</div>
+<div>
+<p class="text-sm font-bold text-primary group-hover:text-primary transition-colors">The Obsidian Pavilion</p>
+<p class="text-[11px] text-on-surface-variant font-medium">REF: LX-9042</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm text-on-surface-variant font-medium">Aspen, Colorado</p>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-bold text-primary">$12,450,000</p>
+</td>
+<td class="px-6 py-5">
+<span class="px-2.5 py-1 rounded-full bg-primary/5 text-primary text-[10px] font-bold uppercase tracking-wider">Publicada</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center space-x-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Executive real estate agent in a tailored suit smiling confidently" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKMRMK0bycdEuD4yoFAOUdhIO-NgniMrHnLo6a8dg1WvzUNoOjh9EadVwKKR8w4ViWrXyTK7jYRVuf_0zJzCxYwGeOyrimfmpZghaU3w5G-Smlk1HzN_8JHQfiMAFzTlMVWANxG6boq-JILfNt-FAAZd0K0UkszT-xiBx5mI9CbC1obgqS_o5aAeCyev-4NFSlFXik9vHkotZ_y9POGf6cvWGtfxJc8dPpuHnLZX5tdtmImyHMdv0WEWEtmXvi_KuEqGIDIizFbg"/>
+</div>
+<p class="text-sm text-on-surface-variant font-medium">Julian Vane</p>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-outline">12 oct 2023</td>
+<td class="px-6 py-5 text-right">
+<div class="flex items-center justify-end space-x-1">
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-outline hover:text-primary transition-all" title="Vista previa">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-outline hover:text-primary transition-all" title="Editar">
+<span class="material-symbols-outlined text-xl">edit</span>
+</button>
+<button class="p-2 hover:bg-error/5 rounded-lg text-outline hover:text-error transition-all" title="Eliminar">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center space-x-4">
+<div class="w-16 h-12 rounded-lg overflow-hidden bg-surface-container-high flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="High-end coastal mansion with infinity pool overlooking the Mediterranean sea" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYKcfytCea6zfmTxqWCdPyH_eKCHXq5UXqP8tsMgYLLiK7Bxbtms1fV7Q_fSk9ZR7u2ahpzACMDLDZz9kBZFxQexGGJpYjx0vBNwE6z9j3RETCXNLAqeyPAPuB79Fdai8dSQBq1ZQG7YOuLaX-KG-4dpTR_S-MLgdzMTfgtv7lBZRWKbDjB144HNPtudlwzzzvvSGfXvK2UKsaGjL909-0BD2W4eP2pIHC9C8V-2LgBFECg0-oURbQn4BVebxR8WyPQDpiP2WejQ"/>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">Azure Cliff Estate</p>
+<p class="text-[11px] text-on-surface-variant font-medium">REF: LX-1102</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm text-on-surface-variant font-medium">Malibú, California</p>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-bold text-primary">$28,000,000</p>
+</td>
+<td class="px-6 py-5">
+<span class="px-2.5 py-1 rounded-full bg-outline-variant/20 text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Borrador</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center space-x-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Elegant woman real estate professional with professional lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZ1bgqwy1nbhLo1OVZra0jOK63qwKvJJ4bxNBKXqgF-Fa9Qaz0zj2MgSfIMtOZe7V0VKFP1A5qLHvVnG2x8Us6VTLNhANphxZM5Z5Ljbe0HMl95GaQS1GKewCFNZsCRRFvJhGza6oKLF6PF3Qki5neWSTb3jBXlr0XqLunOnFGnWZGTBzWoKIkFvRCvg1lgyAU84KogsfQghcEQZTxcen2hyhP4KpIJ3pajWXiUkHSMqPJm6kO-LSSNLT819tWb65FFsk6Jk1OHw"/>
+</div>
+<p class="text-sm text-on-surface-variant font-medium">Elena Rossi</p>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-outline">04 nov 2023</td>
+<td class="px-6 py-5 text-right">
+<div class="flex items-center justify-end space-x-1">
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-outline hover:text-primary transition-all"><span class="material-symbols-outlined text-xl">visibility</span></button>
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-outline hover:text-primary transition-all"><span class="material-symbols-outlined text-xl">edit</span></button>
+<button class="p-2 hover:bg-error/5 rounded-lg text-outline hover:text-error transition-all"><span class="material-symbols-outlined text-xl">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center space-x-4">
+<div class="w-16 h-12 rounded-lg overflow-hidden bg-surface-container-high flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Brutalist architectural home in a dense green forest with large glass surfaces" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWPps6A-GcdICbRPsdz4FvAPq4E_KXyqL-LGvzsCCfTnwnLzkD3pQzGWdqwmRwBAD7FKf5EfjBHtmTWjqvxMokuOjOsjB6orCTblsseYZKBERvEq0A0CmHWyOxWfYb265ailDf1oTP1MlvdfKrsIIPUiBX5iGxJUAMwunfIGmptgeHc9y2Hf77_YtHcmlEa8BRV98qp8D5ScZQPYmLCiu071icRiMCEoEriFk20L-vFvu7JwobgusoZcJnN_55hO19G_co27Hp-Q"/>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">The Concrete Forest</p>
+<p class="text-[11px] text-on-surface-variant font-medium">REF: LX-4421</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm text-on-surface-variant font-medium">Vancouver, BC</p>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-bold text-primary">$8,900,000</p>
+</td>
+<td class="px-6 py-5">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider">Vendida</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center space-x-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Portrait of a senior real estate broker with gray hair and sharp suit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCErLIoDZiUBUu8rEI3fuCqSdUnVTsP5GFqExYIDtIUiXH7Km_4AqZaSXVHKBBhXSbCa6v_hCHTE-Jtf-ORMlr8DIEVLK33u_mnRwLP_ybQDgoLoMKPZ80VMJuY-fVT2dbGMOcQgWRUUAgOVAXDNVn_dijMyt1k0W6b42OQ0dJx01V61D-HILP8CAkORPTaBMWsRsAPcFBMpPoeI96OMa-1qp8kwHW8M-tvmVwKRFvB6mbJgeSBg1FdGQkd2wMY7rNUFk2ns1LS8Q"/>
+</div>
+<p class="text-sm text-on-surface-variant font-medium">Marcus Chen</p>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-outline">28 sep 2023</td>
+<td class="px-6 py-5 text-right">
+<div class="flex items-center justify-end space-x-1">
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-outline hover:text-primary transition-all"><span class="material-symbols-outlined text-xl">visibility</span></button>
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-outline hover:text-primary transition-all"><span class="material-symbols-outlined text-xl">archive</span></button>
+<button class="p-2 hover:bg-error/5 rounded-lg text-outline hover:text-error transition-all"><span class="material-symbols-outlined text-xl">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center space-x-4">
+<div class="w-16 h-12 rounded-lg overflow-hidden bg-surface-container-high flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Minimalist white penthouse interior with sweeping city skyline views through arched windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmZFTZ19cHD4Jwqmlgoagm1uVCZpXd7NqQY6Vmy0Dfx6f3IJFZLte2qZb8fhCsKN7hv3-e91Kox6ofkr5lrrRDE6fYRueNcpWzaeFI0HpPMt7dmKoeSBJE0n2z-aTx406r6iKzbjzNaI95KoS9YE7F5BJvXrMrWaIFNmRJ-MaPD55BLWI2kaEMamX74LxGwA84jFmONWq2nwjIHYzw3L7TxAVs3hHJID66wOB4eLRV8f9Ueg4ConQGN9G2Ppb_TQvVxCb-Fl-3MA"/>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">Skyloft Penthouse</p>
+<p class="text-[11px] text-on-surface-variant font-medium">REF: LX-8820</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm text-on-surface-variant font-medium">Nueva York, NY</p>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-bold text-primary">$15,200,000</p>
+</td>
+<td class="px-6 py-5">
+<span class="px-2.5 py-1 rounded-full bg-primary/5 text-primary text-[10px] font-bold uppercase tracking-wider">Publicada</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center space-x-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Confident female sales director looking at camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqxV3Su30_L6Npsd5Cg2K0CwQw9NHyDCMDnoN4S649ZDTdgw73RyJ5ekujEmRHWCVBqJvTE1TJ-zRAnKQi7sHeQEevg4JedmHTXynasxbD01lqHfYqoHO4ekzOiS3bouPzj3mxrjomGdwNjc6TjIG7eTGrq-ojfNei4xV3HJxAbFmYH6ZCvsVKzN9dIUl2f5qUj5lG2Niv18vMuB7pn0tC7UkQaFbuKxeMRIJvvPcKhPzxYaboHDwNEBGnlgAcQNip4Fokc85tfw"/>
+</div>
+<p class="text-sm text-on-surface-variant font-medium">Sarah Jenkins</p>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-outline">30 oct 2023</td>
+<td class="px-6 py-5 text-right">
+<div class="flex items-center justify-end space-x-1">
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-outline hover:text-primary transition-all"><span class="material-symbols-outlined text-xl">visibility</span></button>
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-outline hover:text-primary transition-all"><span class="material-symbols-outlined text-xl">edit</span></button>
+<button class="p-2 hover:bg-error/5 rounded-lg text-outline hover:text-error transition-all"><span class="material-symbols-outlined text-xl">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Pagination -->
+<div class="px-6 py-6 flex items-center justify-between border-t border-outline-variant/10">
+<p class="text-xs text-outline font-medium">Mostrando <span class="text-primary font-bold">1 - 10</span> de <span class="text-primary font-bold">128</span> propiedades</p>
+<div class="flex items-center space-x-2">
+<button class="p-2 rounded-lg hover:bg-surface-container-high text-outline disabled:opacity-30 transition-all" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-primary text-on-primary text-xs font-bold shadow-md">1</button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-container-high text-on-surface text-xs font-bold">2</button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-container-high text-on-surface text-xs font-bold">3</button>
+<span class="text-outline text-xs px-2">...</span>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-container-high text-on-surface text-xs font-bold">13</button>
+<button class="p-2 rounded-lg hover:bg-surface-container-high text-outline transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Suppressed on Details, but active on Management Dashboard) -->
+<div class="fixed bottom-8 right-8 z-50">
+<button class="w-14 h-14 rounded-full bg-primary text-on-primary shadow-2xl flex items-center justify-center hover:scale-110 transition-transform active:scale-95 group">
+<span class="material-symbols-outlined text-3xl">add_business</span>
+<div class="absolute right-full mr-4 bg-primary text-on-primary px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Añadir Rápido</div>
+</button>
+</div>
+</body></html>

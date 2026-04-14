@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Luxe Curator | Panel de Gestión</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-background": "#1b1b1c",
+                "background": "#fcf8f9",
+                "surface-bright": "#fcf8f9",
+                "error": "#ba1a1a",
+                "on-tertiary-fixed": "#261900",
+                "primary-fixed-dim": "#b8cbbc",
+                "surface-container-high": "#eae7e8",
+                "outline-variant": "#c3c8c2",
+                "outline": "#737873",
+                "surface-tint": "#516256",
+                "on-surface-variant": "#434844",
+                "on-error-container": "#93000a",
+                "on-tertiary-container": "#ad8a45",
+                "secondary-fixed-dim": "#b9c7e4",
+                "inverse-surface": "#303031",
+                "surface-variant": "#e5e2e3",
+                "on-tertiary-fixed-variant": "#5d4201",
+                "secondary-container": "#d2e0fe",
+                "on-primary": "#ffffff",
+                "inverse-on-surface": "#f3f0f1",
+                "primary": "#07160d",
+                "on-tertiary": "#ffffff",
+                "secondary": "#515f78",
+                "on-error": "#ffffff",
+                "surface-dim": "#dcd9da",
+                "on-secondary-fixed-variant": "#39475f",
+                "surface-container-lowest": "#ffffff",
+                "surface-container-highest": "#e5e2e3",
+                "tertiary": "#1c1200",
+                "on-primary-container": "#819386",
+                "on-secondary-container": "#55637d",
+                "on-secondary-fixed": "#0d1c32",
+                "inverse-primary": "#b8cbbc",
+                "tertiary-container": "#362500",
+                "surface": "#fcf8f9",
+                "on-secondary": "#ffffff",
+                "on-primary-fixed": "#0f1f15",
+                "on-primary-fixed-variant": "#3a4b3f",
+                "surface-container-low": "#f6f3f4",
+                "primary-fixed": "#d4e7d8",
+                "surface-container": "#f0edee",
+                "on-surface": "#1b1b1c",
+                "error-container": "#ffdad6",
+                "tertiary-fixed-dim": "#e9c176",
+                "secondary-fixed": "#d6e3ff",
+                "tertiary-fixed": "#ffdea5",
+                "primary-container": "#1b2b21"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#eae7e8] dark:bg-[#1b2b21] flex flex-col py-6 space-y-2 z-50">
+<div class="px-6 mb-8">
+<h1 class="text-xl font-manrope font-black text-[#07160d] dark:text-[#fcf8f9]">LUXE CURATOR</h1>
+<p class="text-[10px] uppercase tracking-widest opacity-50 font-bold mt-1">Suite de Gestión</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Dashboard (Active) -->
+<a class="bg-[#ffffff] dark:bg-[#07160d] text-[#07160d] dark:text-[#fcf8f9] rounded-lg shadow-sm px-4 py-3 ml-2 mr-2 flex items-center gap-3 font-inter text-sm font-semibold transition-all translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Panel</span>
+</a>
+<a class="text-[#07160d]/70 dark:text-[#fcf8f9]/70 px-4 py-3 ml-2 mr-2 flex items-center gap-3 font-inter text-sm font-semibold hover:bg-[#ffffff]/50 dark:hover:bg-[#07160d]/50 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="domain">domain</span>
+<span>Inventario</span>
+</a>
+<a class="text-[#07160d]/70 dark:text-[#fcf8f9]/70 px-4 py-3 ml-2 mr-2 flex items-center gap-3 font-inter text-sm font-semibold hover:bg-[#ffffff]/50 dark:hover:bg-[#07160d]/50 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="person_search">person_search</span>
+<span>Prospectos</span>
+</a>
+<a class="text-[#07160d]/70 dark:text-[#fcf8f9]/70 px-4 py-3 ml-2 mr-2 flex items-center gap-3 font-inter text-sm font-semibold hover:bg-[#ffffff]/50 dark:hover:bg-[#07160d]/50 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Equipo</span>
+</a>
+<a class="text-[#07160d]/70 dark:text-[#fcf8f9]/70 px-4 py-3 ml-2 mr-2 flex items-center gap-3 font-inter text-sm font-semibold hover:bg-[#ffffff]/50 dark:hover:bg-[#07160d]/50 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span>Analíticas</span>
+</a>
+</nav>
+<div class="px-4 mb-6">
+<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                Agregar Propiedad
+            </button>
+</div>
+<div class="pt-4 border-t border-outline-variant/10 space-y-1">
+<div class="px-6 mb-4 flex items-center gap-3">
+<img alt="Admin Portrait" class="w-10 h-10 rounded-full object-cover" data-alt="professional portrait of a luxury real estate portfolio lead with soft lighting and neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSrMb9qagUateGKAXvOsOuETQtWPGQpnU1RYCDOE-SSZiLHQdEdR-37eWw35EktMsNgWHXZ3_VW-uRhx0S1SDp9s7XOzXdCt6IYrd-LJT2yJue00VsyKOPxT4JxkLnJzyAPRfestbB1Z60gKjvA-oJlRB0tAAAFkZfSxeaPwjEjO7_mbnGBbktsn0C-oesA-_10KhNAJoNbWQYkoMLzt09BpRATly5vyDjOG3Kf-I-kiEzGL-0igcbdb9GzIYXACYiduFRwL6mkQ"/>
+<div>
+<p class="text-sm font-bold text-[#07160d] dark:text-[#fcf8f9]">Gerencia</p>
+<p class="text-[10px] text-[#07160d]/60 dark:text-[#fcf8f9]/60">Líder de Cartera</p>
+</div>
+</div>
+<a class="text-[#07160d]/70 dark:text-[#fcf8f9]/70 px-4 py-2 ml-2 mr-2 flex items-center gap-3 font-inter text-xs font-semibold hover:bg-[#ffffff]/50 transition-all" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="settings">settings</span>
+<span>Configuración</span>
+</a>
+<a class="text-[#07160d]/70 dark:text-[#fcf8f9]/70 px-4 py-2 ml-2 mr-2 flex items-center gap-3 font-inter text-xs font-semibold hover:bg-[#ffffff]/50 transition-all" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="help">help</span>
+<span>Soporte</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- Header Section -->
+<header class="h-24 px-10 flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-md z-40">
+<div>
+<h2 class="text-3xl font-bold tracking-tight text-primary">Resumen</h2>
+<p class="text-sm text-on-surface-variant font-medium">Lunes, 17 de Junio de 2024</p>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative">
+<button class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+</button>
+<span class="absolute top-0 right-0 w-3 h-3 bg-error rounded-full border-2 border-background"></span>
+</div>
+<div class="flex items-center gap-3 pl-6 border-l border-outline-variant/20">
+<div class="text-right">
+<p class="text-sm font-bold">Julian Vane</p>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant">Admin</p>
+</div>
+<img alt="Profile" class="w-10 h-10 rounded-full object-cover grayscale" data-alt="portrait of a man in a professional suit with elegant dramatic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQacUQ6O9scjL00bJxJseUo8_T1zva6DjChuayfJKpom2FJ6iToV-1_eof-vrt6F76vCnLn37OnQNPsZWVYVzv6y3ehL8Wbemxdc97AW9_P3S8v2pth0I-pu8PVWLDJ4nCYq2TmeyQwmqyXSYl4lRei9C6tSiS1pizpZnZlet3epav1a3QuxWkKA6Ft391julLnAT0Md6uywMUTYGtDX0KODmsLJukT_vlrlz64LX7J0LFwMT-fbjRrOJgLn579dWqSQ7TN0r__w"/>
+</div>
+</div>
+</header>
+<div class="px-10 pb-12 grid grid-cols-12 gap-8">
+<!-- KPI Section -->
+<div class="col-span-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)] flex flex-col justify-between h-40 group hover:bg-primary transition-colors duration-300">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary group-hover:text-on-primary" data-icon="real_estate_agent">real_estate_agent</span>
+<span class="text-[10px] font-bold text-primary-container bg-primary-fixed px-2 py-1 rounded-full">+12%</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant group-hover:text-on-primary/60 font-bold">Propiedades Activas</p>
+<h3 class="text-3xl font-extrabold text-primary group-hover:text-on-primary">142</h3>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)] flex flex-col justify-between h-40 group hover:bg-primary transition-colors duration-300">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary group-symbols group-hover:text-on-primary" data-icon="person_add">person_add</span>
+<span class="text-[10px] font-bold text-primary-container bg-primary-fixed px-2 py-1 rounded-full">+8%</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant group-hover:text-on-primary/60 font-bold">Nuevos Prospectos</p>
+<h3 class="text-3xl font-extrabold text-primary group-hover:text-on-primary">28</h3>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)] flex flex-col justify-between h-40 group hover:bg-primary transition-colors duration-300">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary group-hover:text-on-primary" data-icon="calendar_month">calendar_month</span>
+<span class="text-[10px] font-bold text-error bg-error-container px-2 py-1 rounded-full">-3%</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant group-hover:text-on-primary/60 font-bold">Visitas Agendadas</p>
+<h3 class="text-3xl font-extrabold text-primary group-hover:text-on-primary">54</h3>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)] flex flex-col justify-between h-40 group hover:bg-primary transition-colors duration-300">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary group-hover:text-on-primary" data-icon="payments">payments</span>
+<span class="text-[10px] font-bold text-primary-container bg-primary-fixed px-2 py-1 rounded-full">+24%</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant group-hover:text-on-primary/60 font-bold">Ingresos Mensuales</p>
+<h3 class="text-3xl font-extrabold text-primary group-hover:text-on-primary">$2.4M</h3>
+</div>
+</div>
+</div>
+<!-- Trends Chart Section -->
+<div class="col-span-12 lg:col-span-8">
+<div class="bg-surface-container-lowest p-8 rounded-3xl shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)] h-[400px] relative overflow-hidden flex flex-col">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="text-xl font-bold text-primary">Tendencia de Prospectos</h3>
+<p class="text-xs text-on-surface-variant">Actividad de interacción en los últimos 30 días</p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 text-[10px] font-bold uppercase tracking-widest bg-surface-container-high rounded-full">Semanal</button>
+<button class="px-4 py-2 text-[10px] font-bold uppercase tracking-widest bg-primary text-on-primary rounded-full shadow-lg">Mensual</button>
+</div>
+</div>
+<div class="flex-1 flex items-end gap-3 px-4">
+<!-- Simplified Visual Chart using Divs -->
+<div class="flex-1 bg-primary-fixed/30 rounded-t-lg h-[40%]"></div>
+<div class="flex-1 bg-primary-fixed/30 rounded-t-lg h-[65%]"></div>
+<div class="flex-1 bg-primary-fixed/30 rounded-t-lg h-[45%]"></div>
+<div class="flex-1 bg-primary-fixed/30 rounded-t-lg h-[80%]"></div>
+<div class="flex-1 bg-primary rounded-t-lg h-[95%]"></div>
+<div class="flex-1 bg-primary-fixed/30 rounded-t-lg h-[70%]"></div>
+<div class="flex-1 bg-primary-fixed/30 rounded-t-lg h-[55%]"></div>
+<div class="flex-1 bg-primary-fixed/30 rounded-t-lg h-[85%]"></div>
+<div class="flex-1 bg-primary-fixed/30 rounded-t-lg h-[40%]"></div>
+<div class="flex-1 bg-primary-fixed/30 rounded-t-lg h-[60%]"></div>
+</div>
+</div>
+</div>
+<!-- Side Panel: Pending Tasks -->
+<div class="col-span-12 lg:col-span-4">
+<div class="bg-surface-container p-8 rounded-3xl h-full flex flex-col">
+<h3 class="text-xl font-bold text-primary mb-6">Tareas Pendientes</h3>
+<div class="space-y-4">
+<div class="bg-surface-container-lowest p-5 rounded-2xl flex gap-4 items-center">
+<div class="w-10 h-10 rounded-xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined" data-icon="signature">signature</span>
+</div>
+<div>
+<p class="text-sm font-bold">Revisión de Contrato</p>
+<p class="text-[10px] text-on-surface-variant">Penthouse B - 14:00 PM</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-2xl flex gap-4 items-center opacity-70">
+<div class="w-10 h-10 rounded-xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+</div>
+<div>
+<p class="text-sm font-bold">Llamada: Elena Rose</p>
+<p class="text-[10px] text-on-surface-variant">Prioridad Alta - 16:30 PM</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-2xl flex gap-4 items-center">
+<div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+<span class="material-symbols-outlined" data-icon="photo_camera">photo_camera</span>
+</div>
+<div>
+<p class="text-sm font-bold">Aprobación de Sesión</p>
+<p class="text-[10px] text-on-surface-variant">Bel Air Estate - Mañana</p>
+</div>
+</div>
+</div>
+<button class="mt-auto w-full py-4 text-xs font-bold uppercase tracking-widest border border-outline-variant/30 rounded-xl hover:bg-surface-container-highest transition-colors">
+                        Ver todas las tareas
+                    </button>
+</div>
+</div>
+<!-- Table: Recent Leads -->
+<div class="col-span-12">
+<div class="bg-surface-container-lowest p-8 rounded-3xl shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)]">
+<div class="flex justify-between items-center mb-8">
+<h3 class="text-xl font-bold text-primary">Prospectos Recientes</h3>
+<div class="flex items-center gap-4 bg-surface-container-low p-1 rounded-full">
+<button class="px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-full bg-surface-container-lowest shadow-sm">Toda la actividad</button>
+<button class="px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-full opacity-40">Seguimientos</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="text-[10px] uppercase tracking-widest text-on-surface-variant/50 border-b border-outline-variant/10">
+<th class="pb-4 font-bold">Nombre del Cliente</th>
+<th class="pb-4 font-bold">Propiedad de Interés</th>
+<th class="pb-4 font-bold">Fecha</th>
+<th class="pb-4 font-bold text-right">Estado</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="py-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="Client" class="w-full h-full object-cover" data-alt="professional portrait of a high-end luxury client in a minimalist studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwBWr-V-ePIpbs8UpchW7uqyPfmsDqfNLA2pMb_dzJovuc5sUWcBUm4EIsFmR5Bfyx2V6zhUCzOQuOvnfXwwSzrVrzHuw59VDT7s29WEYQnoJQ7vqtxkvFRoe1Ty8WEA1aNRUmL1nsKVt0xPKqiwXwOObk1mw9b0P2DFqhZtP29fjNxIp5-RTCGBYhBJn_5VtdyrFugQCbNIb69mEPxRjKzy30fh3q_tm1kp115D66JpwFCFbsITdTQD57r2pfsSceX6TkVv_l7w"/>
+</div>
+<div>
+<p class="text-sm font-bold">Sofia Giraud</p>
+<p class="text-[10px] text-on-surface-variant">sofia.g@maison.com</p>
+</div>
+</td>
+<td class="py-6">
+<p class="text-sm font-medium">L'Avenue Penthouse</p>
+<p class="text-[10px] text-on-surface-variant">París, FR</p>
+</td>
+<td class="py-6">
+<p class="text-sm font-medium">14 Junio, 2024</p>
+</td>
+<td class="py-6 text-right">
+<span class="inline-block px-4 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed text-[10px] font-bold uppercase tracking-wider">Nuevo</span>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="py-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="Client" class="w-full h-full object-cover" data-alt="corporate portrait of a male real estate investor in a dark grey suit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHaaN5gFe-NMfiPxa02I-hR2D35ep_QvtuP-L_2Y5rgWpW-6BWOBImlywxioNWMdT7Lit3ZIw2aak3tmCPL5-f19q-ji2-jDcN9mO7Vwv9QsZghoJ_VdSq8_AtRlEyTIPmtX2kjwBAN65NIwg0ddc8LMoIQABCp1QdLV7iGseAavsEhqN1_pwLF1rEZyJPX3PfurwwPW0MAsArs5PolgSyMBrZOi2UYe5ohCjYVlu4kVivBDn6JVGXJ4-FzWBQE90VLjlDvSmG5A"/>
+</div>
+<div>
+<p class="text-sm font-bold">Marcus Sterling</p>
+<p class="text-[10px] text-on-surface-variant">m.sterling@capital.com</p>
+</div>
+</td>
+<td class="py-6">
+<p class="text-sm font-medium">The Glass Pavilion</p>
+<p class="text-[10px] text-on-surface-variant">Malibu, CA</p>
+</td>
+<td class="py-6">
+<p class="text-sm font-medium">12 Junio, 2024</p>
+</td>
+<td class="py-6 text-right">
+<span class="inline-block px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider">Contactado</span>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="py-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="Client" class="w-full h-full object-cover" data-alt="portrait of an elegant woman with sophisticated lighting for high-end editorial look" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWnJ3qASX_OzzJEcKMUiQi5s-mslqvvPpj3E7q8rRi8eYRO7hWYlECYdN3EVwhR1IkaRye-gkn0-kPCv1C8hDfFJFiv7FUctxQFnQ2jftXp_AjAfkcuUUD_kZ4qDcdml1BmFbWUZ9FWTwa5mvbUMuiodQVLzE9YAmBaS7d1iFPzbOrhzkIJfxP94bOyhrnmtNAog7fNnRTSDN_Jumt4ybWCD9LnAkSpZgaiTS82ytGBG3TbG8Ej-K5InSNwtOZUYvrqcrxQRD6CA"/>
+</div>
+<div>
+<p class="text-sm font-bold">Adriana Rossi</p>
+<p class="text-[10px] text-on-surface-variant">adriana@rossidesign.it</p>
+</div>
+</td>
+<td class="py-6">
+<p class="text-sm font-medium">Villa d'Este Modern</p>
+<p class="text-[10px] text-on-surface-variant">Lago de Como, IT</p>
+</td>
+<td class="py-6">
+<p class="text-sm font-medium">10 Junio, 2024</p>
+</td>
+<td class="py-6 text-right">
+<span class="inline-block px-4 py-1.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-wider">Visita</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full py-12 px-8 border-t border-[#c3c8c2]/15 bg-background">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+<div class="col-span-1 lg:col-span-2">
+<h4 class="text-lg font-manrope font-bold text-primary mb-4">LUXE CURATOR</h4>
+<p class="font-inter text-xs uppercase tracking-widest text-on-surface-variant leading-relaxed">
+                        © 2024 Luxe Curator. Una Experiencia Editorial de Bienes Raíces.
+                    </p>
+</div>
+<div class="flex flex-col space-y-3">
+<p class="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-2">Legal</p>
+<a class="font-inter text-xs uppercase tracking-widest text-[#07160d]/40 hover:text-primary transition-colors" href="#">Privacidad</a>
+<a class="font-inter text-xs uppercase tracking-widest text-[#07160d]/40 hover:text-primary transition-colors" href="#">Términos</a>
+</div>
+<div class="flex flex-col space-y-3">
+<p class="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-2">Empresa</p>
+<a class="font-inter text-xs uppercase tracking-widest text-[#07160d]/40 hover:text-primary transition-colors" href="#">Pautas Editoriales</a>
+<a class="font-inter text-xs uppercase tracking-widest text-[#07160d]/40 hover:text-primary transition-colors" href="#">Carreras</a>
+</div>
+</div>
+</footer>
+</main>
+</body></html>

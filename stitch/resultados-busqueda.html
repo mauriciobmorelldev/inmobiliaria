@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-background": "#1b1b1c",
+                    "background": "#fcf8f9",
+                    "surface-bright": "#fcf8f9",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#261900",
+                    "primary-fixed-dim": "#b8cbbc",
+                    "surface-container-high": "#eae7e8",
+                    "outline-variant": "#c3c8c2",
+                    "outline": "#737873",
+                    "surface-tint": "#516256",
+                    "on-surface-variant": "#434844",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-container": "#ad8a45",
+                    "secondary-fixed-dim": "#b9c7e4",
+                    "inverse-surface": "#303031",
+                    "surface-variant": "#e5e2e3",
+                    "on-tertiary-fixed-variant": "#5d4201",
+                    "secondary-container": "#d2e0fe",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#f3f0f1",
+                    "primary": "#07160d",
+                    "on-tertiary": "#ffffff",
+                    "secondary": "#515f78",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#dcd9da",
+                    "on-secondary-fixed-variant": "#39475f",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#e5e2e3",
+                    "tertiary": "#1c1200",
+                    "on-primary-container": "#819386",
+                    "on-secondary-container": "#55637d",
+                    "on-secondary-fixed": "#0d1c32",
+                    "inverse-primary": "#b8cbbc",
+                    "tertiary-container": "#362500",
+                    "surface": "#fcf8f9",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#0f1f15",
+                    "on-primary-fixed-variant": "#3a4b3f",
+                    "surface-container-low": "#f6f3f4",
+                    "primary-fixed": "#d4e7d8",
+                    "surface-container": "#f0edee",
+                    "on-surface": "#1b1b1c",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#e9c176",
+                    "secondary-fixed": "#d6e3ff",
+                    "tertiary-fixed": "#ffdea5",
+                    "primary-container": "#1b2b21"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fcf8f9;
+            color: #1b1b1c;
+        }
+        .editorial-shadow {
+            box-shadow: 0 40px 60px -15px rgba(27, 27, 28, 0.04);
+        }
+        .ghost-border {
+            border: 1px solid rgba(195, 200, 194, 0.15);
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary-fixed selection:text-primary">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#fcf8f9]/80 backdrop-blur-xl no-border bg-[#eae7e8]/30 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.06)]">
+<div class="flex justify-between items-center px-8 h-20 w-full max-w-screen-2xl mx-auto">
+<div class="text-2xl font-bold tracking-tighter text-[#07160d] font-headline">LUXE CURATOR</div>
+<div class="hidden md:flex items-center space-x-10 font-manrope tracking-tight font-medium">
+<a class="text-[#07160d] border-b-2 border-[#07160d] pb-1 hover:text-[#07160d] transition-colors" href="#">Propiedades</a>
+<a class="text-[#07160d]/60 hover:text-[#07160d] transition-colors" href="#">Agentes</a>
+<a class="text-[#07160d]/60 hover:text-[#07160d] transition-colors" href="#">Servicios</a>
+<a class="text-[#07160d]/60 hover:text-[#07160d] transition-colors" href="#">Revista</a>
+</div>
+<div class="flex items-center space-x-6">
+<div class="hidden lg:flex items-center bg-surface-container px-4 py-2 rounded-full ghost-border">
+<span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 font-label" placeholder="Buscar destinos..." type="text"/>
+</div>
+<button class="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-label font-semibold text-sm hover:scale-95 duration-200 ease-out transition-transform">
+                    Iniciar Sesión
+                </button>
+</div>
+</div>
+</nav>
+<main class="pt-28 pb-20 px-8 max-w-screen-2xl mx-auto min-h-screen">
+<div class="flex flex-col lg:flex-row gap-12">
+<!-- Sidebar Filters -->
+<aside class="w-full lg:w-72 flex-shrink-0">
+<div class="sticky top-28 space-y-10">
+<div>
+<h3 class="font-headline text-lg font-bold text-primary mb-6">Refinar Selección</h3>
+<!-- Price Range -->
+<div class="space-y-4 mb-8">
+<label class="text-xs uppercase tracking-widest font-bold text-on-surface-variant font-label">Rango de Precio</label>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-surface-container-low p-3 rounded-lg ghost-border">
+<span class="text-[10px] block text-on-surface-variant mb-1 uppercase tracking-tighter">Mín</span>
+<span class="font-headline font-semibold">$500k</span>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg ghost-border">
+<span class="text-[10px] block text-on-surface-variant mb-1 uppercase tracking-tighter">Máx</span>
+<span class="font-headline font-semibold">$12M</span>
+</div>
+</div>
+<input class="w-full accent-primary h-1 bg-surface-container-highest rounded-full appearance-none cursor-pointer" type="range"/>
+</div>
+<!-- Property Type -->
+<div class="space-y-4 mb-8">
+<label class="text-xs uppercase tracking-widest font-bold text-on-surface-variant font-label">Tipo de Propiedad</label>
+<div class="space-y-3">
+<label class="flex items-center group cursor-pointer">
+<div class="w-5 h-5 rounded border border-outline-variant mr-3 flex items-center justify-center group-hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[14px] text-primary hidden">check</span>
+</div>
+<span class="font-label text-sm text-on-surface-variant group-hover:text-primary transition-colors">Costeras</span>
+</label>
+<label class="flex items-center group cursor-pointer">
+<div class="w-5 h-5 rounded border-2 border-primary mr-3 flex items-center justify-center bg-primary">
+<span class="material-symbols-outlined text-[14px] text-on-primary block" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-label text-sm text-primary font-medium">Modernas</span>
+</label>
+<label class="flex items-center group cursor-pointer">
+<div class="w-5 h-5 rounded border border-outline-variant mr-3 flex items-center justify-center group-hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[14px] text-primary hidden">check</span>
+</div>
+<span class="font-label text-sm text-on-surface-variant group-hover:text-primary transition-colors">Áticos</span>
+</label>
+</div>
+</div>
+<!-- Bedrooms -->
+<div class="space-y-4 mb-8">
+<label class="text-xs uppercase tracking-widest font-bold text-on-surface-variant font-label">Dormitorios</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-lg bg-surface-container-highest font-label text-xs font-semibold text-primary">1+</button>
+<button class="px-4 py-2 rounded-lg bg-primary text-on-primary font-label text-xs font-semibold">3+</button>
+<button class="px-4 py-2 rounded-lg bg-surface-container-highest font-label text-xs font-semibold text-primary">5+</button>
+<button class="px-4 py-2 rounded-lg bg-surface-container-highest font-label text-xs font-semibold text-primary">8+</button>
+</div>
+</div>
+<!-- Amenities -->
+<div class="space-y-4">
+<label class="text-xs uppercase tracking-widest font-bold text-on-surface-variant font-label">Amenidades</label>
+<div class="space-y-3">
+<label class="flex items-center group cursor-pointer">
+<div class="w-5 h-5 rounded border border-outline-variant mr-3 flex items-center justify-center"></div>
+<span class="font-label text-sm text-on-surface-variant">Piscina</span>
+</label>
+<label class="flex items-center group cursor-pointer">
+<div class="w-5 h-5 rounded border border-outline-variant mr-3 flex items-center justify-center"></div>
+<span class="font-label text-sm text-on-surface-variant">Muelle Privado</span>
+</label>
+<label class="flex items-center group cursor-pointer">
+<div class="w-5 h-5 rounded border border-outline-variant mr-3 flex items-center justify-center"></div>
+<span class="font-label text-sm text-on-surface-variant">Cava</span>
+</label>
+</div>
+</div>
+</div>
+<button class="w-full py-4 bg-surface-container-highest text-primary font-headline font-bold text-sm rounded-xl hover:bg-primary hover:text-on-primary transition-all duration-300">
+                        Limpiar Filtros
+                    </button>
+</div>
+</aside>
+<!-- Content Area -->
+<div class="flex-1">
+<!-- Header Actions -->
+<div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-6">
+<div>
+<h1 class="font-headline text-4xl font-extrabold tracking-tight text-primary">Villas Modernistas</h1>
+<p class="text-on-surface-variant mt-2 font-label">Mostrando 128 propiedades exclusivas en el sur de Europa</p>
+</div>
+<div class="flex items-center space-x-4">
+<span class="text-xs uppercase tracking-widest font-bold text-on-surface-variant">Ordenar por:</span>
+<div class="relative">
+<select class="appearance-none bg-surface-container-lowest ghost-border rounded-lg px-6 py-2.5 font-label text-sm font-semibold text-primary focus:ring-primary focus:border-primary pr-12 cursor-pointer">
+<option>Selección Curada</option>
+<option>Precio: Mayor a Menor</option>
+<option>Agregados Recientemente</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-primary pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid Content -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+<!-- Property Card 1 -->
+<div class="group relative bg-surface-container-lowest rounded-2xl overflow-hidden editorial-shadow transition-transform hover:-translate-y-2 duration-500">
+<div class="relative h-80 overflow-hidden">
+<img class="w-full h-full object-cover transition-scale duration-700 group-hover:scale-105" data-alt="ultra-modern minimalist concrete villa with floor to ceiling windows overlooking the Mediterranean sea at sunset" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUcYVQ4t30GU2lrILwGpGRD5kr-LLUg2Wn7mxwpIhK4mj8XVWRbf7IBm-gFBQCyQn1bvtiCv_-Y5m0wPvHZhrmSZCk0wdB_mWPvNnQX3yFbSAPnXkC9obg9FAJXmpzUbJpKwl66c4eg1gxSATCVW9Qszax_oWoXvNfXfmQ3ww9ouaJyAYn0BuONob4a2es-yyX8op3nJJwg5k-giVyQGXg60I5bHoxB0cQiSbFT4weW981U3ZE5obF6pB6ufYJ3S7S3XEPYN6bZg"/>
+<div class="absolute top-6 left-6 flex space-x-2">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md text-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full">Destacado</span>
+</div>
+<button class="absolute top-6 right-6 w-10 h-10 rounded-full bg-surface-container-lowest/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-surface-container-lowest hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-primary/80 to-transparent">
+<div class="text-white font-headline text-2xl font-bold">$8,450,000</div>
+</div>
+</div>
+<div class="p-8">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline text-xl font-bold text-primary mb-1">Villa L'Horizon</h3>
+<p class="text-on-surface-variant text-sm font-label flex items-center">
+<span class="material-symbols-outlined text-sm mr-1">location_on</span>
+                                        Saint-Jean-Cap-Ferrat, Francia
+                                    </p>
+</div>
+</div>
+<div class="flex items-center space-x-6 pt-6 border-t border-outline-variant/10">
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] mr-2">bed</span>
+<span class="text-xs font-bold font-label uppercase tracking-tighter">6 Dorms</span>
+</div>
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] mr-2">bathtub</span>
+<span class="text-xs font-bold font-label uppercase tracking-tighter">8 Baños</span>
+</div>
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] mr-2">square_foot</span>
+<span class="text-xs font-bold font-label uppercase tracking-tighter">1,200 m²</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Property Card 2 -->
+<div class="group relative bg-surface-container-lowest rounded-2xl overflow-hidden editorial-shadow transition-transform hover:-translate-y-2 duration-500">
+<div class="relative h-80 overflow-hidden">
+<img class="w-full h-full object-cover transition-scale duration-700 group-hover:scale-105" data-alt="architectural marvel villa built into a rocky cliffside in Cyclades Greece with infinity pool blending into the Aegean sea" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNrfOJ_HMHErTO8qLIlkTdS4D0S27nhidgwRpvg9zNuLx9jSFnw8z4g1Q7OZzmSnhLm7-T0M27P8E_O7QdGLHb0pFb6VC7H7CCMlUQpPYeLRe9s3DdLdcdMJnORq4I9S1lD_Y-sW4DfnAt9jSG60l2hmenOTapnRWnt2tQrdkuWKrBTrevxJfCCl4cZu6MWDnpciX4utwGnazjx0vCTy-v-CveZR8Ewt0__dmytIIDRam55Vsw8O0rOTyOhZsMZtxoDceBrGpZKQ"/>
+<div class="absolute top-6 left-6 flex space-x-2">
+<span class="bg-primary text-on-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full">Nuevo Ingreso</span>
+</div>
+<button class="absolute top-6 right-6 w-10 h-10 rounded-full bg-surface-container-lowest/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-surface-container-lowest hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-primary/80 to-transparent">
+<div class="text-white font-headline text-2xl font-bold">$12,200,000</div>
+</div>
+</div>
+<div class="p-8">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline text-xl font-bold text-primary mb-1">Ethereal Cliff Manor</h3>
+<p class="text-on-surface-variant text-sm font-label flex items-center">
+<span class="material-symbols-outlined text-sm mr-1">location_on</span>
+                                        Santorini, Grecia
+                                    </p>
+</div>
+</div>
+<div class="flex items-center space-x-6 pt-6 border-t border-outline-variant/10">
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] mr-2">bed</span>
+<span class="text-xs font-bold font-label uppercase tracking-tighter">4 Dorms</span>
+</div>
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] mr-2">bathtub</span>
+<span class="text-xs font-bold font-label uppercase tracking-tighter">5 Baños</span>
+</div>
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] mr-2">square_foot</span>
+<span class="text-xs font-bold font-label uppercase tracking-tighter">850 m²</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Property Card 3 -->
+<div class="group relative bg-surface-container-lowest rounded-2xl overflow-hidden editorial-shadow transition-transform hover:-translate-y-2 duration-500">
+<div class="relative h-80 overflow-hidden">
+<img class="w-full h-full object-cover transition-scale duration-700 group-hover:scale-105" data-alt="contemporary brutalist home in Tuscany surrounded by cypress trees and rolling hills with golden evening light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5RlFNYmnXc_otNXnS23vzTgNK6TW4RJUjIVbe3EEi3bKGRo-1bzaxnYqEJWNa3pm3ftY7hdEYXL7wFVQsS2LPJlDaPJDUprCmCNJhZWtvx78r8M82EiStEwxulBpOWySISgI9pbIX05yjIMFknjzqBZJjRxNJMniAirFnL0YvexgWqYngaUejL-GnhZjHxRy5w6L6OGlIKT9EJd1KjK_npb-IAP3E8TcO3WeE8VdZ6xMQjxhgwKWDW6drk4eCDxS5XLNM1JIv6A"/>
+<button class="absolute top-6 right-6 w-10 h-10 rounded-full bg-surface-container-lowest/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-surface-container-lowest hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-primary/80 to-transparent">
+<div class="text-white font-headline text-2xl font-bold">$6,100,000</div>
+</div>
+</div>
+<div class="p-8">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline text-xl font-bold text-primary mb-1">The Monolith Retreat</h3>
+<p class="text-on-surface-variant text-sm font-label flex items-center">
+<span class="material-symbols-outlined text-sm mr-1">location_on</span>
+                                        Toscana, Italia
+                                    </p>
+</div>
+</div>
+<div class="flex items-center space-x-6 pt-6 border-t border-outline-variant/10">
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] mr-2">bed</span>
+<span class="text-xs font-bold font-label uppercase tracking-tighter">5 Dorms</span>
+</div>
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] mr-2">bathtub</span>
+<span class="text-xs font-bold font-label uppercase tracking-tighter">6 Baños</span>
+</div>
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] mr-2">square_foot</span>
+<span class="text-xs font-bold font-label uppercase tracking-tighter">1,050 m²</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Property Card 4 -->
+<div class="group relative bg-surface-container-lowest rounded-2xl overflow-hidden editorial-shadow transition-transform hover:-translate-y-2 duration-500">
+<div class="relative h-80 overflow-hidden">
+<img class="w-full h-full object-cover transition-scale duration-700 group-hover:scale-105" data-alt="sleek modern wood and glass architectural villa on the cliffs of Mallorca overlooking a private turquoise cove" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlsT1TY1elSqUNH0KNo42g3PtIYpwTklbM-yMGn3GI231xpqRFVYXV1F6HnsE_WW4PUOhgQ1k_P8SQ9HhYXMRh6IWeDmhJNZPM0djlv0P0jMg7ug3UUT8rMylG8qz7bNp_49vOtxUKGqLa8MwinN1X2XBh2A_2a_vhgFCo3UEHT7vWjq__3oqnB_KlHSoGvWmngrAf-Qy8AF0SrpCf5Hk98lH83YoCZ4n_jPzx0dYTYqa1tNzuOtqB8205W-eIu7mXVrVdAEX9Dw"/>
+<div class="absolute top-6 left-6 flex space-x-2">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md text-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full">Architectural Digest</span>
+</div>
+<button class="absolute top-6 right-6 w-10 h-10 rounded-full bg-surface-container-lowest/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-surface-container-lowest hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-primary/80 to-transparent">
+<div class="text-white font-headline text-2xl font-bold">$9,800,000</div>
+</div>
+</div>
+<div class="p-8">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline text-xl font-bold text-primary mb-1">Cove Pavilion</h3>
+<p class="text-on-surface-variant text-sm font-label flex items-center">
+<span class="material-symbols-outlined text-sm mr-1">location_on</span>
+                                        Mallorca, España
+                                    </p>
+</div>
+</div>
+<div class="flex items-center space-x-6 pt-6 border-t border-outline-variant/10">
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] mr-2">bed</span>
+<span class="text-xs font-bold font-label uppercase tracking-tighter">7 Dorms</span>
+</div>
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] mr-2">bathtub</span>
+<span class="text-xs font-bold font-label uppercase tracking-tighter">9 Baños</span>
+</div>
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] mr-2">square_foot</span>
+<span class="text-xs font-bold font-label uppercase tracking-tighter">1,450 m²</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-20 flex justify-center">
+<nav class="flex items-center space-x-2">
+<button class="w-12 h-12 flex items-center justify-center rounded-xl bg-surface-container-high text-primary hover:bg-primary hover:text-on-primary transition-all">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-xl bg-primary text-on-primary font-headline font-bold">1</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-xl bg-surface-container-lowest ghost-border text-primary font-headline font-bold hover:bg-surface-container-high transition-all">2</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-xl bg-surface-container-lowest ghost-border text-primary font-headline font-bold hover:bg-surface-container-high transition-all">3</button>
+<span class="px-4 text-on-surface-variant">...</span>
+<button class="w-12 h-12 flex items-center justify-center rounded-xl bg-surface-container-lowest ghost-border text-primary font-headline font-bold hover:bg-surface-container-high transition-all">14</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-xl bg-surface-container-high text-primary hover:bg-primary hover:text-on-primary transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</nav>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 px-8 bg-[#fcf8f9] border-t border-[#c3c8c2]/15">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+<div class="space-y-6">
+<div class="text-lg font-manrope font-bold text-[#07160d]">LUXE CURATOR</div>
+<p class="text-[#07160d]/40 font-inter text-xs uppercase tracking-widest leading-relaxed">
+                    Una mirada editorial a las residencias arquitectónicas más significativas del mundo. 
+                </p>
+</div>
+<div class="space-y-4">
+<h4 class="text-[#07160d] font-inter text-xs uppercase tracking-[0.2em] font-bold">Explorar</h4>
+<div class="flex flex-col space-y-3 font-inter text-xs uppercase tracking-widest text-[#07160d]/40">
+<a class="hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Propiedades</a>
+<a class="hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Nuevos Desarrollos</a>
+<a class="hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Arquitectos</a>
+<a class="hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Regiones</a>
+</div>
+</div>
+<div class="space-y-4">
+<h4 class="text-[#07160d] font-inter text-xs uppercase tracking-[0.2em] font-bold">Consultas</h4>
+<div class="flex flex-col space-y-3 font-inter text-xs uppercase tracking-widest text-[#07160d]/40">
+<a class="hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Revista</a>
+<a class="hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Guía Editorial</a>
+<a class="hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Carreras</a>
+<a class="hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Prensa</a>
+</div>
+</div>
+<div class="space-y-4">
+<h4 class="text-[#07160d] font-inter text-xs uppercase tracking-[0.2em] font-bold">Legal</h4>
+<div class="flex flex-col space-y-3 font-inter text-xs uppercase tracking-widest text-[#07160d]/40">
+<a class="hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Privacidad</a>
+<a class="hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Términos</a>
+<a class="hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Cookies</a>
+</div>
+</div>
+</div>
+<div class="mt-16 pt-8 max-w-7xl mx-auto border-t border-[#c3c8c2]/15 flex flex-col md:flex-row justify-between items-center gap-4">
+<span class="text-[#07160d]/40 font-inter text-[10px] uppercase tracking-widest">© 2024 Luxe Curator. Una Experiencia Inmobiliaria Editorial.</span>
+<div class="flex space-x-6 text-[#07160d]/40">
+<span class="material-symbols-outlined text-lg cursor-pointer hover:text-primary transition-colors">brand_awareness</span>
+<span class="material-symbols-outlined text-lg cursor-pointer hover:text-primary transition-colors">share</span>
+<span class="material-symbols-outlined text-lg cursor-pointer hover:text-primary transition-colors">public</span>
+</div>
+</div>
+</footer>
+</body></html>

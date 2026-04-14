@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-background": "#1b1b1c",
+                    "background": "#fcf8f9",
+                    "surface-bright": "#fcf8f9",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#261900",
+                    "primary-fixed-dim": "#b8cbbc",
+                    "surface-container-high": "#eae7e8",
+                    "outline-variant": "#c3c8c2",
+                    "outline": "#737873",
+                    "surface-tint": "#516256",
+                    "on-surface-variant": "#434844",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-container": "#ad8a45",
+                    "secondary-fixed-dim": "#b9c7e4",
+                    "inverse-surface": "#303031",
+                    "surface-variant": "#e5e2e3",
+                    "on-tertiary-fixed-variant": "#5d4201",
+                    "secondary-container": "#d2e0fe",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#f3f0f1",
+                    "primary": "#07160d",
+                    "on-tertiary": "#ffffff",
+                    "secondary": "#515f78",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#dcd9da",
+                    "on-secondary-fixed-variant": "#39475f",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#e5e2e3",
+                    "tertiary": "#1c1200",
+                    "on-primary-container": "#819386",
+                    "on-secondary-container": "#55637d",
+                    "on-secondary-fixed": "#0d1c32",
+                    "inverse-primary": "#b8cbbc",
+                    "tertiary-container": "#362500",
+                    "surface": "#fcf8f9",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#0f1f15",
+                    "on-primary-fixed-variant": "#3a4b3f",
+                    "surface-container-low": "#f6f3f4",
+                    "primary-fixed": "#d4e7d8",
+                    "surface-container": "#f0edee",
+                    "on-surface": "#1b1b1c",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#e9c176",
+                    "secondary-fixed": "#d6e3ff",
+                    "tertiary-fixed": "#ffdea5",
+                    "primary-container": "#1b2b21"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body antialiased">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#fcf8f9]/80 backdrop-blur-xl no-border bg-[#eae7e8]/30 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.06)]">
+<div class="flex justify-between items-center px-8 h-20 w-full max-w-screen-2xl mx-auto font-manrope tracking-tight font-medium">
+<div class="text-2xl font-bold tracking-tighter text-[#07160d]">LUXE CURATOR</div>
+<div class="hidden md:flex items-center space-x-10">
+<a class="text-[#07160d] border-b-2 border-[#07160d] pb-1 hover:text-[#07160d] transition-colors" href="#">Listados</a>
+<a class="text-[#07160d]/60 hover:text-[#07160d] transition-colors" href="#">Agentes</a>
+<a class="text-[#07160d]/60 hover:text-[#07160d] transition-colors" href="#">Servicios</a>
+<a class="text-[#07160d]/60 hover:text-[#07160d] transition-colors" href="#">Revista</a>
+</div>
+<div class="flex items-center space-x-6">
+<div class="hidden lg:flex items-center bg-surface-container-low px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-outline text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-xs w-48" placeholder="Buscar propiedades exclusivas..." type="text"/>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-semibold hover:scale-95 duration-200 ease-out transition-transform">
+                Iniciar Sesión
+            </button>
+</div>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Immersive Image Gallery -->
+<section class="max-w-screen-2xl mx-auto px-8 pt-8">
+<div class="grid grid-cols-12 gap-4 h-[716px]">
+<div class="col-span-12 lg:col-span-8 relative overflow-hidden rounded-xl">
+<img alt="Fotografía arquitectónica de una villa de concreto y vidrio al atardecer" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDAgcQ1jH-fIHqf_1_ZpyWhB5OgV3FjRjRnpql6lTJVWDtzGO6uOOup5LqkSCn2KKr5FZT69TKFGv9opxa-EtnkAhHAFONQKnnGSxg-kpoXjvTZd2_zb_M0iY4cdZDsbE31W35JVc6NtFBpzRAIJ3fzBoiXjTRbt76CbQqkPo_uMsnGWzj1yfw1KLkJl-CTvkOXdNQwFmLYckq3fv_U2TWQex40VRDPn80Z1xtb0tEJczaLIblLpxrFYmY9rVwD_c7FEWmHPHXIg"/>
+<div class="absolute top-6 left-6 flex space-x-2">
+<span class="bg-surface-container-lowest/90 backdrop-blur px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase">Destacada</span>
+<span class="bg-primary/90 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase">En Venta</span>
+</div>
+</div>
+<div class="hidden lg:grid col-span-4 grid-rows-2 gap-4">
+<div class="relative overflow-hidden rounded-xl">
+<img alt="Interior de una sala de techos altos" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDI0K-3EhAsC26dD0_BayXjOCzeNuH20nxavwc4HLYyK1W8lmuyKoiNzSfyrjyS-T-oTiWd1HAvTSQG4R1JQrUZSjvWhWhLPKIErJI1sx8gjlWrwQumL4CKJ1-SJnVea2epp1jyuZ-pbSSiN09GVnDH2NouRR0pr7_1cvzrxCLdkp33_zUYVry2zh716dnQRPQansaLiUNHVZxz8kvq-qEq35qC1ciJztFsnuiUcECmtlHSgSDt4b9Fgu9NaPipKH8mp-uWLNphw"/>
+</div>
+<div class="relative overflow-hidden rounded-xl">
+<img alt="Dormitorio principal de lujo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPwVzgXPJm0swtY64CQbdnTef3BTgOiLpJyMC05lfsZ3vahhPB3JlrNwGPyzKnqC4edrrCpfXf0gRe1MltU-8HvUvqm9U62TxGf-TMbEaq4MuXzJyzMo0ql2RbO4ma5EOI1My4_3oXEEbpcsuJMScmmgFOOonN8dZHI-fiOJ0rWkRBY1c4Z8TYUTMAOkYdFP7L3FNk8qMiO4iJyOxj_PHaGnpiGspDEtM2oLtCXNIPPp8HPKPQjDZNpujgpXVREeeTMApubcs4lg"/>
+<div class="absolute inset-0 bg-primary/40 flex items-center justify-center cursor-pointer group">
+<span class="text-white font-manrope font-bold text-lg group-hover:scale-110 transition-transform">+12 Fotos</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Content Shell -->
+<section class="max-w-screen-2xl mx-auto px-8 py-16 grid grid-cols-1 lg:grid-cols-12 gap-16">
+<!-- Left Column: Primary Info -->
+<div class="lg:col-span-8 space-y-12">
+<!-- Header Info -->
+<div class="space-y-4">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="space-y-2">
+<h1 class="text-5xl font-headline font-extrabold tracking-tighter text-primary">El Monolito de Obsidiana</h1>
+<p class="text-xl text-on-surface-variant font-light">4220 Azure Canyon Road, Sedona, AZ 86336</p>
+</div>
+<div class="text-right">
+<p class="text-4xl font-headline font-bold text-primary">$12,450,000</p>
+<p class="text-on-surface-variant text-sm font-medium uppercase tracking-widest">Pago est. $62,000/mes</p>
+</div>
+</div>
+<!-- Key Features Bar -->
+<div class="flex flex-wrap gap-8 py-8 border-t border-b border-outline-variant/15">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary text-2xl">square_foot</span>
+<div>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest">Espacio</p>
+<p class="font-bold">8,420 m²</p>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary text-2xl">bed</span>
+<div>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest">Habitaciones</p>
+<p class="font-bold">6 Cuartos</p>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary text-2xl">bathtub</span>
+<div>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest">Baños</p>
+<p class="font-bold">8.5 Unidades</p>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary text-2xl">directions_car</span>
+<div>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest">Garaje</p>
+<p class="font-bold">4 Espacios</p>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary text-2xl">calendar_today</span>
+<div>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest">Año</p>
+<p class="font-bold">2023</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Description -->
+<div class="space-y-6">
+<h2 class="text-2xl font-headline font-bold tracking-tight">La Narrativa Arquitectónica</h2>
+<div class="prose prose-stone max-w-none text-on-surface-variant leading-relaxed space-y-4">
+<p>Diseñado por la firma de renombre mundial Archi-Luxe, el Monolito de Obsidiana es un triunfo del brutalismo moderno integrado a la perfección en el accidentado paisaje de Arizona. Utilizando concreto en bruto, cedro de origen sostenible y amplios paneles de vidrio, la residencia desafía el límite entre el santuario interior y la naturaleza salvaje exterior.</p>
+<p>El área de estar principal cuenta con un atrio de triple altura con una escultural chimenea de piedra caliza que sirve como ancla espiritual de la casa. Las paredes de vidrio automatizadas desaparecen en compartimentos ocultos, transformando la sala de estar en un gran pabellón con vista a los cañones de roca roja.</p>
+</div>
+</div>
+<!-- Detailed Amenities -->
+<div class="space-y-8">
+<h2 class="text-2xl font-headline font-bold tracking-tight">Amenidades Curadas</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-12">
+<div class="flex items-center space-x-3 group">
+<span class="material-symbols-outlined text-primary-container group-hover:scale-110 transition-transform" data-weight="fill">pool</span>
+<span class="text-on-surface font-medium">Alberca Infinita</span>
+</div>
+<div class="flex items-center space-x-3 group">
+<span class="material-symbols-outlined text-primary-container group-hover:scale-110 transition-transform" data-weight="fill">wine_bar</span>
+<span class="text-on-surface font-medium">Cava de 1,200 Botellas</span>
+</div>
+<div class="flex items-center space-x-3 group">
+<span class="material-symbols-outlined text-primary-container group-hover:scale-110 transition-transform" data-weight="fill">fitness_center</span>
+<span class="text-on-surface font-medium">Estudio Technogym</span>
+</div>
+<div class="flex items-center space-x-3 group">
+<span class="material-symbols-outlined text-primary-container group-hover:scale-110 transition-transform" data-weight="fill">theater_comedy</span>
+<span class="text-on-surface font-medium">Cine Dolby Atmos</span>
+</div>
+<div class="flex items-center space-x-3 group">
+<span class="material-symbols-outlined text-primary-container group-hover:scale-110 transition-transform" data-weight="fill">spa</span>
+<span class="text-on-surface font-medium">Spa Zen y Sauna</span>
+</div>
+<div class="flex items-center space-x-3 group">
+<span class="material-symbols-outlined text-primary-container group-hover:scale-110 transition-transform" data-weight="fill">solar_power</span>
+<span class="text-on-surface font-medium">Red Solar Tesla</span>
+</div>
+</div>
+</div>
+<!-- Map View -->
+<div class="space-y-6">
+<div class="flex justify-between items-end">
+<h2 class="text-2xl font-headline font-bold tracking-tight">Ubicación Detallada</h2>
+<p class="text-sm text-on-surface-variant font-medium underline cursor-pointer">Ver Guía del Vecindario</p>
+</div>
+<div class="h-96 w-full rounded-2xl overflow-hidden shadow-inner grayscale contrast-125 brightness-95">
+<img alt="Mapa topográfico minimalista de Sedona" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAddsbvkxJ7_wI0fzf8yHsLGUN-_BIywScP9STSfh4jijgra67JzP7IBtL5V4HylKb29MeowNaIy44jYR02_zhydatLZy-whzgomD0RkPVCBfeP--GjV9ZyveUPzJ_TB28PpXqQqIqPgBJwIlyC3OymJf6GXuCosb2m5r_AvRj20_L63Lc9hDdFEX4W5OPFkB1itFKjXsxW_rJTRWF5fhRAGdJMv6p-lgbYCc2Z8hBagPqGjz-BK3kfDhYtLVdZT7tj8p0YaBSKyA"/>
+</div>
+</div>
+</div>
+<!-- Right Column: Sidebar -->
+<div class="lg:col-span-4">
+<div class="sticky top-32 space-y-8">
+<!-- Agent Card -->
+<div class="bg-surface-container-lowest rounded-2xl p-8 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.06)] border border-outline-variant/10">
+<div class="flex items-center space-x-5 mb-8">
+<div class="w-20 h-20 rounded-full overflow-hidden">
+<img alt="Retrato de Julianne Vane" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAWKy7tLneFMR0LlT23C1lrtSSoH1ysPPV1IqBbklbeY1Ww9il5RI6zMPg0vFDkdeRuv5d5CfYnWYxDrX11KQ9kUYjFOfpOvxkpZ6o87vzwSCNqeoM3xqIBHWL68f34pODSGXCMhz7KKlgiHTmgKgdRhLOpCbKIZ1UH_ZpboRUv9k--XyJ-oDIWWsXLN5O4H2jj0UM3eQP5GLbEcQutMCY4utnm5DSN-RU315v7nP3kDvm9B7q_UF3K7vlKZvHndwVK4DUlsJtYg"/>
+</div>
+<div>
+<h3 class="text-xl font-headline font-bold text-primary">Julianne Vane</h3>
+<p class="text-sm text-on-surface-variant">Socia de Lujo Global</p>
+<div class="flex items-center mt-1 text-on-tertiary-container">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold ml-1">PRODUCTOR TOP 1%</span>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<button class="w-full bg-primary text-on-primary py-4 rounded-xl font-semibold hover:scale-[0.98] transition-transform flex items-center justify-center space-x-3">
+<span class="material-symbols-outlined text-lg">calendar_month</span>
+<span>Agendar Visita Privada</span>
+</button>
+<div class="grid grid-cols-2 gap-4">
+<button class="bg-surface-container-high py-4 rounded-xl font-semibold text-primary hover:bg-surface-container-highest transition-colors flex items-center justify-center space-x-2">
+<span class="material-symbols-outlined text-lg">chat</span>
+<span>Enviar Mensaje</span>
+</button>
+<button class="bg-surface-container-high py-4 rounded-xl font-semibold text-primary hover:bg-surface-container-highest transition-colors flex items-center justify-center space-x-2">
+<span class="material-symbols-outlined text-lg text-green-700">call</span>
+<span>WhatsApp</span>
+</button>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-outline-variant/15 space-y-4">
+<p class="text-xs text-on-surface-variant font-medium uppercase tracking-widest text-center">Estadísticas de Consulta</p>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Vistas esta semana</span>
+<span class="font-bold">1,420</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Visitas agendadas</span>
+<span class="font-bold">3</span>
+</div>
+</div>
+</div>
+<!-- Market Insights -->
+<div class="bg-primary-container text-on-primary p-8 rounded-2xl space-y-4">
+<span class="material-symbols-outlined text-primary-fixed">insights</span>
+<h4 class="text-lg font-headline font-bold">Opinión del Curador</h4>
+<p class="text-sm text-primary-fixed/80 leading-relaxed">"El mercado de lujo de Sedona ha visto una apreciación del 12% en los últimos 18 meses para activos arquitectónicos de este calibre. El Monolito sigue siendo una pieza rara de inventario."</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Related Properties Section -->
+<section class="bg-surface-container-low py-24">
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="flex items-end justify-between mb-12">
+<div class="space-y-2">
+<h2 class="text-3xl font-headline font-extrabold tracking-tighter text-primary">Propiedades Relacionadas</h2>
+<p class="text-on-surface-variant">Propiedades similares en la colección de Arizona</p>
+</div>
+<button class="px-6 py-2 border border-primary/20 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-all">Ver Toda la Colección</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Property Card 1 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[16/10] overflow-hidden rounded-2xl mb-6">
+<img alt="Refugio moderno en el desierto" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOpQk2gxOaxeLWcjLvmCIhxLZwqiUyKianf_Dgf3LpP15WUYxpQqmyq8pL1Gcn26VJjwgseJMNrNDhJfzejX3aoIjAqYY6sqbDzHTwl7LrZ9Oqy2rsNSmMcYvB_yNYLdyYYRfigtTT1N4gXGG8OHJw_hqGW48vd3Qcqkybofwswsq0Dpd0DduedYEJ_T3Mx0tYDBu2raip8oTZ6O1G2NKyeqzot8GyawwfC7phFLtyPWwK8xpq8dbtjGwQ75QbpQdwIjCHYrBQ4Q"/>
+<div class="absolute bottom-4 left-4 bg-surface-container-lowest px-4 py-1.5 rounded-full text-xs font-bold text-primary">
+                            $8,200,000
+                        </div>
+</div>
+<div class="space-y-1">
+<h3 class="text-lg font-headline font-bold group-hover:text-primary transition-colors">Pabellón Sandstone</h3>
+<p class="text-sm text-on-surface-variant">4 Hab • 5 Baños • Paradise Valley, AZ</p>
+</div>
+</div>
+<!-- Property Card 2 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[16/10] overflow-hidden rounded-2xl mb-6">
+<img alt="Finca oasis exuberante" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBG3-qiMFx5ThxzO-kp7PYC1Baa_J_ccdQF53BlhFbY3N05Eiawf5C5Hr9mAdkvOoCWkFb3HXuwGH3eluyTy7IhzZZEb5HiXuHuH7pAR_Q1qooDf5N2Z6Ws4t0g3uoPRiTXhFpC8Tss1FQbL8OhCVS6lgr14BGshR2oZ4HA-J_-MHClPwhvhuPLes6Gug3ScYZma5kBbPcy2piKoMjhmTg42ulA5wuZ-3TwqYUPr_X3ElB2b28KxHjxJRgtRfCRA0M3gmzgQuyFew"/>
+<div class="absolute bottom-4 left-4 bg-surface-container-lowest px-4 py-1.5 rounded-full text-xs font-bold text-primary">
+                            $9,750,000
+                        </div>
+</div>
+<div class="space-y-1">
+<h3 class="text-lg font-headline font-bold group-hover:text-primary transition-colors">Finca Verdant Palms</h3>
+<p class="text-sm text-on-surface-variant">5 Hab • 7 Baños • Scottsdale, AZ</p>
+</div>
+</div>
+<!-- Property Card 3 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[16/10] overflow-hidden rounded-2xl mb-6">
+<img alt="Cabaña de montaña contemporánea" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgqIsbTdp1Zc6DUq9eNkJK5uFcjcsA6_KExKRlrhx2-SJ-n2HTl6hsT4JZlnb-Io2tEZNWOrp9QzXcEjtFqt3sXKq6SMRchC-f36kmiXkjiK7qxPdbAvCbhHowbOpGDypB7CW3GqzRPuOkzTjal3k_8JAdCl0LvdlnKW6wdtGz2PxhEAVJB4MKmkID-mSDyWjmffdrADa58JAp1p8uzViKsVefaid1hW7bcYlzmHKTiqEdJIZnfeyINnHcVpMXpZW75WEMgmy7CQ"/>
+<div class="absolute bottom-4 left-4 bg-surface-container-lowest px-4 py-1.5 rounded-full text-xs font-bold text-primary">
+                            $11,100,000
+                        </div>
+</div>
+<div class="space-y-1">
+<h3 class="text-lg font-headline font-bold group-hover:text-primary transition-colors">Cabaña Copper Peak</h3>
+<p class="text-sm text-on-surface-variant">6 Hab • 6 Baños • Flagstaff, AZ</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 px-8 bg-[#fcf8f9] border-t border-[#c3c8c2]/15">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto font-inter text-xs uppercase tracking-widest text-[#07160d]">
+<div class="space-y-6">
+<div class="text-lg font-manrope font-bold">LUXE CURATOR</div>
+<p class="text-[#07160d]/40 normal-case tracking-normal">El estándar digital para el sector inmobiliario de ultra-lujo, brindando acceso editorial a las residencias más significativas del mundo.</p>
+</div>
+<div class="flex flex-col space-y-4">
+<p class="font-bold text-[#07160d]">Empresa</p>
+<a class="text-[#07160d]/40 hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Privacidad</a>
+<a class="text-[#07160d]/40 hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Términos</a>
+<a class="text-[#07160d]/40 hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Guía Editorial</a>
+</div>
+<div class="flex flex-col space-y-4">
+<p class="font-bold text-[#07160d]">Comunidad</p>
+<a class="text-[#07160d]/40 hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Prensa</a>
+<a class="text-[#07160d]/40 hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Carreras</a>
+<a class="text-[#07160d]/40 hover:text-[#07160d] transition-opacity opacity-80 hover:opacity-100" href="#">Programa de Afiliados</a>
+</div>
+<div class="space-y-6">
+<p class="font-bold text-[#07160d]">Boletín Informativo</p>
+<div class="flex items-center border-b border-outline-variant/30 pb-2">
+<input class="bg-transparent border-none focus:ring-0 text-xs w-full p-0 placeholder:text-[#07160d]/30" placeholder="TU EMAIL" type="email"/>
+<span class="material-symbols-outlined text-sm cursor-pointer">arrow_forward</span>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-outline-variant/10 text-center">
+<p class="text-[#07160d]/40 font-inter text-xs uppercase tracking-widest">© 2024 Luxe Curator. Una Experiencia Inmobiliaria Editorial.</p>
+</div>
+</footer>
+</body></html>
