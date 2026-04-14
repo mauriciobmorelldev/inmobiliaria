@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   type FormEvent,
   type ReactNode,
@@ -80,6 +81,10 @@ export default function AdminShell({
   const [loginError, setLoginError] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
+  const mobileBellRef = useRef<HTMLButtonElement | null>(null);
+  const [mobileNotifPos, setMobileNotifPos] = useState<{ top: number; left: number } | null>(
+    null
+  );
   const [notifications, setNotifications] = useState([
     {
       id: "n1",
@@ -113,6 +118,40 @@ export default function AdminShell({
       window.setTimeout(hydrate, 0);
     }
   }, []);
+
+  useEffect(() => {
+    if (!showMobileNav) {
+      document.body.style.overflow = "";
+      return;
+    }
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showMobileNav]);
+
+  useEffect(() => {
+    if (!showNotifications) {
+      setMobileNotifPos(null);
+      return;
+    }
+    if (typeof window === "undefined") return;
+    const updatePosition = () => {
+      const rect = mobileBellRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const cardWidth = Math.min(288, window.innerWidth - 32);
+      const preferredLeft = rect.right - cardWidth;
+      const left = Math.min(
+        Math.max(16, preferredLeft),
+        window.innerWidth - cardWidth - 16
+      );
+      const top = rect.bottom + 10;
+      setMobileNotifPos({ top, left });
+    };
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    return () => window.removeEventListener("resize", updatePosition);
+  }, [showNotifications]);
 
   const authedAdmin = useMemo(() => {
     if (!session) return null;
@@ -438,6 +477,23 @@ export default function AdminShell({
               ) : null}
             </div>
 
+            <div className="relative sm:hidden">
+              <button
+                type="button"
+                onClick={() => setShowNotifications((prev) => !prev)}
+                ref={mobileBellRef}
+                className="relative flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant/40 text-primary"
+                aria-label="Notificaciones"
+              >
+                <span className="material-symbols-outlined" data-icon="notifications">
+                  notifications
+                </span>
+                {notifications.some((item) => item.unread) ? (
+                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-error" />
+                ) : null}
+              </button>
+            </div>
+
             <div className="hidden sm:flex items-center gap-2 rounded-full border border-outline-variant/30 px-3 py-2">
               <div className="h-8 w-8 overflow-hidden rounded-full bg-surface-container-high flex items-center justify-center text-primary font-semibold">
                 {authedAdmin.name.charAt(0).toUpperCase()}
@@ -475,7 +531,7 @@ export default function AdminShell({
             {primaryAction ? (
               <Link
                 href={primaryAction.href}
-                className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-widest text-on-primary"
+                className="hidden sm:flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-widest text-on-primary"
                 style={{ color: "var(--color-on-primary)" }}
               >
                 {primaryAction.label}
@@ -545,27 +601,52 @@ export default function AdminShell({
           </div>
         </div>
 
-        <div className="lg:hidden px-6 pt-4">
-          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
-            {navItems.map((item) => {
-              const active = item.id === activeSection;
-              return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={
-                    active
-                      ? "shrink-0 rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-widest text-on-primary"
-                      : "shrink-0 rounded-full border border-outline-variant/40 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary"
+        {showNotifications && mobileNotifPos ? (
+          <div className="fixed inset-0 z-50 sm:hidden">
+            <button
+              type="button"
+              className="absolute inset-0 cursor-default"
+              onClick={() => setShowNotifications(false)}
+              aria-label="Cerrar notificaciones"
+            />
+            <div
+              className="absolute w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4 shadow-[0_30px_50px_-30px_rgba(27,27,28,0.4)]"
+              style={{ top: mobileNotifPos.top, left: mobileNotifPos.left }}
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                  Notificaciones
+                </p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setNotifications((prev) =>
+                      prev.map((item) => ({ ...item, unread: false }))
+                    )
                   }
-                  style={active ? { color: "var(--color-on-primary)" } : undefined}
+                  className="text-[10px] font-bold uppercase tracking-widest text-primary"
                 >
-                  {item.label}
-                </Link>
-              );
-            })}
+                  Marcar todo
+                </button>
+              </div>
+              <div className="mt-3 grid gap-2">
+                {notifications.map((item) => (
+                  <div
+                    key={item.id}
+                    className={`rounded-xl border border-outline-variant/20 px-3 py-2 text-xs ${
+                      item.unread ? "bg-surface-container-low" : "bg-transparent"
+                    }`}
+                  >
+                    <p className="text-sm font-semibold text-primary">{item.title}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
+                      {item.subtitle}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        ) : null}
 
         <div className="px-6 lg:px-10 pb-24">{children}</div>
 
