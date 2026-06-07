@@ -77,6 +77,7 @@ export default function ResultsStitch() {
   const [status, setStatus] = useState<PropertyStatusFilter>("all");
   const [minRooms, setMinRooms] = useState("all");
   const [sort, setSort] = useState("featured");
+  const [showFilters, setShowFilters] = useState(false);
   const [attributeFilters, setAttributeFilters] = useState<
     Record<string, string[]>
   >({});
@@ -120,6 +121,203 @@ export default function ResultsStitch() {
     return items;
   }, [attributeFilters, filterGroups, listings, minRooms, query, sort, status, type]);
 
+  const activeFilterCount = [
+    query.trim() ? 1 : 0,
+    type !== "all" ? 1 : 0,
+    status !== "all" ? 1 : 0,
+    minRooms !== "all" ? 1 : 0,
+    ...Object.values(attributeFilters).map((items) => items.length),
+  ].reduce((acc, value) => acc + value, 0);
+
+  const clearFilters = () => {
+    setQuery("");
+    setType("all");
+    setStatus("all");
+    setMinRooms("all");
+    setAttributeFilters({});
+    setSort("featured");
+  };
+
+  const filterContent = (
+    <div className="space-y-8">
+      <div className="lg:hidden">
+        <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
+          Buscar
+        </label>
+        <div className="mt-3 flex items-center rounded-2xl bg-surface-container px-4 py-3 ghost-border">
+          <span className="material-symbols-outlined mr-2 text-on-surface-variant">
+            search
+          </span>
+          <input
+            className="min-w-0 flex-1 border-none bg-transparent text-sm font-label focus:outline-none"
+            placeholder="Barrio o propiedad"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
+          Tipo de Propiedad
+        </label>
+        <div className="space-y-3">
+          {typeFilters.map((filter) => {
+            const isActive = type === filter.id;
+            return (
+              <button
+                key={filter.id}
+                type="button"
+                onClick={() => setType(filter.id)}
+                className="flex w-full items-center rounded-2xl px-2 py-1.5 text-left transition hover:bg-surface-container-low"
+              >
+                <div
+                  className={`mr-3 flex h-5 w-5 items-center justify-center rounded border transition-colors ${
+                    isActive ? "border-primary bg-primary" : "border-outline-variant"
+                  }`}
+                >
+                  <span
+                    className={`material-symbols-outlined text-[14px] ${
+                      isActive ? "text-on-primary" : "hidden text-primary"
+                    }`}
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    check
+                  </span>
+                </div>
+                <span
+                  className={`text-sm font-label transition-colors ${
+                    isActive ? "font-medium text-primary" : "text-on-surface-variant"
+                  }`}
+                >
+                  {filter.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
+          Estado
+        </label>
+        <div className="space-y-3">
+          {statusFilters.map((filter) => {
+            const isActive = status === filter.id;
+            return (
+              <button
+                key={filter.id}
+                type="button"
+                onClick={() => setStatus(filter.id)}
+                className="flex w-full items-center rounded-2xl px-2 py-1.5 text-left transition hover:bg-surface-container-low"
+              >
+                <div
+                  className={`mr-3 flex h-5 w-5 items-center justify-center rounded border transition-colors ${
+                    isActive ? "border-primary bg-primary" : "border-outline-variant"
+                  }`}
+                >
+                  <span
+                    className={`material-symbols-outlined text-[14px] ${
+                      isActive ? "text-on-primary" : "hidden text-primary"
+                    }`}
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    check
+                  </span>
+                </div>
+                <span
+                  className={`text-sm font-label transition-colors ${
+                    isActive ? "font-medium text-primary" : "text-on-surface-variant"
+                  }`}
+                >
+                  {filter.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
+          Dormitorios
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {["all", "1", "2", "3", "4"].map((value) => {
+            const label = value === "all" ? "Todos" : `${value}+`;
+            const active = minRooms === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setMinRooms(value)}
+                className={`rounded-xl px-4 py-2 text-xs font-semibold font-label ${
+                  active
+                    ? "bg-primary text-on-primary"
+                    : "bg-surface-container-highest text-primary"
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {filterGroups.map((group) => (
+        <div key={group.id} className="space-y-4">
+          <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
+            {group.label}
+          </label>
+          <div className="space-y-3">
+            {group.options.map((option) => {
+              const isActive = (attributeFilters[group.id] ?? []).includes(option);
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() =>
+                    setAttributeFilters((prev) =>
+                      toggleAttributeSelection(group, option, prev)
+                    )
+                  }
+                  className="flex w-full items-center rounded-2xl px-2 py-1.5 text-left transition hover:bg-surface-container-low"
+                >
+                  <div
+                    className={`mr-3 flex h-5 w-5 items-center justify-center rounded border transition-colors ${
+                      isActive ? "border-primary bg-primary" : "border-outline-variant"
+                    }`}
+                  >
+                    <span
+                      className={`material-symbols-outlined text-[14px] ${
+                        isActive ? "text-on-primary" : "hidden text-primary"
+                      }`}
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      check
+                    </span>
+                  </div>
+                  <span className="text-sm font-label text-on-surface-variant">
+                    {option}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      <button
+        className="w-full rounded-2xl bg-surface-container-highest py-4 text-sm font-bold text-primary transition-all duration-300 hover:bg-primary hover:text-on-primary"
+        type="button"
+        onClick={clearFilters}
+      >
+        Limpiar Filtros
+      </button>
+    </div>
+  );
+
   return (
     <div
       style={themeStyles}
@@ -132,209 +330,49 @@ export default function ResultsStitch() {
         onSearchChange={setQuery}
       />
 
-      <main className="mx-auto min-h-screen max-w-screen-2xl px-8 pb-20 pt-28">
-        <div className="flex flex-col gap-12 lg:flex-row">
-          <aside className="w-full flex-shrink-0 lg:w-72">
-            <div className="sticky top-28 space-y-10">
-              <div>
-                <h3 className="mb-6 text-lg font-headline font-bold text-primary">
-                  Refinar Selección
-                </h3>
-
-                <div className="mb-8 space-y-4">
-                  <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
-                    Tipo de Propiedad
-                  </label>
-                  <div className="space-y-3">
-                    {typeFilters.map((filter) => {
-                      const isActive = type === filter.id;
-                      return (
-                        <button
-                          key={filter.id}
-                          type="button"
-                          onClick={() => setType(filter.id)}
-                          className="flex w-full items-center text-left"
-                        >
-                          <div
-                            className={`mr-3 flex h-5 w-5 items-center justify-center rounded border transition-colors ${
-                              isActive
-                                ? "border-primary bg-primary"
-                                : "border-outline-variant"
-                            }`}
-                          >
-                            <span
-                              className={`material-symbols-outlined text-[14px] ${
-                                isActive ? "text-on-primary" : "text-primary hidden"
-                              }`}
-                              style={{ fontVariationSettings: "'FILL' 1" }}
-                            >
-                              check
-                            </span>
-                          </div>
-                          <span
-                            className={`text-sm font-label transition-colors ${
-                              isActive ? "text-primary font-medium" : "text-on-surface-variant"
-                            }`}
-                          >
-                            {filter.label}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="mb-8 space-y-4">
-                  <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
-                    Estado
-                  </label>
-                  <div className="space-y-3">
-                    {statusFilters.map((filter) => {
-                      const isActive = status === filter.id;
-                      return (
-                        <button
-                          key={filter.id}
-                          type="button"
-                          onClick={() => setStatus(filter.id)}
-                          className="flex w-full items-center text-left"
-                        >
-                          <div
-                            className={`mr-3 flex h-5 w-5 items-center justify-center rounded border transition-colors ${
-                              isActive
-                                ? "border-primary bg-primary"
-                                : "border-outline-variant"
-                            }`}
-                          >
-                            <span
-                              className={`material-symbols-outlined text-[14px] ${
-                                isActive ? "text-on-primary" : "text-primary hidden"
-                              }`}
-                              style={{ fontVariationSettings: "'FILL' 1" }}
-                            >
-                              check
-                            </span>
-                          </div>
-                          <span
-                            className={`text-sm font-label transition-colors ${
-                              isActive ? "text-primary font-medium" : "text-on-surface-variant"
-                            }`}
-                          >
-                            {filter.label}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="mb-8 space-y-4">
-                  <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
-                    Dormitorios
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {["all", "1", "2", "3", "4"].map((value) => {
-                      const label = value === "all" ? "Todos" : `${value}+`;
-                      const active = minRooms === value;
-                      return (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => setMinRooms(value)}
-                          className={`rounded-lg px-4 py-2 text-xs font-semibold font-label ${
-                            active
-                              ? "bg-primary text-on-primary"
-                              : "bg-surface-container-highest text-primary"
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {filterGroups.map((group) => (
-                  <div key={group.id} className="mb-8 space-y-4">
-                    <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
-                      {group.label}
-                    </label>
-                    <div className="space-y-3">
-                      {group.options.map((option) => {
-                        const isActive = (attributeFilters[group.id] ?? []).includes(option);
-                        return (
-                          <button
-                            key={option}
-                            type="button"
-                            onClick={() =>
-                              setAttributeFilters((prev) =>
-                                toggleAttributeSelection(group, option, prev)
-                              )
-                            }
-                            className="flex w-full items-center text-left"
-                          >
-                            <div
-                              className={`mr-3 flex h-5 w-5 items-center justify-center rounded border transition-colors ${
-                                isActive
-                                  ? "border-primary bg-primary"
-                                  : "border-outline-variant"
-                              }`}
-                            >
-                              <span
-                                className={`material-symbols-outlined text-[14px] ${
-                                  isActive ? "text-on-primary" : "text-primary hidden"
-                                }`}
-                                style={{ fontVariationSettings: "'FILL' 1" }}
-                              >
-                                check
-                              </span>
-                            </div>
-                            <span className="text-sm font-label text-on-surface-variant">
-                              {option}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                className="w-full rounded-xl bg-surface-container-highest py-4 text-sm font-bold text-primary transition-all duration-300 hover:bg-primary hover:text-on-primary"
-                type="button"
-                onClick={() => {
-                  setQuery("");
-                  setType("all");
-                  setStatus("all");
-                  setMinRooms("all");
-                  setAttributeFilters({});
-                  setSort("featured");
-                }}
-              >
-                Limpiar Filtros
-              </button>
+      <main className="mx-auto min-h-screen max-w-screen-2xl px-4 pb-16 pt-24 sm:px-6 lg:px-8 lg:pb-20 lg:pt-28">
+        <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
+          <aside className="hidden w-full flex-shrink-0 lg:block lg:w-72">
+            <div className="sticky top-28 rounded-3xl bg-surface-container-lowest p-5 shadow-[0_30px_60px_-36px_rgba(27,54,93,0.32)]">
+              <h3 className="mb-6 text-lg font-headline font-bold text-primary">
+                Refinar Selección
+              </h3>
+              {filterContent}
             </div>
           </aside>
 
           <div className="flex-1">
-            <div className="mb-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+            <div className="mb-6 flex flex-col justify-between gap-5 sm:mb-10 sm:flex-row sm:items-end">
               <div>
-                <h1 className="text-4xl font-headline font-extrabold tracking-tight text-primary">
+                <h1 className="text-3xl font-headline font-extrabold tracking-tight text-primary sm:text-4xl">
                   Propiedades Disponibles
                 </h1>
                 <p className="mt-2 font-label text-on-surface-variant">
                   Mostrando {filteredListings.length} propiedades en catálogo
                 </p>
               </div>
-              <div className="flex items-center space-x-4">
-                <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+              <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setShowFilters(true)}
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-xs font-bold uppercase tracking-widest text-on-primary lg:hidden"
+                >
+                  <span className="material-symbols-outlined text-base">tune</span>
+                  Filtros
+                  {activeFilterCount ? (
+                    <span className="rounded-full bg-primary-fixed px-2 py-0.5 text-[10px] text-primary">
+                      {activeFilterCount}
+                    </span>
+                  ) : null}
+                </button>
+                <span className="hidden text-xs font-bold uppercase tracking-widest text-on-surface-variant sm:block">
                   Ordenar por:
                 </span>
                 <div className="relative">
                   <select
                     value={sort}
                     onChange={(event) => setSort(event.target.value)}
-                    className="ghost-border cursor-pointer appearance-none rounded-lg bg-surface-container-lowest px-6 py-2.5 pr-12 text-sm font-semibold text-primary focus:border-primary focus:ring-primary"
+                    className="ghost-border w-full cursor-pointer appearance-none rounded-2xl bg-surface-container-lowest px-4 py-3 pr-10 text-sm font-semibold text-primary focus:border-primary focus:ring-primary sm:w-auto sm:px-6 sm:py-2.5 sm:pr-12"
                   >
                     <option value="featured">Selección Curada</option>
                     <option value="price-desc">Precio: Mayor a Menor</option>
@@ -357,16 +395,16 @@ export default function ResultsStitch() {
                 </h3>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-10">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-10">
                 {filteredListings.map((item) => {
                   const cover = getCoverImage(item.images, item.coverIndex);
                   const video = item.videos?.[0];
                   return (
                     <div
                       key={item.id}
-                      className="group relative overflow-hidden rounded-2xl bg-surface-container-lowest editorial-shadow transition-transform duration-500 hover:-translate-y-2"
+                      className="group relative overflow-hidden rounded-3xl bg-surface-container-lowest editorial-shadow transition-transform duration-500 hover:-translate-y-2"
                     >
-                      <div className="relative h-80 overflow-hidden">
+                      <div className="relative h-64 overflow-hidden sm:h-80">
                         {video ? (
                           <video
                             className="h-full w-full object-cover"
@@ -385,19 +423,19 @@ export default function ResultsStitch() {
                         ) : (
                           <div className="h-full w-full bg-gradient-to-br from-primary/20 via-surface-container-low to-secondary/20" />
                         )}
-                        <div className="absolute left-6 top-6 flex gap-2">
+                        <div className="absolute left-4 top-4 flex gap-2 sm:left-6 sm:top-6">
                           <span className="rounded-full bg-surface-container-lowest/90 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
                             {statusLabels[item.status]}
                           </span>
                         </div>
                         <Link
                           href={`/propiedades/${item.id}`}
-                          className="absolute inset-x-6 bottom-6 hidden rounded-lg bg-surface-container-lowest py-3 text-center text-sm font-bold text-primary group-hover:block"
+                          className="absolute inset-x-4 bottom-4 rounded-2xl bg-surface-container-lowest/95 py-3 text-center text-sm font-bold text-primary shadow-[0_20px_40px_-30px_rgba(27,54,93,0.45)] sm:inset-x-6 sm:bottom-6 lg:hidden lg:group-hover:block"
                         >
                           Ver ficha completa
                         </Link>
                       </div>
-                      <div className="space-y-4 p-6">
+                      <div className="space-y-4 p-5 sm:p-6">
                         <div className="flex items-center justify-between text-xs uppercase tracking-widest text-on-surface-variant">
                           <span>{item.neighborhood}</span>
                           <span>{propertyTypeLabels[item.type]}</span>
@@ -408,7 +446,7 @@ export default function ResultsStitch() {
                         <p className="text-sm text-on-surface-variant">
                           {item.rooms} ambientes · {item.area} m²
                         </p>
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <span className="text-lg font-semibold text-primary">
                             {formatPrice(item.price, item.priceUnit)}
                           </span>
@@ -425,6 +463,50 @@ export default function ResultsStitch() {
                 })}
               </div>
             )}
+          </div>
+        </div>
+
+        <div
+          className={`fixed inset-0 z-[60] bg-primary/45 backdrop-blur-md transition-opacity duration-300 lg:hidden ${
+            showFilters ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          }`}
+        >
+          <div className="absolute inset-0" onClick={() => setShowFilters(false)} />
+          <div
+            className={`absolute inset-x-3 bottom-3 max-h-[calc(100dvh-24px)] overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-[0_40px_80px_-28px_rgba(27,54,93,0.55)] transition-all duration-300 ${
+              showFilters ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+            }`}
+          >
+            <div className="flex items-center justify-between border-b border-outline-variant/20 px-5 py-4">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-on-surface-variant">
+                  Catálogo
+                </p>
+                <h2 className="text-xl font-headline font-bold text-primary">
+                  Filtros
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFilters(false)}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-low text-primary"
+                aria-label="Cerrar filtros"
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+            <div className="max-h-[calc(100dvh-170px)] overflow-y-auto px-5 py-5">
+              {filterContent}
+            </div>
+            <div className="border-t border-outline-variant/20 p-4">
+              <button
+                type="button"
+                onClick={() => setShowFilters(false)}
+                className="w-full rounded-2xl bg-primary py-4 text-sm font-bold uppercase tracking-widest text-on-primary"
+              >
+                Ver {filteredListings.length} resultados
+              </button>
+            </div>
           </div>
         </div>
       </main>

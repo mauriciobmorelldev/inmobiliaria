@@ -73,12 +73,12 @@ export default function FrontHeader({
       style={themeStyles}
       className="fixed top-0 z-50 w-full bg-background/80 backdrop-blur-xl shadow-[0_40px_60px_-15px_rgba(27,27,28,0.06)]"
     >
-      <div className="mx-auto flex h-16 sm:h-20 w-full max-w-screen-2xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3">
+      <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between gap-3 px-4 sm:h-20 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
             onClick={() => setShowMobileMenu(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant/30 text-primary md:hidden"
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-surface-container-low text-primary shadow-[0_16px_35px_-25px_rgba(27,54,93,0.55)] md:hidden"
             aria-label="Abrir menú"
           >
             <span className="material-symbols-outlined" data-icon="menu">
@@ -87,7 +87,7 @@ export default function FrontHeader({
           </button>
           <Link
             href="/"
-            className="flex items-center gap-3"
+            className="flex min-w-0 items-center gap-3"
           >
             {theme.logo ? (
               <img
@@ -136,7 +136,7 @@ export default function FrontHeader({
           </Link>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 justify-end">
+        <div className="flex min-w-0 items-center justify-end gap-2 sm:gap-3">
           {showSearch ? (
             <div className="hidden items-center rounded-full bg-surface-container px-4 py-2 ghost-border lg:flex">
               <span className="material-symbols-outlined mr-2 text-on-surface-variant">
@@ -193,7 +193,7 @@ export default function FrontHeader({
               </Link>
               <Link
                 href="/acceso"
-                className="rounded-lg bg-primary px-5 py-2.5 text-xs font-semibold uppercase tracking-widest text-on-primary"
+                className="hidden rounded-lg bg-primary px-5 py-2.5 text-xs font-semibold uppercase tracking-widest text-on-primary sm:inline-flex"
                 style={{ color: "var(--color-on-primary)" }}
                 suppressHydrationWarning
               >
@@ -205,16 +205,16 @@ export default function FrontHeader({
       </div>
 
       <div
-        className={`fixed inset-0 z-50 bg-background/80 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+        className={`fixed inset-0 z-50 bg-primary/45 backdrop-blur-md transition-opacity duration-300 md:hidden ${
           showMobileMenu ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
         <div className="absolute inset-0" onClick={() => setShowMobileMenu(false)} />
         <div
-          className={`absolute left-0 top-0 h-full w-72 bg-surface-container-lowest p-6 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.3)] transition-all duration-300 ${
+          className={`absolute left-3 right-3 top-3 max-h-[calc(100dvh-24px)] overflow-y-auto rounded-[2rem] bg-surface-container-lowest p-5 shadow-[0_40px_80px_-28px_rgba(27,54,93,0.55)] transition-all duration-300 ${
             showMobileMenu
-              ? "translate-x-0 opacity-100"
-              : "-translate-x-full opacity-0"
+              ? "translate-y-0 opacity-100"
+              : "-translate-y-5 opacity-0"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -232,37 +232,38 @@ export default function FrontHeader({
             <button
               type="button"
               onClick={() => setShowMobileMenu(false)}
-              className="rounded-full border border-outline-variant/30 px-2 py-1 text-xs font-semibold text-primary"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-low text-primary"
+              aria-label="Cerrar menú"
             >
-              Cerrar
+              <span className="material-symbols-outlined text-lg">close</span>
             </button>
           </div>
-          <div className="mt-6 grid gap-2 rounded-2xl bg-surface-container-low p-4 text-sm font-semibold text-primary">
+          <div className="mt-5 grid gap-2 rounded-3xl bg-surface-container-low p-3 text-sm font-semibold text-primary">
             <Link
               href="/"
               onClick={() => setShowMobileMenu(false)}
-              className="rounded-xl px-3 py-2 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
+              className="rounded-2xl px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
             >
               Inicio
             </Link>
             <Link
               href="/propiedades"
               onClick={() => setShowMobileMenu(false)}
-              className="rounded-xl px-3 py-2 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
+              className="rounded-2xl px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
             >
               Propiedades
             </Link>
             <Link
               href="/equipo"
               onClick={() => setShowMobileMenu(false)}
-              className="rounded-xl px-3 py-2 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
+              className="rounded-2xl px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
             >
               Equipo
             </Link>
             <Link
               href="/barrios"
               onClick={() => setShowMobileMenu(false)}
-              className="rounded-xl px-3 py-2 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
+              className="rounded-2xl px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
             >
               Barrios
             </Link>
@@ -271,14 +272,14 @@ export default function FrontHeader({
                 <Link
                   href="/mi-cuenta"
                   onClick={() => setShowMobileMenu(false)}
-                  className="rounded-xl px-3 py-2 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
+                  className="rounded-2xl px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
                 >
                   Mi cuenta
                 </Link>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="text-left rounded-xl px-3 py-2 text-sm font-semibold text-primary transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
+                  className="rounded-2xl px-4 py-3 text-left text-sm font-semibold text-primary transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
                 >
                   Cerrar sesión
                 </button>
@@ -288,14 +289,14 @@ export default function FrontHeader({
                 <Link
                   href="/registro"
                   onClick={() => setShowMobileMenu(false)}
-                  className="rounded-xl px-3 py-2 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
+                  className="rounded-2xl px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
                 >
                   Crear cuenta
                 </Link>
                 <Link
                   href="/acceso"
                   onClick={() => setShowMobileMenu(false)}
-                  className="rounded-xl px-3 py-2 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
+                  className="rounded-2xl bg-primary px-4 py-3 text-on-primary transition-all hover:-translate-y-0.5"
                 >
                   Acceso clientes
                 </Link>

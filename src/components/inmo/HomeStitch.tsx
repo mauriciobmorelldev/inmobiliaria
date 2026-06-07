@@ -168,7 +168,7 @@ export default function HomeStitch() {
           initial="hidden"
           animate="visible"
           variants={staggerGroup}
-          className="relative flex min-h-[520px] sm:min-h-[760px] w-full items-center overflow-hidden bg-primary py-10 sm:py-16"
+          className="relative flex min-h-[calc(100svh-4rem)] w-full items-center overflow-hidden bg-primary py-8 sm:min-h-[760px] sm:py-16"
         >
           <div className="absolute inset-0 z-0">
             <motion.img
@@ -180,26 +180,26 @@ export default function HomeStitch() {
             <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/72 to-primary/12" />
             <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent" />
           </div>
-          <div className="relative z-10 mx-auto w-full max-w-screen-2xl px-8">
+          <div className="relative z-10 mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
             <motion.div
               variants={staggerGroup}
-              className="connexa-mark mb-8 flex max-w-3xl items-end overflow-hidden text-on-primary"
+              className="connexa-mark mb-6 flex max-w-3xl items-end overflow-hidden text-on-primary sm:mb-8"
             >
               <motion.span
                 variants={brandNameMotion}
-                className="font-headline text-4xl font-extrabold uppercase tracking-normal md:text-7xl"
+                className="font-headline text-3xl font-extrabold uppercase tracking-normal sm:text-4xl md:text-7xl"
               >
                 Conne
               </motion.span>
               <motion.span
                 variants={brandXMotion}
-                className="font-headline text-5xl font-extrabold uppercase text-primary-fixed md:text-8xl"
+                className="font-headline text-4xl font-extrabold uppercase text-primary-fixed sm:text-5xl md:text-8xl"
               >
                 x
               </motion.span>
               <motion.span
                 variants={brandNameMotion}
-                className="font-headline text-4xl font-extrabold uppercase tracking-normal md:text-7xl"
+                className="font-headline text-3xl font-extrabold uppercase tracking-normal sm:text-4xl md:text-7xl"
               >
                 a
               </motion.span>
@@ -213,24 +213,24 @@ export default function HomeStitch() {
               </motion.span>
               <motion.h1
                 variants={sectionReveal}
-                className="mb-6 text-5xl font-headline font-extrabold leading-[0.92] tracking-tighter text-on-primary md:text-8xl"
+                className="mb-5 text-4xl font-headline font-extrabold leading-[0.95] tracking-tighter text-on-primary sm:text-5xl md:text-8xl"
               >
                 {homeContent.title} <br />
                 <span className="font-light italic text-primary-fixed">{homeContent.italicTitle}</span>
               </motion.h1>
               <motion.p
                 variants={sectionReveal}
-                className="max-w-2xl text-base leading-8 text-on-primary/90 md:text-lg"
+                className="max-w-2xl text-sm leading-7 text-on-primary/90 sm:text-base md:text-lg"
               >
                 {clientName
                   ? `Bienvenido, ${clientName}. Accedé a tus favoritos y consultas desde tu cuenta privada.`
                   : homeContent.subtitle}
               </motion.p>
-              <motion.div variants={sectionReveal} className="mt-8 flex flex-wrap gap-3">
+              <motion.div variants={sectionReveal} className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
                 <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Link
                   href={homeContent.primaryCtaHref || "/propiedades"}
-                    className="inline-flex items-center gap-2 rounded-full bg-primary-fixed px-6 py-3 text-sm font-bold text-primary shadow-[0_24px_45px_-28px_rgba(255,243,194,0.85)]"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary-fixed px-6 py-3 text-sm font-bold text-primary shadow-[0_24px_45px_-28px_rgba(255,243,194,0.85)] sm:w-auto"
                   >
                     {homeContent.primaryCtaLabel}
                     <span className="material-symbols-outlined text-lg">arrow_forward</span>
@@ -239,7 +239,7 @@ export default function HomeStitch() {
                 <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Link
                   href={homeContent.secondaryCtaHref || "/acceso"}
-                    className="inline-flex items-center gap-2 rounded-full bg-white/12 px-6 py-3 text-sm font-bold text-on-primary ghost-border backdrop-blur"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white/12 px-6 py-3 text-sm font-bold text-on-primary ghost-border backdrop-blur sm:w-auto"
                   >
                     {homeContent.secondaryCtaLabel}
                   </Link>
@@ -249,7 +249,7 @@ export default function HomeStitch() {
 
             <motion.div
               variants={sectionReveal}
-              className="mt-12 grid max-w-5xl gap-3 rounded-3xl bg-surface-container-lowest/95 p-3 shadow-[0_40px_70px_-24px_rgba(27,54,93,0.5)] backdrop-blur md:grid-cols-[1.2fr_1fr_1fr_auto]"
+              className="mt-8 grid max-w-5xl gap-3 rounded-3xl bg-surface-container-lowest/95 p-3 shadow-[0_40px_70px_-24px_rgba(27,54,93,0.5)] backdrop-blur sm:mt-12 md:grid-cols-[1.2fr_1fr_1fr_auto]"
             >
               <div className="rounded-xl bg-surface-container-low p-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
@@ -285,7 +285,7 @@ export default function HomeStitch() {
         </motion.section>
 
         {activeBanners.length ? (
-          <section className="mx-auto -mt-12 max-w-screen-2xl px-8 pb-8">
+          <section className="mx-auto max-w-screen-2xl px-4 pb-8 pt-5 sm:-mt-12 sm:px-6 sm:pt-0 lg:px-8">
             <div className="grid gap-4 md:grid-cols-2">
               {activeBanners.slice(0, 2).map((banner, index) => (
                 <motion.div
@@ -333,7 +333,7 @@ export default function HomeStitch() {
           </section>
         ) : null}
 
-        <section className="mx-auto max-w-screen-2xl px-8 py-20">
+        <section className="mx-auto max-w-screen-2xl px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <motion.div
               variants={sectionReveal}
@@ -385,10 +385,10 @@ export default function HomeStitch() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-screen-2xl px-8 pb-24">
-          <div className="mb-14 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+        <section className="mx-auto max-w-screen-2xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
+          <div className="mb-8 flex flex-col items-start justify-between gap-5 sm:mb-14 md:flex-row md:items-end">
             <div>
-              <h2 className="text-4xl font-headline font-bold tracking-tighter text-primary">
+              <h2 className="text-3xl font-headline font-bold tracking-tighter text-primary sm:text-4xl">
                 {homeContent.featuredTitle}
               </h2>
               <p className="mt-2 max-w-2xl text-on-surface-variant">
@@ -419,7 +419,7 @@ export default function HomeStitch() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
               {featuredListings.slice(0, 6).map((item) => {
                 const cover = getCoverImage(item.images, item.coverIndex);
                 const video = item.videos?.[0];
@@ -524,13 +524,13 @@ export default function HomeStitch() {
           )}
         </section>
 
-        <section id="equipo" className="mx-auto max-w-screen-2xl px-8 pb-24">
+        <section id="equipo" className="mx-auto max-w-screen-2xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
           <motion.div
             variants={sectionReveal}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.22 }}
-            className="rounded-3xl bg-surface-container-lowest p-8 pro-card"
+            className="rounded-3xl bg-surface-container-lowest p-5 pro-card sm:p-8"
           >
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -582,13 +582,13 @@ export default function HomeStitch() {
           </motion.div>
         </section>
 
-        <section id="insights" className="mx-auto max-w-screen-2xl px-8 pb-24">
+        <section id="insights" className="mx-auto max-w-screen-2xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
           <motion.div
             variants={sectionReveal}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.22 }}
-            className="rounded-3xl bg-surface-container-lowest p-8 pro-card"
+            className="rounded-3xl bg-surface-container-lowest p-5 pro-card sm:p-8"
           >
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
