@@ -200,7 +200,7 @@ export const getEmptyAdminForm = (): AdminUserFormState => ({
   name: "",
   email: "",
   password: "",
-  role: "editor",
+  role: "colaborador",
   active: true,
 });
 

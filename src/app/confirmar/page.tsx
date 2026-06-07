@@ -20,14 +20,22 @@ export default function ConfirmarEmailPage() {
   }, []);
 
   useEffect(() => {
+    const defer = (fn: () => void) => {
+      if (typeof queueMicrotask === "function") {
+        queueMicrotask(fn);
+      } else {
+        window.setTimeout(fn, 0);
+      }
+    };
+
     if (!token) {
-      setStatus("error");
+      defer(() => setStatus("error"));
       return;
     }
 
     const target = clientUsers.find((client) => client.verificationToken === token);
     if (!target) {
-      setStatus("error");
+      defer(() => setStatus("error"));
       return;
     }
 
@@ -46,7 +54,7 @@ export default function ConfirmarEmailPage() {
       issuedAt: new Date().toISOString(),
     });
 
-    setStatus("ok");
+    defer(() => setStatus("ok"));
   }, [clientUsers, token, updateState]);
 
   return (

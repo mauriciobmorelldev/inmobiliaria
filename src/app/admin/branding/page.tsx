@@ -1,23 +1,32 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import AdminShell from "@/components/inmo/admin/AdminShell";
-import { readFileAsDataUrl, validateBrandingForm } from "@/lib/adminForms";
-import type { ThemeSettings } from "@/lib/inmoData";
+import { createId, readFileAsDataUrl, validateBrandingForm } from "@/lib/adminForms";
+import type { HomeContent, ThemeSettings } from "@/lib/inmoData";
 import { useInmoStore } from "@/lib/inmoStore";
 import { buildThemeStyles } from "@/lib/theme";
 
 export default function AdminBrandingPage() {
   const { state, updateState } = useInmoStore();
-  const { theme, listings } = state;
+  const { theme, homeContent, listings } = state;
 
   const [themeForm, setThemeForm] = useState<ThemeSettings>(theme);
+  const [homeForm, setHomeForm] = useState<HomeContent>(homeContent);
+  const [activeTab, setActiveTab] = useState<"identity" | "hero" | "sections" | "banners">(
+    "identity"
+  );
   const [formError, setFormError] = useState("");
   const [formNotice, setFormNotice] = useState("");
 
   useEffect(() => {
     setThemeForm(theme);
   }, [theme]);
+
+  useEffect(() => {
+    setHomeForm(homeContent);
+  }, [homeContent]);
 
   const previewStyles = useMemo(() => buildThemeStyles(themeForm), [themeForm]);
 
@@ -41,6 +50,10 @@ export default function AdminBrandingPage() {
         name: themeForm.name.trim() || prev.theme.name,
         primary: themeForm.primary.trim(),
         secondary: themeForm.secondary.trim(),
+        accent: themeForm.accent?.trim(),
+        dark: themeForm.dark?.trim(),
+        neutral: themeForm.neutral?.trim(),
+        surface: themeForm.surface?.trim(),
         logo: themeForm.logo,
         heroImage: themeForm.heroImage,
       },
@@ -60,9 +73,126 @@ export default function AdminBrandingPage() {
     setThemeForm((prev) => ({ ...prev, heroImage: url }));
   };
 
+  const handleHomeSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    setFormError("");
+    setFormNotice("");
+    updateState((prev) => ({
+      ...prev,
+      homeContent: {
+        ...homeForm,
+        banners: homeForm.banners.map((banner) => ({
+          ...banner,
+          title: banner.title.trim(),
+          subtitle: banner.subtitle.trim(),
+          ctaLabel: banner.ctaLabel.trim(),
+          ctaHref: banner.ctaHref.trim() || "/propiedades",
+        })),
+      },
+    }));
+    setFormNotice("Home editable actualizada.");
+  };
+
+  const updateHomeField = <K extends keyof HomeContent>(
+    key: K,
+    value: HomeContent[K]
+  ) => {
+    setHomeForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const updateBanner = (
+    bannerId: string,
+    key: keyof HomeContent["banners"][number],
+    value: string | boolean
+  ) => {
+    setHomeForm((prev) => ({
+      ...prev,
+      banners: prev.banners.map((banner) =>
+        banner.id === bannerId ? { ...banner, [key]: value } : banner
+      ),
+    }));
+  };
+
+  const handleBannerUpload = async (bannerId: string, files: FileList | null) => {
+    if (!files?.length) return;
+    const url = await readFileAsDataUrl(files[0]);
+    updateBanner(bannerId, "image", url);
+  };
+
+  const addBanner = () => {
+    setHomeForm((prev) => ({
+      ...prev,
+      banners: [
+        ...prev.banners,
+        {
+          id: createId(),
+          title: "Nuevo banner",
+          subtitle: "Mensaje destacado para la home.",
+          image: "",
+          ctaLabel: "Ver más",
+          ctaHref: "/propiedades",
+          active: true,
+        },
+      ],
+    }));
+  };
+
+  const removeBanner = (bannerId: string) => {
+    setHomeForm((prev) => ({
+      ...prev,
+      banners: prev.banners.filter((banner) => banner.id !== bannerId),
+    }));
+  };
+
   return (
-    <AdminShell activeSection="branding" title="Branding y Apariencia">
-      <section className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+    <AdminShell activeSection="branding" title="Branding y Home">
+      <LayoutGroup>
+      <motion.div
+        layout
+        className="mt-8 flex flex-wrap gap-2 rounded-3xl bg-surface-container-low p-2"
+      >
+        {[
+          ["identity", "Identidad", "palette"],
+          ["hero", "Hero", "view_carousel"],
+          ["sections", "Secciones", "dashboard_customize"],
+          ["banners", "Banners", "panorama"],
+        ].map(([id, label, icon]) => (
+          <motion.button
+            key={id}
+            layout
+            type="button"
+            onClick={() => setActiveTab(id as typeof activeTab)}
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className={`relative flex items-center gap-2 rounded-2xl px-4 py-3 text-xs font-bold uppercase tracking-widest transition ${
+              activeTab === id
+                ? "text-on-primary"
+                : "text-primary hover:bg-surface-container-lowest"
+            }`}
+          >
+            {activeTab === id ? (
+              <motion.span
+                layoutId="branding-active-tab"
+                className="absolute inset-0 rounded-2xl bg-primary shadow-[0_20px_45px_-30px_rgba(27,54,93,0.8)]"
+                transition={{ type: "spring", stiffness: 420, damping: 34 }}
+              />
+            ) : null}
+            <span className="material-symbols-outlined relative z-10 text-base">{icon}</span>
+            <span className="relative z-10">{label}</span>
+          </motion.button>
+        ))}
+      </motion.div>
+
+      <AnimatePresence mode="wait">
+      {activeTab === "identity" ? (
+      <motion.section
+        key="identity"
+        initial={{ opacity: 0, y: 18, scale: 0.985, filter: "blur(8px)" }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+        exit={{ opacity: 0, y: -12, scale: 0.99, filter: "blur(8px)" }}
+        transition={{ type: "spring", stiffness: 180, damping: 24 }}
+        className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_0.9fr]"
+      >
         <div className="rounded-3xl bg-surface-container-lowest p-8 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)]">
           <h3 className="text-xl font-headline font-bold text-primary">Identidad del emprendimiento</h3>
           <p className="mt-2 text-xs text-on-surface-variant">
@@ -112,6 +242,32 @@ export default function AdminBrandingPage() {
                   }
                 />
               </label>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                ["accent", "Crema principal"],
+                ["neutral", "Dorado secundario"],
+                ["dark", "Texto oscuro"],
+                ["surface", "Superficie"],
+              ].map(([key, label]) => (
+                <label
+                  key={key}
+                  className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant"
+                >
+                  {label}
+                  <input
+                    className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                    value={String(themeForm[key as keyof ThemeSettings] ?? "")}
+                    onChange={(event) =>
+                      setThemeForm((prev) => ({
+                        ...prev,
+                        [key]: event.target.value,
+                      }))
+                    }
+                  />
+                </label>
+              ))}
             </div>
 
             <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
@@ -208,7 +364,241 @@ export default function AdminBrandingPage() {
             <p className="mt-2 text-2xl font-bold text-primary">{listings.length}</p>
           </div>
         </div>
-      </section>
+      </motion.section>
+      ) : null}
+
+      {activeTab !== "identity" ? (
+      <motion.section
+        key={activeTab}
+        initial={{ opacity: 0, y: 18, scale: 0.985, filter: "blur(8px)" }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+        exit={{ opacity: 0, y: -12, scale: 0.99, filter: "blur(8px)" }}
+        transition={{ type: "spring", stiffness: 180, damping: 24 }}
+        className="mt-6 rounded-3xl bg-surface-container-lowest p-8 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)]"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h3 className="text-xl font-headline font-bold text-primary">
+              {activeTab === "hero"
+                ? "Hero de la home"
+                : activeTab === "sections"
+                  ? "Textos de secciones"
+                  : "Banners de la home"}
+            </h3>
+            <p className="mt-2 max-w-2xl text-xs text-on-surface-variant">
+              {activeTab === "hero"
+                ? "Editá el primer impacto: claim, texto principal y botones."
+                : activeTab === "sections"
+                  ? "Ajustá los títulos y bajadas de los bloques principales de la home."
+                  : "Creá campañas visuales con imagen, CTA y estado activo/inactivo."}
+            </p>
+          </div>
+          {activeTab === "banners" ? (
+            <button
+              type="button"
+              onClick={addBanner}
+              className="rounded-full bg-primary-fixed px-5 py-3 text-xs font-bold uppercase tracking-widest text-primary"
+            >
+              Agregar banner
+            </button>
+          ) : null}
+        </div>
+
+        <form className="mt-6 grid gap-6" onSubmit={handleHomeSubmit}>
+          {activeTab === "hero" ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+              Eyebrow
+              <input
+                className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface focus:border-primary focus:outline-none"
+                value={homeForm.eyebrow}
+                onChange={(event) => updateHomeField("eyebrow", event.target.value)}
+              />
+            </label>
+            <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+              Título principal
+              <input
+                className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface focus:border-primary focus:outline-none"
+                value={homeForm.title}
+                onChange={(event) => updateHomeField("title", event.target.value)}
+              />
+            </label>
+            <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+              Título destacado
+              <input
+                className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface focus:border-primary focus:outline-none"
+                value={homeForm.italicTitle}
+                onChange={(event) => updateHomeField("italicTitle", event.target.value)}
+              />
+            </label>
+            <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+              Texto hero
+              <textarea
+                className="min-h-28 rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface focus:border-primary focus:outline-none"
+                value={homeForm.subtitle}
+                onChange={(event) => updateHomeField("subtitle", event.target.value)}
+              />
+            </label>
+          </div>
+          ) : null}
+
+          {activeTab === "hero" ? (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              ["primaryCtaLabel", "CTA principal"],
+              ["primaryCtaHref", "Link principal"],
+              ["secondaryCtaLabel", "CTA secundario"],
+              ["secondaryCtaHref", "Link secundario"],
+            ].map(([key, label]) => (
+              <label
+                key={key}
+                className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant"
+              >
+                {label}
+                <input
+                  className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface focus:border-primary focus:outline-none"
+                  value={String(homeForm[key as keyof HomeContent] ?? "")}
+                  onChange={(event) =>
+                    updateHomeField(
+                      key as keyof HomeContent,
+                      event.target.value as HomeContent[keyof HomeContent]
+                    )
+                  }
+                />
+              </label>
+            ))}
+          </div>
+          ) : null}
+
+          {activeTab === "sections" ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            {[
+              ["featuredTitle", "Título propiedades"],
+              ["featuredSubtitle", "Texto propiedades"],
+              ["teamTitle", "Título equipo/barrios"],
+              ["teamSubtitle", "Texto equipo/barrios"],
+              ["recentTitle", "Título recientes"],
+              ["recentSubtitle", "Texto recientes"],
+            ].map(([key, label]) => (
+              <label
+                key={key}
+                className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant"
+              >
+                {label}
+                <input
+                  className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface focus:border-primary focus:outline-none"
+                  value={String(homeForm[key as keyof HomeContent] ?? "")}
+                  onChange={(event) =>
+                    updateHomeField(
+                      key as keyof HomeContent,
+                      event.target.value as HomeContent[keyof HomeContent]
+                    )
+                  }
+                />
+              </label>
+            ))}
+          </div>
+          ) : null}
+
+          {activeTab === "banners" ? (
+          <div className="grid gap-4">
+            {homeForm.banners.map((banner, index) => (
+              <motion.div
+                key={banner.id}
+                layout
+                initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -12, scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 170, damping: 22, delay: index * 0.03 }}
+                className="grid gap-4 rounded-3xl bg-surface-container-low p-5 lg:grid-cols-[180px_1fr_auto]"
+              >
+                <div className="overflow-hidden rounded-2xl bg-surface-container-high">
+                  {banner.image ? (
+                    <img src={banner.image} alt={banner.title} className="h-40 w-full object-cover" />
+                  ) : (
+                    <div className="brand-gradient flex h-40 items-center justify-center text-xs font-bold uppercase tracking-widest text-on-primary">
+                      Banner {index + 1}
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid gap-3 md:grid-cols-2">
+                  <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+                    Título banner
+                    <input
+                      className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface focus:border-primary focus:outline-none"
+                      value={banner.title}
+                      onChange={(event) => updateBanner(banner.id, "title", event.target.value)}
+                    />
+                  </label>
+                  <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+                    Link
+                    <input
+                      className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface focus:border-primary focus:outline-none"
+                      value={banner.ctaHref}
+                      onChange={(event) => updateBanner(banner.id, "ctaHref", event.target.value)}
+                    />
+                  </label>
+                  <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant md:col-span-2">
+                    Texto banner
+                    <textarea
+                      className="min-h-24 rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface focus:border-primary focus:outline-none"
+                      value={banner.subtitle}
+                      onChange={(event) => updateBanner(banner.id, "subtitle", event.target.value)}
+                    />
+                  </label>
+                  <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+                    CTA
+                    <input
+                      className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface focus:border-primary focus:outline-none"
+                      value={banner.ctaLabel}
+                      onChange={(event) => updateBanner(banner.id, "ctaLabel", event.target.value)}
+                    />
+                  </label>
+                  <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+                    Imagen banner
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => handleBannerUpload(banner.id, event.target.files)}
+                      className="text-sm"
+                    />
+                  </label>
+                </div>
+
+                <div className="flex flex-row items-center gap-3 lg:flex-col lg:items-end">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-primary">
+                    <input
+                      type="checkbox"
+                      checked={banner.active}
+                      onChange={(event) => updateBanner(banner.id, "active", event.target.checked)}
+                    />
+                    Activo
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => removeBanner(banner.id)}
+                    className="rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest text-error"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          ) : null}
+
+          <button
+            type="submit"
+            className="w-fit rounded-full bg-primary px-6 py-3 text-xs font-semibold uppercase tracking-widest text-on-primary"
+          >
+            Guardar home
+          </button>
+        </form>
+      </motion.section>
+      ) : null}
+      </AnimatePresence>
+      </LayoutGroup>
     </AdminShell>
   );
 }

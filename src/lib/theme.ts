@@ -2,25 +2,33 @@ import type { CSSProperties } from "react";
 import type { ThemeSettings } from "./inmoData";
 
 const fallbackTheme = {
-  primary: "#07160d",
-  secondary: "#515f78",
+  primary: "#1b365d",
+  secondary: "#2f5da1",
+  accent: "#fff3c2",
+  dark: "#2e2e2e",
+  neutral: "#e6c88f",
+  surface: "#ffffff",
 };
 
 const designTokens = {
-  primary: "#07160d",
-  secondary: "#515f78",
-  primaryContainer: "#1b2b21",
-  primaryFixed: "#d4e7d8",
-  primaryFixedDim: "#b8cbbc",
-  secondaryContainer: "#d2e0fe",
-  secondaryFixed: "#d6e3ff",
-  secondaryFixedDim: "#b9c7e4",
+  primary: "#1b365d",
+  secondary: "#2f5da1",
+  accent: "#fff3c2",
+  dark: "#2e2e2e",
+  neutral: "#e6c88f",
+  surface: "#ffffff",
+  primaryContainer: "#132844",
+  primaryFixed: "#fff3c2",
+  primaryFixedDim: "#e6c88f",
+  secondaryContainer: "#d8e5ff",
+  secondaryFixed: "#d8e5ff",
+  secondaryFixedDim: "#a8c4f6",
   onPrimary: "#ffffff",
-  onPrimaryContainer: "#819386",
-  onPrimaryFixed: "#0f1f15",
+  onPrimaryContainer: "#fff3c2",
+  onPrimaryFixed: "#1b365d",
   onSecondary: "#ffffff",
-  onSecondaryContainer: "#55637d",
-  onSecondaryFixed: "#0d1c32",
+  onSecondaryContainer: "#1b365d",
+  onSecondaryFixed: "#1b365d",
 };
 
 const normalizeHex = (value: string | undefined, fallback: string) => {
@@ -52,17 +60,6 @@ const rgbToHex = (r: number, g: number, b: number) =>
     .map((value) => Math.max(0, Math.min(255, Math.round(value))))
     .map((value) => value.toString(16).padStart(2, "0"))
     .join("")}`;
-
-const mix = (color: string, blend: string, weight: number) => {
-  const base = hexToRgb(color);
-  const target = hexToRgb(blend);
-  const w = Math.max(0, Math.min(1, weight));
-  return rgbToHex(
-    base.r + (target.r - base.r) * w,
-    base.g + (target.g - base.g) * w,
-    base.b + (target.b - base.b) * w
-  );
-};
 
 const luminance = (hex: string) => {
   const { r, g, b } = hexToRgb(hex);
@@ -130,16 +127,23 @@ const setLightness = (hex: string, targetL: number) => {
 export const buildThemeStyles = (theme: ThemeSettings): CSSProperties => {
   const primary = normalizeHex(theme.primary, fallbackTheme.primary);
   const secondary = normalizeHex(theme.secondary, fallbackTheme.secondary);
+  const accent = normalizeHex(theme.accent, fallbackTheme.accent);
+  const neutral = normalizeHex(theme.neutral, fallbackTheme.neutral);
+  const dark = normalizeHex(theme.dark, fallbackTheme.dark);
+  const surface = normalizeHex(theme.surface, fallbackTheme.surface);
   const isDefault =
     primary.toLowerCase() === designTokens.primary &&
-    secondary.toLowerCase() === designTokens.secondary;
+    secondary.toLowerCase() === designTokens.secondary &&
+    accent.toLowerCase() === designTokens.accent;
 
   if (isDefault) {
     return {
       "--accent": designTokens.primary,
       "--accent-2": designTokens.secondary,
-      "--accent-3": "#e9c176",
-      "--accent-4": "#516256",
+      "--accent-3": designTokens.accent,
+      "--accent-4": designTokens.neutral,
+      "--brand-dark": designTokens.dark,
+      "--brand-surface": designTokens.surface,
       "--color-primary": designTokens.primary,
       "--color-primary-container": designTokens.primaryContainer,
       "--color-primary-fixed": designTokens.primaryFixed,
@@ -188,8 +192,10 @@ export const buildThemeStyles = (theme: ThemeSettings): CSSProperties => {
   return {
     "--accent": primary,
     "--accent-2": secondary,
-    "--accent-3": mix(primary, "#ffdea5", 0.3),
-    "--accent-4": mix(secondary, "#d4e7d8", 0.4),
+    "--accent-3": accent,
+    "--accent-4": neutral,
+    "--brand-dark": dark,
+    "--brand-surface": surface,
     "--color-primary": primary,
     "--color-primary-container": primaryContainer,
     "--color-primary-fixed": primaryFixed,

@@ -18,8 +18,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Luxe Curator · Inmobiliaria",
-  description: "Experiencia editorial inmobiliaria con panel administrativo.",
+  title: "Connexa · Inmobiliaria",
+  description: "Plataforma inmobiliaria Connexa con panel administrativo.",
 };
 
 export default function RootLayout({

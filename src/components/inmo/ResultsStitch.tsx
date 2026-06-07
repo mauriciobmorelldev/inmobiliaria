@@ -27,6 +27,7 @@ const typeFilters: Array<{ id: PropertyTypeFilter; label: string }> = [
 const statusFilters: Array<{ id: PropertyStatusFilter; label: string }> = [
   { id: "all", label: "Todos" },
   { id: "disponible", label: statusLabels.disponible },
+  { id: "pausado", label: statusLabels.pausado },
   { id: "reservado", label: statusLabels.reservado },
   { id: "vendido", label: statusLabels.vendido },
 ];

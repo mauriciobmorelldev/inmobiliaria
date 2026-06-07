@@ -171,7 +171,7 @@ export default function AdminAdministradoresPage() {
           {editingAdminId ? "Editar administrador" : "Nuevo administrador"}
         </h3>
         <p className="mt-2 text-xs text-on-surface-variant">
-          Creá usuarios de panel con permisos owner o editor.
+          Creá usuarios owner o colaboradores. El colaborador solo puede crear y modificar sus propias propiedades.
         </p>
 
         <form className="mt-6 grid gap-4 sm:max-w-3xl" onSubmit={handleAdminSubmit}>
@@ -223,13 +223,13 @@ export default function AdminAdministradoresPage() {
                 onChange={(event) =>
                   setAdminForm((prev) => ({
                     ...prev,
-                    role: event.target.value === "owner" ? "owner" : "editor",
+                    role: event.target.value === "owner" ? "owner" : "colaborador",
                   }))
                 }
                 className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
               >
                 <option value="owner">Owner</option>
-                <option value="editor">Editor</option>
+                <option value="colaborador">Colaborador</option>
               </select>
             </label>
             <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">

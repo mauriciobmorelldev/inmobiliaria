@@ -13,6 +13,20 @@ type FrontHeaderProps = {
   onSearchChange?: (value: string) => void;
 };
 
+const ConnexaWordmark = ({ compact = false }: { compact?: boolean }) => (
+  <span
+    className={`font-headline font-extrabold uppercase tracking-normal text-primary ${
+      compact ? "text-lg" : "text-2xl sm:text-3xl"
+    }`}
+  >
+    Conne
+    <span className="text-primary-fixed drop-shadow-[0_1px_0_rgba(27,54,93,0.28)]">
+      x
+    </span>
+    a
+  </span>
+);
+
 export default function FrontHeader({
   active = "home",
   showSearch = false,
@@ -73,7 +87,7 @@ export default function FrontHeader({
           </button>
           <Link
             href="/"
-            className="flex items-center gap-3 text-xl sm:text-2xl font-bold tracking-tighter text-primary font-headline"
+            className="flex items-center gap-3"
           >
             {theme.logo ? (
               <img
@@ -82,11 +96,8 @@ export default function FrontHeader({
                 className="h-9 w-auto object-contain"
               />
             ) : (
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-semibold text-on-primary">
-                {theme.name ? theme.name.charAt(0) : "L"}
-              </span>
+              <ConnexaWordmark />
             )}
-            <span>{theme.name || "Luxe Curator"}</span>
           </Link>
         </div>
 
@@ -215,11 +226,8 @@ export default function FrontHeader({
                   className="h-8 w-auto object-contain"
                 />
               ) : (
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-on-primary">
-                  {theme.name ? theme.name.charAt(0) : "L"}
-                </span>
+                <ConnexaWordmark compact />
               )}
-              <span className="text-sm font-semibold text-primary">{theme.name}</span>
             </div>
             <button
               type="button"

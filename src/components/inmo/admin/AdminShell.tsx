@@ -61,7 +61,7 @@ const navItems: Array<{
     href: "/admin/administradores",
     icon: "admin_panel_settings",
   },
-  { id: "branding", label: "Branding", href: "/admin/branding", icon: "palette" },
+  { id: "branding", label: "Branding y Home", href: "/admin/branding", icon: "palette" },
   { id: "filtros", label: "Filtros", href: "/admin/filtros", icon: "tune" },
 ];
 
@@ -94,8 +94,8 @@ export default function AdminShell({
     },
     {
       id: "n2",
-      title: "Pago registrado",
-      subtitle: "Contrato · Abril",
+      title: "Favorito agregado",
+      subtitle: "Cliente final",
       unread: true,
     },
     {
@@ -132,7 +132,12 @@ export default function AdminShell({
 
   useEffect(() => {
     if (!showNotifications) {
-      setMobileNotifPos(null);
+      const clearPosition = () => setMobileNotifPos(null);
+      if (typeof queueMicrotask === "function") {
+        queueMicrotask(clearPosition);
+      } else {
+        window.setTimeout(clearPosition, 0);
+      }
       return;
     }
     if (typeof window === "undefined") return;
@@ -159,6 +164,10 @@ export default function AdminShell({
       (admin) => admin.id === session.adminId && admin.active
     );
   }, [adminUsers, session]);
+  const visibleNavItems = useMemo(() => {
+    if (authedAdmin?.role === "owner") return navItems;
+    return navItems.filter((item) => item.id === "propiedades");
+  }, [authedAdmin?.role]);
 
   const subtitleText = useMemo(() => {
     if (subtitle) return subtitle;
@@ -225,14 +234,14 @@ export default function AdminShell({
                 </h1>
                 <p className="mt-3 text-sm text-on-surface-variant">
                   Ingresá con un usuario administrador para gestionar propiedades, agentes,
-                  branding y clientes.
+                  branding, clientes y propiedades.
                 </p>
                 <div className="mt-8 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
                   <p className="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant">
                     Credenciales demo
                   </p>
                   <p className="mt-2 text-sm text-primary">
-                    {ownerDemo ? ownerDemo.email : "admin@inmo.demo"}
+                    {ownerDemo ? ownerDemo.email : "admin@connexa.demo"}
                   </p>
                   <p className="text-sm text-primary">
                     {ownerDemo ? ownerDemo.password : "demo123"}
@@ -249,7 +258,7 @@ export default function AdminShell({
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                    placeholder="admin@inmo.demo"
+                    placeholder="admin@connexa.demo"
                   />
                 </label>
                 <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
@@ -285,6 +294,32 @@ export default function AdminShell({
     );
   }
 
+  if (authedAdmin.role !== "owner" && activeSection !== "propiedades") {
+    return (
+      <div
+        style={themeStyles}
+        className="inmo-admin min-h-screen bg-background text-on-surface"
+      >
+        <div className="mx-auto flex min-h-screen max-w-screen-md items-center justify-center px-6">
+          <div className="rounded-3xl bg-surface-container-lowest p-10 text-center shadow-[0_40px_60px_-15px_rgba(27,27,28,0.08)]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+              Acceso limitado
+            </p>
+            <h1 className="mt-3 text-3xl font-headline font-extrabold text-primary">
+              Tu rol colaborador solo puede gestionar propiedades propias.
+            </h1>
+            <Link
+              href="/admin/propiedades"
+              className="mt-6 inline-flex rounded-full bg-primary px-6 py-3 text-xs font-bold uppercase tracking-widest text-on-primary"
+            >
+              Ir a propiedades
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       style={themeStyles}
@@ -303,7 +338,7 @@ export default function AdminShell({
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto pr-2">
-          {navItems.map((item) => {
+              {visibleNavItems.map((item) => {
             const active = item.id === activeSection;
             return (
               <Link
@@ -578,7 +613,7 @@ export default function AdminShell({
               </button>
             </div>
             <div className="mt-6 grid gap-2 rounded-2xl bg-surface-container-low p-4">
-              {navItems.map((item) => (
+              {visibleNavItems.map((item) => (
                 <Link
                   key={item.id}
                   href={item.href}

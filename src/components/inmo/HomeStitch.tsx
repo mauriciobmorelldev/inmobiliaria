@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { motion, useScroll, useTransform } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { useInmoStore } from "@/lib/inmoStore";
 import { buildThemeStyles } from "@/lib/theme";
@@ -26,10 +27,62 @@ const truncate = (value: string, max = 110) => {
   return `${value.slice(0, max).trimEnd()}...`;
 };
 
+const smoothSpring = {
+  type: "spring" as const,
+  stiffness: 92,
+  damping: 18,
+  mass: 0.9,
+};
+
+const sectionReveal = {
+  hidden: { opacity: 0, y: 34, filter: "blur(10px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: smoothSpring,
+  },
+};
+
+const staggerGroup = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.09,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const brandNameMotion = {
+  hidden: { opacity: 0, x: -86, filter: "blur(12px)" },
+  visible: {
+    opacity: 1,
+    x: 0,
+    filter: "blur(0px)",
+    transition: { ...smoothSpring, duration: 0.95 },
+  },
+};
+
+const brandXMotion = {
+  hidden: { opacity: 0, x: 120, rotate: 18, scale: 1.32, filter: "blur(14px)" },
+  visible: {
+    opacity: 1,
+    x: 0,
+    rotate: 0,
+    scale: 1,
+    filter: "blur(0px)",
+    transition: { type: "spring" as const, stiffness: 110, damping: 14, mass: 0.92 },
+  },
+};
+
 export default function HomeStitch() {
   const { state } = useInmoStore();
-  const { listings, agents, theme, clientUsers } = state;
+  const { listings, agents, theme, clientUsers, homeContent } = state;
   const [clientName, setClientName] = useState("");
+  const { scrollYProgress } = useScroll();
+  const heroImageY = useTransform(scrollYProgress, [0, 0.45], [0, 90]);
+  const heroImageScale = useTransform(scrollYProgress, [0, 0.45], [1.05, 1.15]);
 
   useEffect(() => {
     const hydrate = () => {
@@ -65,9 +118,16 @@ export default function HomeStitch() {
   );
 
   const heroImage = useMemo(() => {
+    const activeBanner = homeContent.banners.find((banner) => banner.active && banner.image);
+    if (activeBanner?.image) return activeBanner.image;
     if (theme.heroImage) return theme.heroImage;
     return fallbackHeroImage;
-  }, [theme.heroImage]);
+  }, [homeContent.banners, theme.heroImage]);
+
+  const activeBanners = useMemo(
+    () => homeContent.banners.filter((banner) => banner.active),
+    [homeContent.banners]
+  );
 
   const agentsById = useMemo(
     () => Object.fromEntries(agents.map((agent) => [agent.id, agent])),
@@ -104,31 +164,96 @@ export default function HomeStitch() {
       <FrontHeader active="home" />
 
       <main className="pt-20">
-        <section className="relative flex min-h-[480px] sm:min-h-[720px] w-full items-center overflow-hidden py-10 sm:py-16">
+        <motion.section
+          initial="hidden"
+          animate="visible"
+          variants={staggerGroup}
+          className="relative flex min-h-[520px] sm:min-h-[760px] w-full items-center overflow-hidden bg-primary py-10 sm:py-16"
+        >
           <div className="absolute inset-0 z-0">
-            <img className="h-full w-full object-cover" alt="Portada" src={heroImage} />
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/70 via-primary/35 to-transparent" />
+            <motion.img
+              style={{ y: heroImageY, scale: heroImageScale }}
+              className="h-full w-full object-cover will-change-transform"
+              alt="Portada"
+              src={heroImage}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/72 to-primary/12" />
+            <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent" />
           </div>
           <div className="relative z-10 mx-auto w-full max-w-screen-2xl px-8">
+            <motion.div
+              variants={staggerGroup}
+              className="connexa-mark mb-8 flex max-w-3xl items-end overflow-hidden text-on-primary"
+            >
+              <motion.span
+                variants={brandNameMotion}
+                className="font-headline text-4xl font-extrabold uppercase tracking-normal md:text-7xl"
+              >
+                Conne
+              </motion.span>
+              <motion.span
+                variants={brandXMotion}
+                className="font-headline text-5xl font-extrabold uppercase text-primary-fixed md:text-8xl"
+              >
+                x
+              </motion.span>
+              <motion.span
+                variants={brandNameMotion}
+                className="font-headline text-4xl font-extrabold uppercase tracking-normal md:text-7xl"
+              >
+                a
+              </motion.span>
+            </motion.div>
             <div className="max-w-3xl">
-              <span className="mb-6 inline-block rounded-full bg-surface-container-lowest/25 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-on-primary">
-                Volumen XV · 2026
-              </span>
-              <h1 className="mb-6 text-5xl font-headline font-extrabold leading-[0.92] tracking-tighter text-on-primary md:text-8xl">
-                Espacios con <br />
-                <span className="italic font-light">valor real.</span>
-              </h1>
-              <p className="max-w-2xl text-base text-on-primary/90 md:text-lg">
+              <motion.span
+                variants={sectionReveal}
+                className="mb-6 inline-block rounded-full bg-primary-fixed px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary shadow-[0_20px_45px_-25px_rgba(255,243,194,0.8)]"
+              >
+                {homeContent.eyebrow}
+              </motion.span>
+              <motion.h1
+                variants={sectionReveal}
+                className="mb-6 text-5xl font-headline font-extrabold leading-[0.92] tracking-tighter text-on-primary md:text-8xl"
+              >
+                {homeContent.title} <br />
+                <span className="font-light italic text-primary-fixed">{homeContent.italicTitle}</span>
+              </motion.h1>
+              <motion.p
+                variants={sectionReveal}
+                className="max-w-2xl text-base leading-8 text-on-primary/90 md:text-lg"
+              >
                 {clientName
-                  ? `Bienvenido, ${clientName}. Accedé a tus contratos y pagos desde tu cuenta privada.`
-                  : "Combinamos curaduría estética con métricas operativas para decidir mejor: propiedades listas para vivir, invertir o rentar."}
-              </p>
+                  ? `Bienvenido, ${clientName}. Accedé a tus favoritos y consultas desde tu cuenta privada.`
+                  : homeContent.subtitle}
+              </motion.p>
+              <motion.div variants={sectionReveal} className="mt-8 flex flex-wrap gap-3">
+                <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Link
+                  href={homeContent.primaryCtaHref || "/propiedades"}
+                    className="inline-flex items-center gap-2 rounded-full bg-primary-fixed px-6 py-3 text-sm font-bold text-primary shadow-[0_24px_45px_-28px_rgba(255,243,194,0.85)]"
+                  >
+                    {homeContent.primaryCtaLabel}
+                    <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                  </Link>
+                </motion.div>
+                <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Link
+                  href={homeContent.secondaryCtaHref || "/acceso"}
+                    className="inline-flex items-center gap-2 rounded-full bg-white/12 px-6 py-3 text-sm font-bold text-on-primary ghost-border backdrop-blur"
+                  >
+                    {homeContent.secondaryCtaLabel}
+                  </Link>
+                </motion.div>
+              </motion.div>
             </div>
 
-            <div className="mt-12 grid max-w-5xl gap-3 rounded-2xl bg-surface-container-lowest/95 p-3 shadow-[0_40px_60px_-20px_rgba(7,22,13,0.45)] md:grid-cols-[1.2fr_1fr_1fr_auto]">
+            <motion.div
+              variants={sectionReveal}
+              className="mt-12 grid max-w-5xl gap-3 rounded-3xl bg-surface-container-lowest/95 p-3 shadow-[0_40px_70px_-24px_rgba(27,54,93,0.5)] backdrop-blur md:grid-cols-[1.2fr_1fr_1fr_auto]"
+            >
               <div className="rounded-xl bg-surface-container-low p-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                  Inventario activo
+                  {homeContent.statsTitle}
                 </p>
                 <p className="mt-2 text-3xl font-headline font-bold text-primary">{listings.length}</p>
               </div>
@@ -146,35 +271,117 @@ export default function HomeStitch() {
                   {currencyFormatter.format(avgPrice || 0)}
                 </p>
               </div>
-              <Link
-                href="/propiedades"
-                className="flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-sm font-bold tracking-tight text-on-primary"
-              >
-                Explorar catálogo
-                <span className="material-symbols-outlined text-lg">arrow_forward</span>
-              </Link>
-            </div>
+              <motion.div whileHover={{ y: -4 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                href={homeContent.primaryCtaHref || "/propiedades"}
+                  className="brand-gradient flex h-full items-center justify-center gap-2 rounded-xl px-8 py-4 text-sm font-bold tracking-tight text-on-primary"
+                >
+                  {homeContent.primaryCtaLabel}
+                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                </Link>
+              </motion.div>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
+
+        {activeBanners.length ? (
+          <section className="mx-auto -mt-12 max-w-screen-2xl px-8 pb-8">
+            <div className="grid gap-4 md:grid-cols-2">
+              {activeBanners.slice(0, 2).map((banner, index) => (
+                <motion.div
+                  key={banner.id}
+                  initial={{ opacity: 0, y: 28, scale: 0.97, filter: "blur(10px)" }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+                  viewport={{ once: true, amount: 0.35 }}
+                  transition={{ ...smoothSpring, delay: index * 0.08 }}
+                  whileHover={{ y: -8, scale: 1.01 }}
+                  className="will-change-transform"
+                >
+                  <Link
+                    href={banner.ctaHref || "/propiedades"}
+                    className="group relative block min-h-56 overflow-hidden rounded-3xl bg-primary text-on-primary pro-card"
+                  >
+                    {banner.image ? (
+                      <motion.img
+                        src={banner.image}
+                        alt={banner.title}
+                        className="absolute inset-0 h-full w-full object-cover"
+                        whileHover={{ scale: 1.08 }}
+                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                      />
+                    ) : null}
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-primary/30" />
+                    <div className="relative flex min-h-56 flex-col justify-end p-7">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary-fixed">
+                        Banner editable
+                      </p>
+                      <h2 className="mt-3 max-w-xl text-2xl font-headline font-bold text-on-primary">
+                        {banner.title}
+                      </h2>
+                      <p className="mt-2 max-w-xl text-sm leading-6 text-on-primary/82">
+                        {banner.subtitle}
+                      </p>
+                      <span className="mt-5 inline-flex w-fit items-center gap-2 rounded-full bg-primary-fixed px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary">
+                        {banner.ctaLabel || "Ver más"}
+                        <span className="material-symbols-outlined text-base">arrow_forward</span>
+                      </span>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className="mx-auto max-w-screen-2xl px-8 py-20">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-            <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-6">
+            <motion.div
+              variants={sectionReveal}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.45 }}
+              whileHover={{ y: -6 }}
+              className="rounded-3xl bg-surface-container-lowest p-6 pro-card"
+            >
               <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Propiedades activas</p>
               <p className="mt-2 text-3xl font-bold text-primary">{availableCount}</p>
-            </div>
-            <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-6">
+            </motion.div>
+            <motion.div
+              variants={sectionReveal}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.45 }}
+              transition={{ ...smoothSpring, delay: 0.06 }}
+              whileHover={{ y: -6 }}
+              className="rounded-3xl bg-surface-container-lowest p-6 pro-card"
+            >
               <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Reservas en curso</p>
               <p className="mt-2 text-3xl font-bold text-primary">{reservedCount}</p>
-            </div>
-            <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-6">
+            </motion.div>
+            <motion.div
+              variants={sectionReveal}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.45 }}
+              transition={{ ...smoothSpring, delay: 0.12 }}
+              whileHover={{ y: -6 }}
+              className="rounded-3xl bg-surface-container-lowest p-6 pro-card"
+            >
               <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Barrios cubiertos</p>
               <p className="mt-2 text-3xl font-bold text-primary">{topNeighborhoods.length}</p>
-            </div>
-            <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-6">
+            </motion.div>
+            <motion.div
+              variants={sectionReveal}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.45 }}
+              transition={{ ...smoothSpring, delay: 0.18 }}
+              whileHover={{ y: -6 }}
+              className="rounded-3xl bg-surface-container-lowest p-6 pro-card"
+            >
               <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Corredores activos</p>
               <p className="mt-2 text-3xl font-bold text-primary">{agents.length}</p>
-            </div>
+            </motion.div>
           </div>
         </section>
 
@@ -182,10 +389,10 @@ export default function HomeStitch() {
           <div className="mb-14 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
             <div>
               <h2 className="text-4xl font-headline font-bold tracking-tighter text-primary">
-                Selecciones Curadas
+                {homeContent.featuredTitle}
               </h2>
               <p className="mt-2 max-w-2xl text-on-surface-variant">
-                Fichas con contexto comercial y visión de uso real, no solo fotos bonitas.
+                {homeContent.featuredSubtitle}
               </p>
             </div>
             <Link
@@ -224,9 +431,14 @@ export default function HomeStitch() {
                 );
 
                 return (
-                  <article
+                  <motion.article
                     key={item.id}
-                    className="group overflow-hidden rounded-2xl border border-outline-variant/20 bg-surface-container-lowest shadow-[0_25px_45px_-25px_rgba(27,27,28,0.35)] transition-transform hover:-translate-y-1"
+                    initial={{ opacity: 0, y: 36, scale: 0.97 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.22 }}
+                    transition={{ ...smoothSpring, delay: (featuredListings.indexOf(item) % 3) * 0.05 }}
+                    whileHover={{ y: -10, scale: 1.012 }}
+                    className="group overflow-hidden rounded-3xl bg-surface-container-lowest pro-card will-change-transform"
                   >
                     <div className="relative aspect-[4/5] overflow-hidden">
                       {video ? (
@@ -239,10 +451,12 @@ export default function HomeStitch() {
                           autoPlay
                         />
                       ) : cover ? (
-                        <img
+                        <motion.img
                           src={cover}
                           alt={item.title}
-                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          className="h-full w-full object-cover"
+                          whileHover={{ scale: 1.07 }}
+                          transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
                         />
                       ) : (
                         <div className="h-full w-full bg-gradient-to-br from-primary/20 to-secondary/20" />
@@ -285,36 +499,46 @@ export default function HomeStitch() {
                       </div>
 
                       <div className="mt-5 flex items-center justify-between">
-                        <Link
+                        <motion.div whileHover={{ x: 3 }} whileTap={{ scale: 0.98 }}>
+                          <Link
                           href={`/propiedades/${item.id}`}
                           className="text-sm font-semibold text-primary hover:text-primary-container"
-                        >
-                          Ver detalle completo
-                        </Link>
-                        <Link
+                          >
+                            Ver detalle completo
+                          </Link>
+                        </motion.div>
+                        <motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.98 }}>
+                          <Link
                           href={`/propiedades/${item.id}`}
-                          className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-widest text-on-primary"
-                        >
-                          Agendar
-                        </Link>
+                            className="rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-widest text-on-primary"
+                          >
+                            Agendar
+                          </Link>
+                        </motion.div>
                       </div>
                     </div>
-                  </article>
+                  </motion.article>
                 );
               })}
             </div>
           )}
         </section>
 
-        <section className="mx-auto max-w-screen-2xl px-8 pb-24">
-          <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-8">
+        <section id="equipo" className="mx-auto max-w-screen-2xl px-8 pb-24">
+          <motion.div
+            variants={sectionReveal}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.22 }}
+            className="rounded-3xl bg-surface-container-lowest p-8 pro-card"
+          >
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h2 className="text-3xl font-headline font-bold tracking-tight text-primary">
-                  Equipo y Barrios
+                  <h2 className="text-3xl font-headline font-bold tracking-tight text-primary">
+                  {homeContent.teamTitle}
                 </h2>
                 <p className="mt-2 text-sm text-on-surface-variant">
-                  Explorá el equipo comercial y las zonas con más movimiento.
+                  {homeContent.teamSubtitle}
                 </p>
               </div>
               <Link href="/equipo" className="text-sm font-semibold text-primary">
@@ -322,47 +546,57 @@ export default function HomeStitch() {
               </Link>
             </div>
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <Link
+              <motion.div whileHover={{ y: -6, scale: 1.01 }}>
+                <Link
                 href="/equipo"
-                className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-6 hover:border-primary/40"
-              >
-                <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
-                  Equipo
-                </p>
-                <h3 className="mt-2 text-xl font-bold text-primary">
-                  Conocé a nuestros corredores
-                </h3>
-                <p className="mt-2 text-sm text-on-surface-variant">
-                  Especialistas por zona y tipo de operación.
-                </p>
-              </Link>
-              <Link
+                  className="block rounded-3xl bg-surface-container-low p-6"
+                >
+                  <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
+                    Equipo
+                  </p>
+                  <h3 className="mt-2 text-xl font-bold text-primary">
+                    Conocé a nuestros corredores
+                  </h3>
+                  <p className="mt-2 text-sm text-on-surface-variant">
+                    Especialistas por zona y tipo de operación.
+                  </p>
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ y: -6, scale: 1.01 }}>
+                <Link
                 href="/barrios"
-                className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-6 hover:border-primary/40"
-              >
-                <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
-                  Barrios
-                </p>
-                <h3 className="mt-2 text-xl font-bold text-primary">
-                  Zonas con mayor demanda
-                </h3>
-                <p className="mt-2 text-sm text-on-surface-variant">
-                  Mapa de barrios destacados del inventario.
-                </p>
-              </Link>
+                  className="block rounded-3xl bg-surface-container-low p-6"
+                >
+                  <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
+                    Barrios
+                  </p>
+                  <h3 className="mt-2 text-xl font-bold text-primary">
+                    Zonas con mayor demanda
+                  </h3>
+                  <p className="mt-2 text-sm text-on-surface-variant">
+                    Mapa de barrios destacados del inventario.
+                  </p>
+                </Link>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </section>
 
         <section id="insights" className="mx-auto max-w-screen-2xl px-8 pb-24">
-          <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-8">
+          <motion.div
+            variants={sectionReveal}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.22 }}
+            className="rounded-3xl bg-surface-container-lowest p-8 pro-card"
+          >
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h2 className="text-3xl font-headline font-bold tracking-tight text-primary">
-                  Incorporaciones recientes
+                  {homeContent.recentTitle}
                 </h2>
                 <p className="mt-2 text-sm text-on-surface-variant">
-                  Últimas propiedades agregadas desde el panel administrativo.
+                  {homeContent.recentSubtitle}
                 </p>
               </div>
               <Link href="/propiedades" className="text-sm font-semibold text-primary">
@@ -374,22 +608,30 @@ export default function HomeStitch() {
               {recentListings.length === 0 ? (
                 <p className="text-sm text-on-surface-variant">No hay nuevas incorporaciones aún.</p>
               ) : (
-                recentListings.map((item) => (
-                  <Link
+                recentListings.map((item, index) => (
+                  <motion.div
                     key={item.id}
-                    href={`/propiedades/${item.id}`}
-                    className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4 hover:border-primary/40"
+                    initial={{ opacity: 0, y: 18 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.45 }}
+                    transition={{ ...smoothSpring, delay: index * 0.06 }}
+                    whileHover={{ y: -5, scale: 1.01 }}
                   >
-                    <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
-                      {statusLabels[item.status]}
-                    </p>
-                    <h3 className="mt-2 text-lg font-bold text-primary">{item.title}</h3>
-                    <p className="mt-1 text-sm text-on-surface-variant">{item.neighborhood}</p>
-                  </Link>
+                    <Link
+                      href={`/propiedades/${item.id}`}
+                      className="block rounded-3xl bg-surface-container-low p-4"
+                    >
+                      <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
+                        {statusLabels[item.status]}
+                      </p>
+                      <h3 className="mt-2 text-lg font-bold text-primary">{item.title}</h3>
+                      <p className="mt-1 text-sm text-on-surface-variant">{item.neighborhood}</p>
+                    </Link>
+                  </motion.div>
                 ))
               )}
             </div>
-          </div>
+          </motion.div>
         </section>
       </main>
     </div>

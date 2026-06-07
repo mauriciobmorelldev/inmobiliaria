@@ -9,6 +9,7 @@ import {
   type LeadFormState,
 } from "@/lib/adminForms";
 import { useInmoStore } from "@/lib/inmoStore";
+import { readAdminSession } from "@/lib/session";
 
 const statusLabels = {
   nuevo: "Nuevo",
@@ -19,7 +20,24 @@ const statusLabels = {
 
 export default function AdminLeadsPage() {
   const { state, updateState } = useInmoStore();
-  const { leads, listings, agents } = state;
+  const { leads, listings, agents, adminUsers } = state;
+  const [adminSession] = useState(() => readAdminSession());
+  const authedAdmin = adminUsers.find((admin) => admin.id === adminSession?.adminId);
+  const scopedAgent = agents.find(
+    (agent) =>
+      authedAdmin?.role !== "owner" &&
+      agent.email.trim().toLowerCase() === authedAdmin?.email.trim().toLowerCase()
+  );
+  const visibleLeads =
+    authedAdmin?.role === "owner"
+      ? leads
+      : leads.filter((lead) => lead.agentId === scopedAgent?.id);
+  const visibleListings =
+    authedAdmin?.role === "owner"
+      ? listings
+      : listings.filter((listing) => listing.agentId === scopedAgent?.id);
+  const assignableAgents =
+    authedAdmin?.role === "owner" ? agents : scopedAgent ? [scopedAgent] : [];
 
   const [leadForm, setLeadForm] = useState<LeadFormState>(getEmptyLeadForm());
   const [editingLeadId, setEditingLeadId] = useState<string | null>(null);
@@ -54,7 +72,10 @@ export default function AdminLeadsPage() {
                   email: leadForm.email.trim(),
                   phone: leadForm.phone.trim(),
                   propertyId: leadForm.propertyId || undefined,
-                  agentId: leadForm.agentId || undefined,
+                  agentId:
+                    authedAdmin?.role === "owner"
+                      ? leadForm.agentId || undefined
+                      : scopedAgent?.id,
                   status: leadForm.status,
                   notes: leadForm.notes.trim(),
                   updatedAt: now,
@@ -73,7 +94,10 @@ export default function AdminLeadsPage() {
             email: leadForm.email.trim(),
             phone: leadForm.phone.trim(),
             propertyId: leadForm.propertyId || undefined,
-            agentId: leadForm.agentId || undefined,
+            agentId:
+              authedAdmin?.role === "owner"
+                ? leadForm.agentId || undefined
+                : scopedAgent?.id,
             status: leadForm.status,
             notes: leadForm.notes.trim(),
             createdAt: now,
@@ -88,7 +112,7 @@ export default function AdminLeadsPage() {
   };
 
   const handleEdit = (leadId: string) => {
-    const target = leads.find((lead) => lead.id === leadId);
+    const target = visibleLeads.find((lead) => lead.id === leadId);
     if (!target) return;
     setEditingLeadId(leadId);
     setLeadForm({
@@ -107,18 +131,22 @@ export default function AdminLeadsPage() {
   const handleDelete = (leadId: string) => {
     updateState((prev) => ({
       ...prev,
-      leads: prev.leads.filter((lead) => lead.id !== leadId),
+      leads: prev.leads.filter(
+        (lead) =>
+          lead.id !== leadId ||
+          (authedAdmin?.role !== "owner" && lead.agentId !== scopedAgent?.id)
+      ),
     }));
   };
 
   const summary = useMemo(
     () => ({
-      nuevo: leads.filter((lead) => lead.status === "nuevo").length,
-      visita: leads.filter((lead) => lead.status === "visita").length,
-      reservado: leads.filter((lead) => lead.status === "reservado").length,
-      cerrado: leads.filter((lead) => lead.status === "cerrado").length,
+      nuevo: visibleLeads.filter((lead) => lead.status === "nuevo").length,
+      visita: visibleLeads.filter((lead) => lead.status === "visita").length,
+      reservado: visibleLeads.filter((lead) => lead.status === "reservado").length,
+      cerrado: visibleLeads.filter((lead) => lead.status === "cerrado").length,
     }),
-    [leads]
+    [visibleLeads]
   );
 
   return (
@@ -195,7 +223,7 @@ export default function AdminLeadsPage() {
               className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
             >
               <option value="">Propiedad (opcional)</option>
-              {listings.map((listing) => (
+              {visibleListings.map((listing) => (
                 <option key={listing.id} value={listing.id}>
                   {listing.title}
                 </option>
@@ -209,7 +237,7 @@ export default function AdminLeadsPage() {
               className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
             >
               <option value="">Corredor (opcional)</option>
-              {agents.map((agent) => (
+              {assignableAgents.map((agent) => (
                 <option key={agent.id} value={agent.id}>
                   {agent.name}
                 </option>
@@ -262,10 +290,10 @@ export default function AdminLeadsPage() {
           Mové los leads entre etapas y eso actualizará el dashboard.
         </p>
         <div className="mt-6 grid gap-3">
-          {leads.length === 0 ? (
+          {visibleLeads.length === 0 ? (
             <p className="text-sm text-on-surface-variant">No hay leads registrados.</p>
           ) : (
-            leads.map((lead) => (
+            visibleLeads.map((lead) => (
               <article
                 key={lead.id}
                 className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4"

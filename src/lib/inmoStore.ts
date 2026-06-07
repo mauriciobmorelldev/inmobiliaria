@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import type { InmoState } from "./inmoData";
 import { defaultState, STATE_VERSION } from "./inmoData";
+import { mergeState } from "./stateMerge";
 
-const STORAGE_KEY = "inmo-demo-state/v2";
+const STORAGE_KEY = "connexa-state/v3";
 const UPDATE_EVENT = "inmo:updated";
 
 const isBrowser = typeof window !== "undefined";
@@ -39,44 +40,29 @@ const writeStorage = (value: string) => {
   }
 };
 
-const mergeState = (base: InmoState, incoming: Partial<InmoState>): InmoState => {
-  const merged: InmoState = {
-    ...base,
-    ...incoming,
-    version: STATE_VERSION,
-    theme: {
-      ...base.theme,
-      ...(incoming.theme ?? {}),
-    },
-    adminUsers: Array.isArray(incoming.adminUsers)
-      ? incoming.adminUsers
-      : base.adminUsers,
-    clientUsers: Array.isArray(incoming.clientUsers)
-      ? incoming.clientUsers.map((client) => ({
-          ...client,
-          idNumber: client.idNumber ?? "",
-          emailVerified: client.emailVerified ?? true,
-          active: client.active ?? true,
-        }))
-      : base.clientUsers,
-    clientContracts: Array.isArray(incoming.clientContracts)
-      ? incoming.clientContracts.map((contract) => ({
-          ...contract,
-          payments: contract.payments ?? [],
-          paymentMethods: contract.paymentMethods ?? [],
-        }))
-      : base.clientContracts,
-    leads: Array.isArray(incoming.leads)
-      ? incoming.leads
-      : base.leads,
-    agents: Array.isArray(incoming.agents) ? incoming.agents : base.agents,
-    filterGroups: Array.isArray(incoming.filterGroups)
-      ? incoming.filterGroups
-      : base.filterGroups,
-    listings: Array.isArray(incoming.listings) ? incoming.listings : base.listings,
-  };
+const fetchRemoteState = async () => {
+  try {
+    const response = await fetch("/api/inmo-state", {
+      cache: "no-store",
+    });
+    if (!response.ok) return null;
+    return (await response.json()) as Partial<InmoState>;
+  } catch (error) {
+    console.warn("No se pudo cargar estado remoto, usando fallback local", error);
+    return null;
+  }
+};
 
-  return merged;
+const persistRemoteState = async (state: InmoState) => {
+  try {
+    await fetch("/api/inmo-state", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(state),
+    });
+  } catch (error) {
+    console.warn("No se pudo persistir estado remoto, usando fallback local", error);
+  }
 };
 
 export const loadState = (): InmoState => {
@@ -94,6 +80,7 @@ export const saveState = (state: InmoState) => {
   if (!isBrowser) return;
   inMemoryState = state;
   writeStorage(JSON.stringify(state));
+  void persistRemoteState(state);
 
   // Dispatch async to avoid cross-component setState while React is rendering.
   const notify = () => window.dispatchEvent(new Event(UPDATE_EVENT));
@@ -113,11 +100,20 @@ export const useInmoStore = () => {
   const [state, setState] = useState<InmoState>(defaultState);
 
   useEffect(() => {
-    const hydrate = () => setState(loadState());
+    const hydrate = async () => {
+      const local = loadState();
+      setState(local);
+      const remote = await fetchRemoteState();
+      if (!remote) return;
+      const merged = mergeState(defaultState, remote);
+      inMemoryState = merged;
+      writeStorage(JSON.stringify(merged));
+      setState(merged);
+    };
     if (typeof queueMicrotask === "function") {
-      queueMicrotask(hydrate);
+      queueMicrotask(() => void hydrate());
     } else {
-      window.setTimeout(hydrate, 0);
+      window.setTimeout(() => void hydrate(), 0);
     }
     const handleUpdate = () => {
       setState(loadState());

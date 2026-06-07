@@ -8,10 +8,13 @@ import { propertyTypeLabels, statusLabels } from "@/lib/inmoData";
 import { useInmoStore } from "@/lib/inmoStore";
 
 export default function AdminDashboardPage() {
-  const { state } = useInmoStore();
-  const { listings, agents, leads } = state;
+  const { state, updateState } = useInmoStore();
+  const { listings, agents, leads, propertyFavorites, propertyMetrics, toccoSyncLogs } =
+    state;
+  const [syncingTocco, setSyncingTocco] = useState(false);
 
   const availableCount = listings.filter((item) => item.status === "disponible").length;
+  const pausedCount = listings.filter((item) => item.status === "pausado").length;
   const reservedCount = listings.filter((item) => item.status === "reservado").length;
   const soldCount = listings.filter((item) => item.status === "vendido").length;
 
@@ -43,6 +46,7 @@ export default function AdminDashboardPage() {
 
   const inventoryChart = [
     { id: "disponible", label: "Disponibles", value: availableCount },
+    { id: "pausado", label: "Pausadas", value: pausedCount },
     { id: "reservado", label: "Reservados", value: reservedCount },
     { id: "vendido", label: "Vendidos", value: soldCount },
   ];
@@ -106,12 +110,66 @@ export default function AdminDashboardPage() {
   ];
   const maxPipelineValue = Math.max(1, ...pipelineChart.map((item) => item.value));
   const recentLeads = [...leads].slice(-4).reverse();
+  const totalLeads = Math.max(1, leads.length);
+  const conversion = {
+    visita: Math.round(
+      (leads.filter((lead) => lead.status === "visita").length / totalLeads) * 100
+    ),
+    reservado: Math.round(
+      (leads.filter((lead) => lead.status === "reservado").length / totalLeads) * 100
+    ),
+    cerrado: Math.round(
+      (leads.filter((lead) => lead.status === "cerrado").length / totalLeads) * 100
+    ),
+  };
+  const agentPerformance = agents
+    .map((agent) => {
+      const agentLeads = leads.filter((lead) => lead.agentId === agent.id);
+      return {
+        id: agent.id,
+        name: agent.name,
+        properties: listings.filter((listing) => listing.agentId === agent.id).length,
+        leads: agentLeads.length,
+        closed: agentLeads.filter((lead) => lead.status === "cerrado").length,
+      };
+    })
+    .sort((a, b) => b.leads - a.leads)
+    .slice(0, 5);
+  const topProperties = listings
+    .map((listing) => {
+      const metric = propertyMetrics.find((item) => item.propertyId === listing.id);
+      const leadCount = leads.filter((lead) => lead.propertyId === listing.id).length;
+      const favoriteCount = propertyFavorites.filter(
+        (favorite) => favorite.propertyId === listing.id
+      ).length;
+      return {
+        id: listing.id,
+        title: listing.title,
+        views: metric?.views ?? 0,
+        leads: metric?.leads || leadCount,
+        favorites: metric?.favorites || favoriteCount,
+      };
+    })
+    .sort((a, b) => b.views + b.leads + b.favorites - (a.views + a.leads + a.favorites))
+    .slice(0, 5);
+  const handleToccoSync = async () => {
+    setSyncingTocco(true);
+    try {
+      const response = await fetch("/api/tocco/sync", { method: "POST" });
+      if (!response.ok) return;
+      const stateResponse = await fetch("/api/inmo-state", { cache: "no-store" });
+      if (!stateResponse.ok) return;
+      updateState(await stateResponse.json());
+    } finally {
+      setSyncingTocco(false);
+    }
+  };
   const pendingTasks = [
     {
-      id: "contract",
-      title: "Revisión de contrato",
+      id: "lead-review",
+      title: "Revisión de lead",
       subtitle: "Penthouse B • 14:00",
-      icon: "signature",
+      icon: "fact_check",
       tone: "bg-tertiary-fixed",
       text: "text-on-tertiary-fixed",
     },
@@ -378,6 +436,93 @@ export default function AdminDashboardPage() {
         </div>
       </section>
 
+      <section className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="rounded-3xl bg-surface-container-lowest p-8 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)]">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-headline font-bold text-primary">
+                Conversión comercial
+              </h3>
+              <p className="mt-1 text-xs text-on-surface-variant">
+                Progreso de leads hacia visitas, reservas y cierres.
+              </p>
+            </div>
+            <span className="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant">
+              {leads.length} leads
+            </span>
+          </div>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {[
+              ["Visita", conversion.visita],
+              ["Reserva", conversion.reservado],
+              ["Cierre", conversion.cerrado],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-5"
+              >
+                <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
+                  {label}
+                </p>
+                <p className="mt-2 text-3xl font-bold text-primary">{value}%</p>
+                <div className="mt-3 h-2 rounded-full bg-surface-container-high">
+                  <div
+                    className="h-2 rounded-full bg-primary"
+                    style={{ width: `${value}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-3xl bg-surface-container-lowest p-8 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)]">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-headline font-bold text-primary">
+                Sincronización Tocco
+              </h3>
+              <p className="mt-1 text-xs text-on-surface-variant">
+                Usa mock hasta configurar credenciales reales.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleToccoSync}
+              disabled={syncingTocco}
+              className="rounded-full bg-primary px-5 py-2 text-xs font-semibold uppercase tracking-widest text-on-primary disabled:opacity-60"
+              style={{ color: "var(--color-on-primary)" }}
+            >
+              {syncingTocco ? "Sincronizando" : "Sincronizar"}
+            </button>
+          </div>
+          <div className="mt-6 grid gap-3">
+            {toccoSyncLogs.length === 0 ? (
+              <p className="text-sm text-on-surface-variant">
+                Todavía no hay ejecuciones registradas.
+              </p>
+            ) : (
+              toccoSyncLogs.slice(0, 3).map((log) => (
+                <div
+                  key={log.id}
+                  className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary">
+                      {log.status}
+                    </span>
+                    <span className="text-[10px] text-on-surface-variant">
+                      {new Date(log.finishedAt).toLocaleString("es-AR")}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm text-on-surface-variant">{log.message}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
       <section className="mt-8 rounded-3xl bg-surface-container-lowest p-8 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)]">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h3 className="text-xl font-headline font-bold text-primary">Leads recientes</h3>
@@ -416,6 +561,70 @@ export default function AdminDashboardPage() {
         </div>
       </section>
 
+      <section className="mt-8 grid gap-4 lg:grid-cols-2">
+        <div className="rounded-3xl bg-surface-container-lowest p-8 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)]">
+          <h3 className="text-xl font-headline font-bold text-primary">
+            Rendimiento por corredor
+          </h3>
+          <div className="mt-6 grid gap-3">
+            {agentPerformance.length === 0 ? (
+              <p className="text-sm text-on-surface-variant">
+                Cargá corredores para ver performance.
+              </p>
+            ) : (
+              agentPerformance.map((agent) => (
+                <div
+                  key={agent.id}
+                  className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="font-bold text-primary">{agent.name}</p>
+                      <p className="text-xs text-on-surface-variant">
+                        {agent.properties} propiedades
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-primary">{agent.leads} leads</p>
+                      <p className="text-xs text-on-surface-variant">
+                        {agent.closed} cierres
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-3xl bg-surface-container-lowest p-8 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)]">
+          <h3 className="text-xl font-headline font-bold text-primary">
+            Propiedades más consultadas
+          </h3>
+          <div className="mt-6 grid gap-3">
+            {topProperties.length === 0 ? (
+              <p className="text-sm text-on-surface-variant">
+                Todavía no hay métricas de propiedades.
+              </p>
+            ) : (
+              topProperties.map((property) => (
+                <Link
+                  key={property.id}
+                  href={`/propiedades/${property.id}`}
+                  className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4 hover:border-primary/40"
+                >
+                  <p className="font-bold text-primary">{property.title}</p>
+                  <p className="mt-1 text-xs text-on-surface-variant">
+                    {property.views} vistas · {property.leads} leads ·{" "}
+                    {property.favorites} favoritos
+                  </p>
+                </Link>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
       <section className="mt-8 rounded-3xl bg-surface-container-lowest p-8 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)]">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h3 className="text-xl font-headline font-bold text-primary">Métricas Operativas</h3>
@@ -427,7 +636,7 @@ export default function AdminDashboardPage() {
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
             <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
-              Facturación mensual estimada
+              Ingreso potencial mensual
             </p>
             <p className="mt-2 text-2xl font-semibold text-primary">
               {currencyFormatter.format(estimatedMonthlyRevenue)}

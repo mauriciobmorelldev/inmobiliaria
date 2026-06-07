@@ -26,6 +26,7 @@ import {
   type PropertyType,
 } from "@/lib/inmoData";
 import { useInmoStore } from "@/lib/inmoStore";
+import { readAdminSession } from "@/lib/session";
 
 const toggleAttributeSelection = (
   group: FilterGroup,
@@ -47,11 +48,18 @@ const toggleAttributeSelection = (
 
 export default function AdminPropertiesPage() {
   const { state, updateState } = useInmoStore();
-  const { listings, agents, filterGroups } = state;
+  const { listings, agents, filterGroups, adminUsers } = state;
+  const [adminSession] = useState(() => readAdminSession());
+  const authedAdmin = adminUsers.find((admin) => admin.id === adminSession?.adminId);
+  const visibleListings =
+    authedAdmin?.role === "owner"
+      ? listings
+      : listings.filter((listing) => listing.createdByAdminId === authedAdmin?.id);
+  const assignableAgents = authedAdmin?.role === "owner" ? agents : [];
 
   const [editingListingId, setEditingListingId] = useState<string | null>(null);
   const [listingForm, setListingForm] = useState<ListingFormState>(
-    getEmptyListingForm(filterGroups, agents)
+    getEmptyListingForm(filterGroups, assignableAgents)
   );
   const [imageUrlDraft, setImageUrlDraft] = useState("");
   const [videoUrlDraft, setVideoUrlDraft] = useState("");
@@ -64,9 +72,9 @@ export default function AdminPropertiesPage() {
     return () => window.clearTimeout(timeout);
   }, [highlightForm]);
 
-  const availableCount = listings.filter((item) => item.status === "disponible").length;
-  const reservedCount = listings.filter((item) => item.status === "reservado").length;
-  const soldCount = listings.filter((item) => item.status === "vendido").length;
+  const availableCount = visibleListings.filter((item) => item.status === "disponible").length;
+  const reservedCount = visibleListings.filter((item) => item.status === "reservado").length;
+  const soldCount = visibleListings.filter((item) => item.status === "vendido").length;
 
   const handleListingSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -77,7 +85,25 @@ export default function AdminPropertiesPage() {
     }
 
     const id = editingListingId ?? createId();
-    const normalized = normalizeListing(listingForm, id);
+    const baseListing = normalizeListing(listingForm, id);
+    const previousListing = listings.find((item) => item.id === id);
+    const isOwnListing =
+      authedAdmin?.role === "owner" ||
+      previousListing?.createdByAdminId === authedAdmin?.id ||
+      (!editingListingId && authedAdmin?.role === "colaborador");
+
+    if (!isOwnListing) {
+      setFormError("Tu rol colaborador solo puede editar propiedades creadas por vos.");
+      return;
+    }
+
+    const normalized = {
+      ...baseListing,
+      agentId: authedAdmin?.role === "owner" ? baseListing.agentId : undefined,
+      createdByAdminId:
+        previousListing?.createdByAdminId ??
+        (authedAdmin?.role === "owner" ? undefined : authedAdmin?.id),
+    };
 
     updateState((prev) => {
       const nextListings = editingListingId
@@ -87,13 +113,14 @@ export default function AdminPropertiesPage() {
     });
 
     setEditingListingId(null);
-    setListingForm(getEmptyListingForm(filterGroups, agents));
+    setListingForm(getEmptyListingForm(filterGroups, assignableAgents));
     setImageUrlDraft("");
     setVideoUrlDraft("");
     setFormError("");
   };
 
   const handleListingEdit = (listing: Listing) => {
+    if (authedAdmin?.role !== "owner" && listing.createdByAdminId !== authedAdmin?.id) return;
     setEditingListingId(listing.id);
     setListingForm(getListingForm(listing));
     setHighlightForm(true);
@@ -105,7 +132,11 @@ export default function AdminPropertiesPage() {
   const handleListingDelete = (listingId: string) => {
     updateState((prev) => ({
       ...prev,
-      listings: prev.listings.filter((item) => item.id !== listingId),
+      listings: prev.listings.filter(
+        (item) =>
+          item.id !== listingId ||
+          (authedAdmin?.role !== "owner" && item.createdByAdminId !== authedAdmin?.id)
+      ),
     }));
   };
 
@@ -156,7 +187,7 @@ export default function AdminPropertiesPage() {
       <section className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
         <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4">
           <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Totales</p>
-          <p className="mt-2 text-3xl font-bold text-primary">{listings.length}</p>
+          <p className="mt-2 text-3xl font-bold text-primary">{visibleListings.length}</p>
         </div>
         <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4">
           <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Disponibles</p>
@@ -180,7 +211,9 @@ export default function AdminPropertiesPage() {
       >
         <h3 className="text-xl font-headline font-bold text-primary">{editingListingId ? "Editar propiedad" : "Nueva propiedad"}</h3>
         <p className="mt-2 text-xs text-on-surface-variant">
-          Completá ficha, imágenes y atributos para mostrar esta unidad en el front.
+          {authedAdmin?.role === "owner"
+            ? "Completá ficha, imágenes, corredor y atributos para mostrar esta unidad en el front."
+            : "Tu rol colaborador solo puede cargar y modificar propiedades creadas por vos. No podés asignar corredor ni teléfono."}
         </p>
 
         <form className="mt-6 grid gap-4" onSubmit={handleListingSubmit}>
@@ -339,26 +372,28 @@ export default function AdminPropertiesPage() {
             required
           />
 
-          <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
-            Corredor asignado
-            <select
-              className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-              value={listingForm.agentId}
-              onChange={(event) =>
-                setListingForm((prev) => ({
-                  ...prev,
-                  agentId: event.target.value,
-                }))
-              }
-            >
-              <option value="">Sin asignar</option>
-              {agents.map((agent) => (
-                <option key={agent.id} value={agent.id}>
-                  {agent.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          {authedAdmin?.role === "owner" ? (
+            <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+              Corredor asignado
+              <select
+                className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                value={listingForm.agentId}
+                onChange={(event) =>
+                  setListingForm((prev) => ({
+                    ...prev,
+                    agentId: event.target.value,
+                  }))
+                }
+              >
+                <option value="">Sin asignar</option>
+                {assignableAgents.map((agent) => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
 
           <div className="grid gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
@@ -528,7 +563,7 @@ export default function AdminPropertiesPage() {
                 type="button"
                 onClick={() => {
                   setEditingListingId(null);
-                  setListingForm(getEmptyListingForm(filterGroups, agents));
+                  setListingForm(getEmptyListingForm(filterGroups, assignableAgents));
                 }}
                 className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant"
               >
@@ -546,10 +581,10 @@ export default function AdminPropertiesPage() {
         </p>
 
         <div className="mt-6 grid gap-4">
-          {listings.length === 0 ? (
+          {visibleListings.length === 0 ? (
             <p className="text-sm text-on-surface-variant">Todavía no hay propiedades cargadas.</p>
           ) : (
-            listings.map((listing) => (
+            visibleListings.map((listing) => (
               <article
                 key={listing.id}
                 className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4"
