@@ -134,7 +134,7 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
               </h1>
               <p className="text-on-surface-variant text-lg">
                 Descubrí propiedades verificadas, con fichas claras y filtros
-                dinámicos gestionados desde el panel administrativo.
+                pensados para encontrar rápido lo que necesitás.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link
@@ -154,7 +154,7 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
             <div className="rounded-2xl bg-surface-container-lowest p-6 shadow-[0_40px_60px_-20px_rgba(27,27,28,0.12)]">
               <div className="grid gap-4">
                 <div className="flex items-center justify-between text-sm font-semibold text-on-surface-variant">
-                  <span>Inventario activo</span>
+                  <span>Propiedades disponibles</span>
                   <span className="rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
                     {listings.length} propiedades
                   </span>
@@ -208,7 +208,7 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
               Encontrá propiedades a tu medida
             </h2>
             <p className="text-on-surface-variant">
-              Filtrá por tipo, estado y atributos configurados en el panel.
+              Filtrá por tipo, estado y características de cada propiedad.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 text-sm font-semibold">
@@ -303,7 +303,7 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
               Todavía no hay propiedades cargadas
             </h3>
             <p className="mt-2 text-on-surface-variant">
-              Creá la primera desde el panel admin.
+              Pronto vas a ver nuevas propiedades publicadas.
             </p>
             <Link
               className="mt-6 inline-flex rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-on-primary"

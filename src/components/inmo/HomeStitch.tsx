@@ -27,6 +27,47 @@ const truncate = (value: string, max = 110) => {
   return `${value.slice(0, max).trimEnd()}...`;
 };
 
+const getAttributeText = (attributes: Record<string, string[]>) =>
+  Object.values(attributes).flat().join(" ").toLowerCase();
+
+const hasFeature = (attributes: Record<string, string[]>, keywords: string[]) => {
+  const value = getAttributeText(attributes);
+  return keywords.some((keyword) => value.includes(keyword));
+};
+
+const getPropertyFeatures = (item: {
+  rooms: number;
+  area: number;
+  attributes: Record<string, string[]>;
+}) => [
+  {
+    icon: "bed",
+    label: `${item.rooms} amb.`,
+  },
+  {
+    icon: "square_foot",
+    label: `${item.area} m²`,
+  },
+  {
+    icon: "bathtub",
+    label: hasFeature(item.attributes, ["baño", "bano", "bath", "ducha"])
+      ? "Baño"
+      : "Consultar",
+  },
+  {
+    icon: "local_laundry_service",
+    label: hasFeature(item.attributes, ["lavadero", "laundry", "lavarropas"])
+      ? "Lavadero"
+      : "Servicios",
+  },
+  {
+    icon: "directions_car",
+    label: hasFeature(item.attributes, ["cochera", "garage", "parking"])
+      ? "Cochera"
+      : "Opcional",
+  },
+];
+
 const smoothSpring = {
   type: "spring" as const,
   stiffness: 92,
@@ -135,22 +176,9 @@ export default function HomeStitch() {
   );
 
   const availableCount = listings.filter((item) => item.status === "disponible").length;
-  const reservedCount = listings.filter((item) => item.status === "reservado").length;
   const avgPrice = listings.length
     ? listings.reduce((acc, item) => acc + item.price, 0) / listings.length
     : 0;
-
-  const topNeighborhoods = useMemo(() => {
-    const counter = new Map<string, number>();
-    listings.forEach((item) => {
-      if (!item.neighborhood) return;
-      counter.set(item.neighborhood, (counter.get(item.neighborhood) ?? 0) + 1);
-    });
-    return [...counter.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([name, count]) => ({ name, count }));
-  }, [listings]);
 
   const recentListings = useMemo(() => [...listings].slice(-3).reverse(), [listings]);
 
@@ -249,37 +277,53 @@ export default function HomeStitch() {
 
             <motion.div
               variants={sectionReveal}
-              className="mt-8 grid max-w-5xl gap-3 rounded-3xl bg-surface-container-lowest/95 p-3 shadow-[0_40px_70px_-24px_rgba(27,54,93,0.5)] backdrop-blur sm:mt-12 md:grid-cols-[1.2fr_1fr_1fr_auto]"
+              className="mt-8 max-w-5xl rounded-[2rem] bg-surface-container-lowest/95 p-3 shadow-[0_40px_70px_-24px_rgba(27,54,93,0.5)] backdrop-blur sm:mt-12"
             >
-              <div className="rounded-xl bg-surface-container-low p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                  {homeContent.statsTitle}
-                </p>
-                <p className="mt-2 text-3xl font-headline font-bold text-primary">{listings.length}</p>
+              <div className="grid gap-3 lg:grid-cols-[1fr_1fr_1fr_1.65fr_auto]">
+                <div className="rounded-xl bg-surface-container-low p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
+                    {homeContent.statsTitle}
+                  </p>
+                  <p className="mt-2 text-3xl font-headline font-bold text-primary">{listings.length}</p>
+                </div>
+                <div className="rounded-xl bg-surface-container-low p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
+                    Disponibles
+                  </p>
+                  <p className="mt-2 text-3xl font-headline font-bold text-primary">{availableCount}</p>
+                </div>
+                <div className="rounded-xl bg-surface-container-low p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
+                    Precio medio
+                  </p>
+                  <p className="mt-2 text-xl font-headline font-bold text-primary">
+                    {currencyFormatter.format(avgPrice || 0)}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Link
+                    href="/propiedades?operacion=venta"
+                    className="flex min-h-14 items-center justify-center rounded-2xl bg-primary-fixed px-6 py-3 text-center text-sm font-bold text-primary shadow-[0_18px_35px_-28px_rgba(255,243,194,0.8)]"
+                  >
+                    Comprar
+                  </Link>
+                  <Link
+                    href="/propiedades?operacion=alquiler"
+                    className="flex min-h-14 items-center justify-center rounded-2xl bg-surface-container-high px-6 py-3 text-center text-sm font-bold text-primary"
+                  >
+                    Alquilar
+                  </Link>
+                </div>
+                <motion.div whileHover={{ y: -4 }} whileTap={{ scale: 0.98 }}>
+                  <Link
+                    href={homeContent.primaryCtaHref || "/propiedades"}
+                    className="brand-gradient flex h-full items-center justify-center gap-2 rounded-3xl px-8 py-4 text-sm font-bold tracking-tight text-on-primary"
+                  >
+                    Ver propiedades
+                    <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                  </Link>
+                </motion.div>
               </div>
-              <div className="rounded-xl bg-surface-container-low p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                  Disponibles
-                </p>
-                <p className="mt-2 text-3xl font-headline font-bold text-primary">{availableCount}</p>
-              </div>
-              <div className="rounded-xl bg-surface-container-low p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                  Precio medio
-                </p>
-                <p className="mt-2 text-xl font-headline font-bold text-primary">
-                  {currencyFormatter.format(avgPrice || 0)}
-                </p>
-              </div>
-              <motion.div whileHover={{ y: -4 }} whileTap={{ scale: 0.98 }}>
-                <Link
-                href={homeContent.primaryCtaHref || "/propiedades"}
-                  className="brand-gradient flex h-full items-center justify-center gap-2 rounded-xl px-8 py-4 text-sm font-bold tracking-tight text-on-primary"
-                >
-                  {homeContent.primaryCtaLabel}
-                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
-                </Link>
-              </motion.div>
             </motion.div>
           </div>
         </motion.section>
@@ -313,7 +357,7 @@ export default function HomeStitch() {
                     <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-primary/30" />
                     <div className="relative flex min-h-56 flex-col justify-end p-7">
                       <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary-fixed">
-                        Banner editable
+                        Oportunidad destacada
                       </p>
                       <h2 className="mt-3 max-w-xl text-2xl font-headline font-bold text-on-primary">
                         {banner.title}
@@ -343,8 +387,11 @@ export default function HomeStitch() {
               whileHover={{ y: -6 }}
               className="rounded-3xl bg-surface-container-lowest p-6 pro-card"
             >
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Propiedades activas</p>
-              <p className="mt-2 text-3xl font-bold text-primary">{availableCount}</p>
+              <span className="material-symbols-outlined text-3xl text-primary">home_work</span>
+              <p className="mt-4 text-sm font-bold text-primary">Comprar con foco</p>
+              <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+                Entrá directo a propiedades en venta y compará precio, zona y características.
+              </p>
             </motion.div>
             <motion.div
               variants={sectionReveal}
@@ -355,8 +402,11 @@ export default function HomeStitch() {
               whileHover={{ y: -6 }}
               className="rounded-3xl bg-surface-container-lowest p-6 pro-card"
             >
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Reservas en curso</p>
-              <p className="mt-2 text-3xl font-bold text-primary">{reservedCount}</p>
+              <span className="material-symbols-outlined text-3xl text-primary">apartment</span>
+              <p className="mt-4 text-sm font-bold text-primary">Alquilar más simple</p>
+              <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+                Filtrá opciones mensuales o temporarias sin mezclar operaciones.
+              </p>
             </motion.div>
             <motion.div
               variants={sectionReveal}
@@ -367,8 +417,11 @@ export default function HomeStitch() {
               whileHover={{ y: -6 }}
               className="rounded-3xl bg-surface-container-lowest p-6 pro-card"
             >
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Barrios cubiertos</p>
-              <p className="mt-2 text-3xl font-bold text-primary">{topNeighborhoods.length}</p>
+              <span className="material-symbols-outlined text-3xl text-primary">favorite</span>
+              <p className="mt-4 text-sm font-bold text-primary">Guardar favoritas</p>
+              <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+                Creá una cuenta y armá tu selección para decidir con más calma.
+              </p>
             </motion.div>
             <motion.div
               variants={sectionReveal}
@@ -379,8 +432,11 @@ export default function HomeStitch() {
               whileHover={{ y: -6 }}
               className="rounded-3xl bg-surface-container-lowest p-6 pro-card"
             >
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Corredores activos</p>
-              <p className="mt-2 text-3xl font-bold text-primary">{agents.length}</p>
+              <span className="material-symbols-outlined text-3xl text-primary">forum</span>
+              <p className="mt-4 text-sm font-bold text-primary">Consultar sin exponer datos</p>
+              <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+                Enviá tu consulta desde la ficha y Connexa responde por el canal correcto.
+              </p>
             </motion.div>
           </div>
         </section>
@@ -399,7 +455,7 @@ export default function HomeStitch() {
               className="flex items-center gap-2 border-b-2 border-primary pb-1 text-sm font-bold uppercase tracking-widest"
               href="/propiedades"
             >
-              Ver Colección Completa
+              Ver todas las propiedades
             </Link>
           </div>
 
@@ -424,6 +480,7 @@ export default function HomeStitch() {
                 const cover = getCoverImage(item.images, item.coverIndex);
                 const video = item.videos?.[0];
                 const agent = item.agentId ? agentsById[item.agentId] : undefined;
+                const features = getPropertyFeatures(item);
                 const narrative = truncate(
                   item.highlight ||
                     item.description ||
@@ -492,10 +549,25 @@ export default function HomeStitch() {
                       </p>
                       <p className="mt-4 text-sm leading-relaxed text-on-surface-variant">{narrative}</p>
 
-                      <div className="mt-4 flex items-center justify-between text-xs text-on-surface-variant">
-                        <span>{item.rooms} ambientes</span>
+                      <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
+                        {features.map((feature) => (
+                          <div
+                            key={`${item.id}-${feature.icon}`}
+                            className="flex min-w-0 flex-col items-center rounded-2xl bg-surface-container-low px-2 py-2 text-center"
+                          >
+                            <span className="material-symbols-outlined text-lg text-primary">
+                              {feature.icon}
+                            </span>
+                            <span className="mt-1 max-w-full truncate text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant">
+                              {feature.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-on-surface-variant">
                         <span>{propertyTypeLabels[item.type]}</span>
-                        {agent ? <span>{agent.name}</span> : <span>Sin corredor</span>}
+                        {agent ? <span>Asesor disponible</span> : <span>Consulta directa</span>}
                       </div>
 
                       <div className="mt-5 flex items-center justify-between">
@@ -524,7 +596,7 @@ export default function HomeStitch() {
           )}
         </section>
 
-        <section id="equipo" className="mx-auto max-w-screen-2xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
+        <section id="como-avanzar" className="mx-auto max-w-screen-2xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
           <motion.div
             variants={sectionReveal}
             initial="hidden"
@@ -541,40 +613,56 @@ export default function HomeStitch() {
                   {homeContent.teamSubtitle}
                 </p>
               </div>
-              <Link href="/equipo" className="text-sm font-semibold text-primary">
-                Ver equipo
+              <Link href="/propiedades" className="text-sm font-semibold text-primary">
+                Ver propiedades
               </Link>
             </div>
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
               <motion.div whileHover={{ y: -6, scale: 1.01 }}>
                 <Link
-                href="/equipo"
+                href="/propiedades?operacion=venta"
                   className="block rounded-3xl bg-surface-container-low p-6"
                 >
                   <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
-                    Equipo
+                    Comprar
                   </p>
                   <h3 className="mt-2 text-xl font-bold text-primary">
-                    Conocé a nuestros corredores
+                    Ver propiedades en venta
                   </h3>
                   <p className="mt-2 text-sm text-on-surface-variant">
-                    Especialistas por zona y tipo de operación.
+                    Listado enfocado para buscar unidades disponibles para compra.
                   </p>
                 </Link>
               </motion.div>
               <motion.div whileHover={{ y: -6, scale: 1.01 }}>
                 <Link
-                href="/barrios"
+                href="/propiedades?operacion=alquiler"
                   className="block rounded-3xl bg-surface-container-low p-6"
                 >
                   <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
-                    Barrios
+                    Alquilar
                   </p>
                   <h3 className="mt-2 text-xl font-bold text-primary">
-                    Zonas con mayor demanda
+                    Ver alquileres disponibles
                   </h3>
                   <p className="mt-2 text-sm text-on-surface-variant">
-                    Mapa de barrios destacados del inventario.
+                    Opciones mensuales y temporarias separadas de las ventas.
+                  </p>
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ y: -6, scale: 1.01 }}>
+                <Link
+                href="/registro"
+                  className="block rounded-3xl bg-surface-container-low p-6"
+                >
+                  <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
+                    Cuenta
+                  </p>
+                  <h3 className="mt-2 text-xl font-bold text-primary">
+                    Guardar y consultar
+                  </h3>
+                  <p className="mt-2 text-sm text-on-surface-variant">
+                    Guardá favoritas y seguí tus consultas desde tu cuenta.
                   </p>
                 </Link>
               </motion.div>
@@ -600,7 +688,7 @@ export default function HomeStitch() {
                 </p>
               </div>
               <Link href="/propiedades" className="text-sm font-semibold text-primary">
-                Ver catálogo completo
+                Ver propiedades
               </Link>
             </div>
 

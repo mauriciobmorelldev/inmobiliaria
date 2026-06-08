@@ -178,7 +178,7 @@ export type Listing = {
   attributes: Record<string, string[]>;
 };
 
-export const STATE_VERSION = 3;
+export const STATE_VERSION = 4;
 
 export type InmoState = {
   version: number;
@@ -232,26 +232,26 @@ export const defaultState: InmoState = {
   homeContent: {
     eyebrow: "Connexa Real Estate",
     title: "Connexa",
-    italicTitle: "propiedades inteligentes.",
+    italicTitle: "tu lugar empieza acá.",
     subtitle:
-      "Curamos propiedades con criterio comercial, experiencia digital clara y seguimiento operativo para compradores, inversores y clientes finales.",
+      "Encontrá propiedades, guardá favoritas y consultá con un equipo que te acompaña en cada paso de la decisión.",
     primaryCtaLabel: "Explorar catálogo",
     primaryCtaHref: "/propiedades",
     secondaryCtaLabel: "Acceso clientes",
     secondaryCtaHref: "/acceso",
     statsTitle: "Inventario vivo",
-    featuredTitle: "Selecciones Curadas",
+    featuredTitle: "Propiedades destacadas",
     featuredSubtitle:
-      "Fichas con contexto comercial y visión de uso real, no solo fotos bonitas.",
-    teamTitle: "Equipo y Barrios",
-    teamSubtitle: "Explorá el equipo comercial y las zonas con más movimiento.",
-    recentTitle: "Incorporaciones recientes",
-    recentSubtitle: "Últimas propiedades agregadas desde el panel administrativo.",
+      "Cada ficha reúne ubicación, características, imágenes y consulta directa para decidir mejor.",
+    teamTitle: "Elegí cómo avanzar",
+    teamSubtitle: "Accesos simples para comprar, alquilar, guardar favoritas y enviar consultas sin vueltas.",
+    recentTitle: "Últimas propiedades publicadas",
+    recentSubtitle: "Nuevas opciones para comprar o alquilar en Connexa.",
     banners: [
       {
         id: "home-banner-1",
         title: "Propiedades premium listas para visitar",
-        subtitle: "Destacá oportunidades, lanzamientos o campañas desde el panel.",
+        subtitle: "Explorá opciones seleccionadas y consultá por disponibilidad en minutos.",
         image: "",
         ctaLabel: "Ver propiedades",
         ctaHref: "/propiedades",
@@ -277,6 +277,40 @@ export const defaultState: InmoState = {
   propertyMetrics: [],
   toccoSyncLogs: [],
   agents: [],
-  filterGroups: [],
-  listings: [],
+  filterGroups: [
+    {
+      id: "comodidades",
+      label: "Comodidades",
+      mode: "multi",
+      options: ["Baño completo", "Lavadero", "Cochera", "Balcón"],
+    },
+  ],
+  listings: [
+    {
+      id: "demo-connexa-palermo",
+      title: "Departamento luminoso con balcón en Palermo",
+      type: "tradicional",
+      status: "disponible",
+      price: 185000,
+      priceUnit: "venta",
+      neighborhood: "Palermo",
+      area: 82,
+      rooms: 3,
+      tag: "Demo",
+      highlight: "Unidad lista para visitar, con balcón corrido, cochera y lavadero independiente.",
+      description:
+        "Departamento de tres ambientes con excelente luz natural, living comedor integrado, cocina funcional, dormitorio principal amplio y balcón con vista abierta. Ideal para ver cómo se muestra una ficha completa en Connexa.",
+      images: [
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80",
+        "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1400&q=80",
+        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=80",
+        "https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=1400&q=80",
+      ],
+      videos: [],
+      coverIndex: 0,
+      attributes: {
+        comodidades: ["Baño completo", "Lavadero", "Cochera", "Balcón"],
+      },
+    },
+  ],
 };

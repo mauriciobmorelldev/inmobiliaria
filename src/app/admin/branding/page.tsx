@@ -475,8 +475,8 @@ export default function AdminBrandingPage() {
             {[
               ["featuredTitle", "Título propiedades"],
               ["featuredSubtitle", "Texto propiedades"],
-              ["teamTitle", "Título equipo/barrios"],
-              ["teamSubtitle", "Texto equipo/barrios"],
+              ["teamTitle", "Título bloque de acciones"],
+              ["teamSubtitle", "Texto bloque de acciones"],
               ["recentTitle", "Título recientes"],
               ["recentSubtitle", "Texto recientes"],
             ].map(([key, label]) => (

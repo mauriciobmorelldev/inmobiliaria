@@ -5,7 +5,7 @@ import type { InmoState } from "./inmoData";
 import { defaultState, STATE_VERSION } from "./inmoData";
 import { mergeState } from "./stateMerge";
 
-const STORAGE_KEY = "connexa-state/v3";
+const STORAGE_KEY = "connexa-state/v4";
 const UPDATE_EVENT = "inmo:updated";
 
 const isBrowser = typeof window !== "undefined";

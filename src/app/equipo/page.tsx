@@ -18,7 +18,7 @@ export default function EquipoPage() {
             Equipo
           </p>
           <h1 className="mt-4 text-3xl font-headline font-extrabold text-primary">
-            Corredores y especialistas
+            Asesores y especialistas
           </h1>
           <p className="mt-2 text-sm text-on-surface-variant">
             Equipo comercial disponible para ayudarte a encontrar la propiedad ideal.
@@ -27,7 +27,7 @@ export default function EquipoPage() {
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {agents.length === 0 ? (
               <p className="text-sm text-on-surface-variant">
-                Todavía no hay agentes cargados.
+                Pronto vas a conocer al equipo de Connexa.
               </p>
             ) : (
               agents.map((agent) => (
@@ -50,14 +50,13 @@ export default function EquipoPage() {
                     <div>
                       <p className="text-sm font-semibold text-primary">{agent.name}</p>
                       <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
-                        {agent.role || "Corredor"}
+                        {agent.role || "Asesor"}
                       </p>
                     </div>
                   </div>
-                  <div className="mt-4 text-xs text-on-surface-variant">
-                    <p>{agent.phone || "Teléfono pendiente"}</p>
-                    <p>{agent.email || "Email pendiente"}</p>
-                  </div>
+                  <p className="mt-4 text-xs leading-5 text-on-surface-variant">
+                    Disponible para acompañarte durante la consulta y coordinar próximos pasos.
+                  </p>
                 </article>
               ))
             )}

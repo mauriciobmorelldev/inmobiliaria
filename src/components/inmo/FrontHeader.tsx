@@ -118,21 +118,21 @@ export default function FrontHeader({
                 ? "text-primary"
                 : "text-primary/60 hover:text-primary"
             } rounded-full px-3 py-1 transition-all hover:-translate-y-0.5`}
+            href="/propiedades?operacion=venta"
+          >
+            Comprar
+          </Link>
+          <Link
+            className="rounded-full px-3 py-1 text-primary/60 transition-all hover:-translate-y-0.5 hover:text-primary"
+            href="/propiedades?operacion=alquiler"
+          >
+            Alquilar
+          </Link>
+          <Link
+            className="rounded-full px-3 py-1 text-primary/60 transition-all hover:-translate-y-0.5 hover:text-primary"
             href="/propiedades"
           >
             Propiedades
-          </Link>
-          <Link
-            className="rounded-full px-3 py-1 text-primary/60 transition-all hover:-translate-y-0.5 hover:text-primary"
-            href="/#equipo"
-          >
-            Equipo
-          </Link>
-          <Link
-            className="rounded-full px-3 py-1 text-primary/60 transition-all hover:-translate-y-0.5 hover:text-primary"
-            href="/barrios"
-          >
-            Barrios
           </Link>
         </div>
 
@@ -247,25 +247,25 @@ export default function FrontHeader({
               Inicio
             </Link>
             <Link
+              href="/propiedades?operacion=venta"
+              onClick={() => setShowMobileMenu(false)}
+              className="rounded-2xl px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
+            >
+              Comprar
+            </Link>
+            <Link
+              href="/propiedades?operacion=alquiler"
+              onClick={() => setShowMobileMenu(false)}
+              className="rounded-2xl px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
+            >
+              Alquilar
+            </Link>
+            <Link
               href="/propiedades"
               onClick={() => setShowMobileMenu(false)}
               className="rounded-2xl px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
             >
               Propiedades
-            </Link>
-            <Link
-              href="/equipo"
-              onClick={() => setShowMobileMenu(false)}
-              className="rounded-2xl px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
-            >
-              Equipo
-            </Link>
-            <Link
-              href="/barrios"
-              onClick={() => setShowMobileMenu(false)}
-              className="rounded-2xl px-4 py-3 transition-all hover:-translate-y-0.5 hover:bg-surface-container-high"
-            >
-              Barrios
             </Link>
             {mounted && clientEmail ? (
               <>

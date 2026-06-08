@@ -89,7 +89,7 @@ export default function RegistroPage() {
               Crear cuenta
             </h1>
             <p className="mt-2 text-sm text-on-surface-variant">
-              Registrate para seguir tu operación desde el panel privado.
+              Registrate para guardar propiedades y seguir tus consultas.
             </p>
 
             <form className="mt-8 grid gap-4" onSubmit={handleSubmit}>

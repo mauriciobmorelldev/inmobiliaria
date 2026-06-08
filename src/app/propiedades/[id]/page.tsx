@@ -23,12 +23,6 @@ const formatPrice = (price: number, priceUnit: string) => {
   return base;
 };
 
-const toWhatsappHref = (phone: string, message: string) => {
-  const cleanPhone = phone.replace(/\D/g, "");
-  if (!cleanPhone) return "";
-  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-};
-
 const resolveAttributes = (
   groups: FilterGroup[],
   values: Record<string, string[]>
@@ -164,10 +158,6 @@ export default function DetallePropiedadPage() {
   const sideImages = images.slice(1, 3);
   const extraCount = images.length - 3;
   const themeStyles = buildThemeStyles(theme);
-  const whatsappMessage = `Hola ${agent?.name || ""}, me interesa la propiedad "${property.title}" en ${property.neighborhood}. ¿Sigue disponible?`;
-  const whatsappHref = agent?.phone
-    ? toWhatsappHref(agent.phone, whatsappMessage)
-    : "";
   const isFavorite = Boolean(
     client &&
       propertyFavorites.some(
@@ -416,7 +406,7 @@ export default function DetallePropiedadPage() {
 
             <div className="space-y-6">
               <h2 className="text-2xl font-headline font-bold tracking-tight">
-                La Narrativa Arquitectónica
+                Sobre esta propiedad
               </h2>
               <div className="prose prose-stone max-w-none space-y-4 text-on-surface-variant">
                 <p>{property.description || "Descripción pendiente."}</p>
@@ -427,7 +417,7 @@ export default function DetallePropiedadPage() {
             {attributes.length ? (
               <div className="space-y-8">
                 <h2 className="text-2xl font-headline font-bold tracking-tight">
-                  Amenidades Curadas
+                  Características destacadas
                 </h2>
                 <div className="grid grid-cols-2 gap-x-12 gap-y-6 md:grid-cols-3">
                   {attributes.flatMap((group) =>
@@ -463,33 +453,14 @@ export default function DetallePropiedadPage() {
                   </div>
                 </div>
               ) : (
-                <p className="mt-4 text-sm text-on-surface-variant">Sin corredor asignado.</p>
-              )}
-              <div className="mt-6 grid gap-3 text-sm text-on-surface-variant">
-                <p>{agent?.email}</p>
-                <p>{agent?.phone}</p>
-              </div>
-              {whatsappHref ? (
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-on-primary"
-                >
-                  Contactar por WhatsApp
-                </a>
-              ) : (
-                <button
-                  disabled
-                  className="mt-6 w-full cursor-not-allowed rounded-lg bg-primary/60 px-5 py-3 text-sm font-semibold text-on-primary"
-                >
-                  Cargar teléfono del corredor
-                </button>
+                <p className="mt-4 text-sm text-on-surface-variant">
+                  Un asesor de Connexa va a responder tu consulta.
+                </p>
               )}
               <button
                 type="button"
                 onClick={toggleFavorite}
-                className="mt-3 inline-flex w-full items-center justify-center rounded-lg border border-outline-variant/40 px-5 py-3 text-sm font-semibold text-primary"
+                className="mt-6 inline-flex w-full items-center justify-center rounded-lg border border-outline-variant/40 px-5 py-3 text-sm font-semibold text-primary"
               >
                 <span className="material-symbols-outlined mr-2 text-lg">
                   {isFavorite ? "favorite" : "favorite_border"}

@@ -19,7 +19,7 @@ const manrope = Manrope({
 
 export const metadata: Metadata = {
   title: "Connexa · Inmobiliaria",
-  description: "Plataforma inmobiliaria Connexa con panel administrativo.",
+  description: "Propiedades para comprar, alquilar y consultar en Connexa.",
 };
 
 export default function RootLayout({

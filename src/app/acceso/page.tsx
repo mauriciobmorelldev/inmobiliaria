@@ -121,7 +121,7 @@ export default function AccesoClientesPage() {
                 Consulta cuotas, vencimientos y monto mensual.
               </div>
               <div className="rounded-2xl bg-surface-container-low p-4">
-                Accedé a tu corredor asignado con contacto directo.
+                Accedé a tus favoritos, consultas y seguimiento desde un solo lugar.
               </div>
               <div className="rounded-2xl bg-surface-container-low p-4">
                 Estado del inmueble: disponible, en obra o finalizado.

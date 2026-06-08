@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useInmoStore } from "@/lib/inmoStore";
 import {
   propertyTypeLabels,
@@ -15,6 +15,7 @@ import FrontHeader from "@/components/inmo/FrontHeader";
 
 type PropertyTypeFilter = "all" | PropertyType;
 type PropertyStatusFilter = "all" | PropertyStatus;
+type OperationFilter = "all" | "venta" | "alquiler";
 
 const typeFilters: Array<{ id: PropertyTypeFilter; label: string }> = [
   { id: "all", label: "Todas" },
@@ -75,6 +76,7 @@ export default function ResultsStitch() {
   const [query, setQuery] = useState("");
   const [type, setType] = useState<PropertyTypeFilter>("all");
   const [status, setStatus] = useState<PropertyStatusFilter>("all");
+  const [operation, setOperation] = useState<OperationFilter>("all");
   const [minRooms, setMinRooms] = useState("all");
   const [sort, setSort] = useState("featured");
   const [showFilters, setShowFilters] = useState(false);
@@ -83,6 +85,19 @@ export default function ResultsStitch() {
   >({});
 
   const themeStyles = buildThemeStyles(theme);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const incoming = params.get("operacion");
+    if (incoming === "venta" || incoming === "alquiler") {
+      const applyOperation = () => setOperation(incoming);
+      if (typeof queueMicrotask === "function") {
+        queueMicrotask(applyOperation);
+        return;
+      }
+      window.setTimeout(applyOperation, 0);
+    }
+  }, []);
 
   const filteredListings = useMemo(() => {
     let items = [...listings];
@@ -99,6 +114,12 @@ export default function ResultsStitch() {
     }
     if (status !== "all") {
       items = items.filter((item) => item.status === status);
+    }
+    if (operation === "venta") {
+      items = items.filter((item) => item.priceUnit === "venta");
+    }
+    if (operation === "alquiler") {
+      items = items.filter((item) => item.priceUnit === "mensual" || item.priceUnit === "noche");
     }
     if (minRooms !== "all") {
       const rooms = Number(minRooms);
@@ -119,10 +140,11 @@ export default function ResultsStitch() {
       items.sort((a, b) => b.price - a.price);
     }
     return items;
-  }, [attributeFilters, filterGroups, listings, minRooms, query, sort, status, type]);
+  }, [attributeFilters, filterGroups, listings, minRooms, operation, query, sort, status, type]);
 
   const activeFilterCount = [
     query.trim() ? 1 : 0,
+    operation !== "all" ? 1 : 0,
     type !== "all" ? 1 : 0,
     status !== "all" ? 1 : 0,
     minRooms !== "all" ? 1 : 0,
@@ -131,6 +153,7 @@ export default function ResultsStitch() {
 
   const clearFilters = () => {
     setQuery("");
+    setOperation("all");
     setType("all");
     setStatus("all");
     setMinRooms("all");
@@ -154,6 +177,35 @@ export default function ResultsStitch() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
+          Operación
+        </label>
+        <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-3 lg:grid-cols-1">
+          {[
+            ["all", "Todas"],
+            ["venta", "Comprar"],
+            ["alquiler", "Alquilar"],
+          ].map(([id, label]) => {
+            const isActive = operation === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setOperation(id as OperationFilter)}
+                className={`min-h-12 rounded-2xl px-4 py-3 text-sm font-bold transition ${
+                  isActive
+                    ? "bg-primary text-on-primary"
+                    : "bg-surface-container-highest text-primary"
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -332,10 +384,10 @@ export default function ResultsStitch() {
 
       <main className="mx-auto min-h-screen max-w-screen-2xl px-4 pb-16 pt-24 sm:px-6 lg:px-8 lg:pb-20 lg:pt-28">
         <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
-          <aside className="hidden w-full flex-shrink-0 lg:block lg:w-72">
+          <aside className="hidden w-full flex-shrink-0 lg:block lg:w-80">
             <div className="sticky top-28 rounded-3xl bg-surface-container-lowest p-5 shadow-[0_30px_60px_-36px_rgba(27,54,93,0.32)]">
-              <h3 className="mb-6 text-lg font-headline font-bold text-primary">
-                Refinar Selección
+                <h3 className="mb-6 text-lg font-headline font-bold text-primary">
+                Filtrar propiedades
               </h3>
               {filterContent}
             </div>
@@ -374,7 +426,7 @@ export default function ResultsStitch() {
                     onChange={(event) => setSort(event.target.value)}
                     className="ghost-border w-full cursor-pointer appearance-none rounded-2xl bg-surface-container-lowest px-4 py-3 pr-10 text-sm font-semibold text-primary focus:border-primary focus:ring-primary sm:w-auto sm:px-6 sm:py-2.5 sm:pr-12"
                   >
-                    <option value="featured">Selección Curada</option>
+                    <option value="featured">Recomendadas</option>
                     <option value="price-desc">Precio: Mayor a Menor</option>
                     <option value="price-asc">Precio: Menor a Mayor</option>
                   </select>
