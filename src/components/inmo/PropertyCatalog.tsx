@@ -329,9 +329,10 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
             {filteredListings.map((item) => {
               const cover = getCoverImage(item.images, item.coverIndex);
               return (
-                <article
+                <Link
                   key={item.id}
-                  className="group overflow-hidden rounded-2xl bg-surface-container-lowest shadow-[0_40px_60px_-25px_rgba(27,27,28,0.2)] transition hover:-translate-y-1"
+                  href={`/propiedades/${item.id}`}
+                  className="group block overflow-hidden rounded-2xl bg-surface-container-lowest shadow-[0_40px_60px_-25px_rgba(27,27,28,0.2)] transition hover:-translate-y-1"
                 >
                   <div className="relative h-56 overflow-hidden bg-surface-container-high">
                     {cover ? (
@@ -362,15 +363,12 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
                       <span className="text-lg font-semibold text-primary">
                         {formatPrice(item.price, item.priceUnit)}
                       </span>
-                      <Link
-                        className="text-sm font-semibold text-primary hover:text-primary-container"
-                        href={`/propiedades/${item.id}`}
-                      >
+                      <span className="text-sm font-semibold text-primary group-hover:text-primary-container">
                         Ver ficha →
-                      </Link>
+                      </span>
                     </div>
                   </div>
-                </article>
+                </Link>
               );
             })}
           </div>

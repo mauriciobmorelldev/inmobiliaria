@@ -10,6 +10,10 @@ export async function GET() {
       ...admin,
       password: "",
     })),
+    clientUsers: result.data.clientUsers.map((client) => ({
+      ...client,
+      password: "",
+    })),
   }, {
     headers: {
       "x-inmo-state-source": result.source,

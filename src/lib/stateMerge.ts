@@ -41,8 +41,12 @@ export const mergeState = (
       }))
     : base.adminUsers,
   clientUsers: Array.isArray(incoming.clientUsers)
-    ? incoming.clientUsers.map((client) => ({
+    ? appendLocalOnly(incoming.clientUsers, base.clientUsers).map((client) => ({
         ...client,
+        password:
+          client.password ||
+          base.clientUsers.find((item) => item.id === client.id)?.password ||
+          "",
         idNumber: client.idNumber ?? "",
         emailVerified: client.emailVerified ?? true,
         active: client.active ?? true,

@@ -16,38 +16,58 @@ export default function AccesoClientesPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError("");
+    setIsSubmitting(true);
 
     if (!isValidEmail(email)) {
       setError("Ingresá un email válido.");
+      setIsSubmitting(false);
       return;
     }
 
-    const client = clientUsers.find(
+    const normalizedEmail = email.trim().toLowerCase();
+    const response = await fetch("/api/client/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: normalizedEmail, password }),
+    });
+    const result = (await response.json().catch(() => null)) as
+      | { ok?: boolean; client?: { id: string; email: string }; error?: string }
+      | null;
+
+    const localClient = clientUsers.find(
       (item) =>
         item.active &&
-        item.emailVerified &&
-        item.email.trim().toLowerCase() === email.trim().toLowerCase()
+        item.email.trim().toLowerCase() === normalizedEmail &&
+        item.password === password
     );
-    if (!client) {
-      setError("Email o contraseña incorrectos.");
-      return;
-    }
-    if (!client.emailVerified) {
+
+    if (response.status === 403 || (localClient && !localClient.emailVerified)) {
       setError("Necesitás confirmar tu email antes de ingresar.");
+      setIsSubmitting(false);
       return;
     }
-    if (client.password !== password) {
+
+    const loggedClient =
+      response.ok && result?.ok && result.client
+        ? result.client
+        : localClient?.emailVerified
+          ? { id: localClient.id, email: localClient.email }
+          : null;
+
+    if (!loggedClient) {
       setError("Email o contraseña incorrectos.");
+      setIsSubmitting(false);
       return;
     }
 
     writeClientSession({
-      clientId: client.id,
-      email: client.email,
+      clientId: loggedClient.id,
+      email: loggedClient.email,
       issuedAt: new Date().toISOString(),
     });
 
@@ -94,10 +114,11 @@ export default function AccesoClientesPage() {
               {error ? <p className="text-sm text-error">{error}</p> : null}
               <button
                 type="submit"
-                className="w-full rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-on-primary"
+                disabled={isSubmitting}
+                className="w-full rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-on-primary disabled:opacity-60"
                 style={{ color: "var(--color-on-primary)" }}
               >
-                Ingresar
+                {isSubmitting ? "Ingresando..." : "Ingresar"}
               </button>
             </form>
 

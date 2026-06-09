@@ -5,10 +5,15 @@ import { useState, type FormEvent } from "react";
 import FrontHeader from "@/components/inmo/FrontHeader";
 import {
   createId,
-  validateClientUserForm,
-  normalizeIdNumber,
   type ClientUserFormState,
 } from "@/lib/adminForms";
+import {
+  hasClientRegistrationErrors,
+  normalizeIdNumber,
+  normalizePhone,
+  validateClientRegistration,
+  type ClientRegistrationErrors,
+} from "@/lib/clientValidation";
 import { useInmoStore } from "@/lib/inmoStore";
 import { buildThemeStyles } from "@/lib/theme";
 
@@ -27,23 +32,39 @@ export default function RegistroPage() {
   });
   const [emailConfirm, setEmailConfirm] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<ClientRegistrationErrors>({});
+  const [notice, setNotice] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event: FormEvent) => {
+  const registrationInput = {
+    ...form,
+    emailConfirm,
+    passwordConfirm,
+  };
+
+  const setField = (field: keyof ClientUserFormState, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined, form: undefined }));
+  };
+
+  const validateField = (
+    field: keyof ClientRegistrationErrors,
+    nextInput = registrationInput
+  ) => {
+    const nextErrors = validateClientRegistration(nextInput);
+    setErrors((prev) => ({ ...prev, [field]: nextErrors[field] }));
+  };
+
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    setError("");
+    setErrors({});
+    setNotice("");
+    setIsSubmitting(true);
 
-    const errors = validateClientUserForm(form);
-    if (errors.length) {
-      setError(errors[0]);
-      return;
-    }
-    if (form.email.trim().toLowerCase() !== emailConfirm.trim().toLowerCase()) {
-      setError("El email y su confirmación deben coincidir.");
-      return;
-    }
-    if (form.password.trim() !== passwordConfirm.trim()) {
-      setError("La contraseña y su confirmación deben coincidir.");
+    const nextErrors = validateClientRegistration(registrationInput);
+    if (hasClientRegistrationErrors(nextErrors)) {
+      setErrors(nextErrors);
+      setIsSubmitting(false);
       return;
     }
 
@@ -51,19 +72,43 @@ export default function RegistroPage() {
     if (
       clientUsers.some((client) => client.email.trim().toLowerCase() === email)
     ) {
-      setError("Ya existe un usuario con ese email.");
+      setErrors({ email: "Ya existe un usuario con ese email." });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const verificationToken = createId();
+    const response = await fetch("/api/client/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...registrationInput, verificationToken }),
+    });
+    const result = (await response.json().catch(() => null)) as
+      | {
+          ok?: boolean;
+          errors?: ClientRegistrationErrors;
+          emailSent?: boolean;
+          emailMessage?: string;
+          verificationToken?: string;
+          normalized?: { email: string; phone: string; idNumber: string };
+        }
+      | null;
+
+    if (!response.ok || !result?.ok) {
+      setErrors(result?.errors ?? { form: "No pudimos crear la cuenta. Revisá los datos." });
+      setIsSubmitting(false);
       return;
     }
 
     const newUser = {
       id: createId(),
       name: form.name.trim(),
-      email,
-      phone: form.phone.trim(),
-      idNumber: normalizeIdNumber(form.idNumber),
+      email: result.normalized?.email ?? email,
+      phone: result.normalized?.phone ?? normalizePhone(form.phone),
+      idNumber: result.normalized?.idNumber ?? normalizeIdNumber(form.idNumber),
       password: form.password.trim(),
       emailVerified: false,
-      verificationToken: createId(),
+      verificationToken: result.verificationToken ?? verificationToken,
       active: true,
     };
 
@@ -72,8 +117,18 @@ export default function RegistroPage() {
       clientUsers: [...prev.clientUsers, newUser],
     }));
 
-    const token = newUser.verificationToken;
-    window.location.href = `/confirmar?token=${encodeURIComponent(token ?? "")}`;
+    if (result.emailSent) {
+      setNotice("Te enviamos un email para confirmar tu cuenta. Revisá tu casilla.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    setNotice(result.emailMessage || "Cuenta creada. Falta configurar el proveedor de email.");
+    window.setTimeout(() => {
+      window.location.href = `/confirmar?token=${encodeURIComponent(
+        newUser.verificationToken ?? ""
+      )}`;
+    }, 900);
   };
 
   return (
@@ -98,9 +153,13 @@ export default function RegistroPage() {
                 <input
                   required
                   value={form.name}
-                  onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                  onChange={(event) => setField("name", event.target.value)}
+                  onBlur={() => validateField("name")}
+                  className={`w-full rounded-xl border bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none ${
+                    errors.name ? "border-error" : "border-outline-variant/40"
+                  }`}
                 />
+                {errors.name ? <span className="text-xs normal-case tracking-normal text-error">{errors.name}</span> : null}
               </label>
               <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
                 Email
@@ -108,9 +167,13 @@ export default function RegistroPage() {
                   required
                   type="email"
                   value={form.email}
-                  onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
-                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                  onChange={(event) => setField("email", event.target.value)}
+                  onBlur={() => validateField("email")}
+                  className={`w-full rounded-xl border bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none ${
+                    errors.email ? "border-error" : "border-outline-variant/40"
+                  }`}
                 />
+                {errors.email ? <span className="text-xs normal-case tracking-normal text-error">{errors.email}</span> : null}
               </label>
               <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
                 Confirmar email
@@ -118,18 +181,29 @@ export default function RegistroPage() {
                   required
                   type="email"
                   value={emailConfirm}
-                  onChange={(event) => setEmailConfirm(event.target.value)}
-                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                  onChange={(event) => {
+                    setEmailConfirm(event.target.value);
+                    setErrors((prev) => ({ ...prev, emailConfirm: undefined, form: undefined }));
+                  }}
+                  onBlur={() => validateField("emailConfirm")}
+                  className={`w-full rounded-xl border bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none ${
+                    errors.emailConfirm ? "border-error" : "border-outline-variant/40"
+                  }`}
                 />
+                {errors.emailConfirm ? <span className="text-xs normal-case tracking-normal text-error">{errors.emailConfirm}</span> : null}
               </label>
               <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
                 Teléfono
                 <input
                   required
                   value={form.phone}
-                  onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
-                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                  onChange={(event) => setField("phone", event.target.value)}
+                  onBlur={() => validateField("phone")}
+                  className={`w-full rounded-xl border bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none ${
+                    errors.phone ? "border-error" : "border-outline-variant/40"
+                  }`}
                 />
+                {errors.phone ? <span className="text-xs normal-case tracking-normal text-error">{errors.phone}</span> : null}
               </label>
               <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
                 DNI / CUIL / CUIT
@@ -137,10 +211,14 @@ export default function RegistroPage() {
                   required
                   value={form.idNumber}
                   onChange={(event) =>
-                    setForm((prev) => ({ ...prev, idNumber: event.target.value }))
+                    setField("idNumber", event.target.value)
                   }
-                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                  onBlur={() => validateField("idNumber")}
+                  className={`w-full rounded-xl border bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none ${
+                    errors.idNumber ? "border-error" : "border-outline-variant/40"
+                  }`}
                 />
+                {errors.idNumber ? <span className="text-xs normal-case tracking-normal text-error">{errors.idNumber}</span> : null}
               </label>
               <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
                 Contraseña
@@ -149,10 +227,14 @@ export default function RegistroPage() {
                   type="password"
                   value={form.password}
                   onChange={(event) =>
-                    setForm((prev) => ({ ...prev, password: event.target.value }))
+                    setField("password", event.target.value)
                   }
-                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                  onBlur={() => validateField("password")}
+                  className={`w-full rounded-xl border bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none ${
+                    errors.password ? "border-error" : "border-outline-variant/40"
+                  }`}
                 />
+                {errors.password ? <span className="text-xs normal-case tracking-normal text-error">{errors.password}</span> : null}
               </label>
               <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
                 Confirmar contraseña
@@ -160,17 +242,26 @@ export default function RegistroPage() {
                   required
                   type="password"
                   value={passwordConfirm}
-                  onChange={(event) => setPasswordConfirm(event.target.value)}
-                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                  onChange={(event) => {
+                    setPasswordConfirm(event.target.value);
+                    setErrors((prev) => ({ ...prev, passwordConfirm: undefined, form: undefined }));
+                  }}
+                  onBlur={() => validateField("passwordConfirm")}
+                  className={`w-full rounded-xl border bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none ${
+                    errors.passwordConfirm ? "border-error" : "border-outline-variant/40"
+                  }`}
                 />
+                {errors.passwordConfirm ? <span className="text-xs normal-case tracking-normal text-error">{errors.passwordConfirm}</span> : null}
               </label>
-              {error ? <p className="text-sm text-error">{error}</p> : null}
+              {errors.form ? <p className="rounded-2xl bg-error/10 px-4 py-3 text-sm text-error">{errors.form}</p> : null}
+              {notice ? <p className="rounded-2xl bg-primary/10 px-4 py-3 text-sm text-primary">{notice}</p> : null}
               <button
                 type="submit"
-                className="w-full rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-on-primary"
+                disabled={isSubmitting}
+                className="w-full rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-on-primary disabled:opacity-60"
                 style={{ color: "var(--color-on-primary)" }}
               >
-                Crear cuenta
+                {isSubmitting ? "Creando cuenta..." : "Crear cuenta"}
               </button>
             </form>
 

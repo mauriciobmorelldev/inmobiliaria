@@ -239,7 +239,7 @@ export const defaultState: InmoState = {
     primaryCtaHref: "/propiedades",
     secondaryCtaLabel: "Acceso clientes",
     secondaryCtaHref: "/acceso",
-    statsTitle: "Inventario vivo",
+    statsTitle: "Propiedades",
     featuredTitle: "Propiedades destacadas",
     featuredSubtitle:
       "Cada ficha reúne ubicación, características, imágenes y consulta directa para decidir mejor.",

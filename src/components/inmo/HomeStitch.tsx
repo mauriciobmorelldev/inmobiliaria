@@ -178,9 +178,6 @@ export default function HomeStitch() {
   );
 
   const availableCount = listings.filter((item) => item.status === "disponible").length;
-  const avgPrice = listings.length
-    ? listings.reduce((acc, item) => acc + item.price, 0) / listings.length
-    : 0;
 
   const recentListings = useMemo(() => [...listings].slice(-3).reverse(), [listings]);
 
@@ -284,7 +281,7 @@ export default function HomeStitch() {
               <div className="grid gap-3 lg:grid-cols-[1fr_1fr_1fr_1.65fr_auto]">
                 <div className="rounded-xl bg-surface-container-low p-4">
                   <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                    {homeContent.statsTitle}
+                    Propiedades
                   </p>
                   <p className="mt-2 text-3xl font-headline font-bold text-primary">{listings.length}</p>
                 </div>
@@ -296,10 +293,10 @@ export default function HomeStitch() {
                 </div>
                 <div className="rounded-xl bg-surface-container-low p-4">
                   <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                    Precio medio
+                    Favoritos
                   </p>
-                  <p className="mt-2 text-xl font-headline font-bold text-primary">
-                    {currencyFormatter.format(avgPrice || 0)}
+                  <p className="mt-2 text-sm font-bold leading-6 text-primary">
+                    Guardá y compará
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">

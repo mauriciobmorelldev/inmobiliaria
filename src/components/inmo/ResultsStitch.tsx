@@ -213,7 +213,7 @@ export default function ResultsStitch() {
         <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
           Tipo de Propiedad
         </label>
-        <div className="space-y-3">
+        <div className="grid gap-2">
           {typeFilters.map((filter) => {
             const isActive = type === filter.id;
             return (
@@ -221,29 +221,18 @@ export default function ResultsStitch() {
                 key={filter.id}
                 type="button"
                 onClick={() => setType(filter.id)}
-                className="flex w-full items-center rounded-2xl px-2 py-1.5 text-left transition hover:bg-surface-container-low"
+                className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
+                  isActive
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-outline-variant/25 bg-surface-container-lowest text-on-surface-variant hover:border-primary/50 hover:text-primary"
+                }`}
               >
-                <div
-                  className={`mr-3 flex h-5 w-5 items-center justify-center rounded border transition-colors ${
-                    isActive ? "border-primary bg-primary" : "border-outline-variant"
-                  }`}
-                >
-                  <span
-                    className={`material-symbols-outlined text-[14px] ${
-                      isActive ? "text-on-primary" : "hidden text-primary"
-                    }`}
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    check
-                  </span>
-                </div>
-                <span
-                  className={`text-sm font-label transition-colors ${
-                    isActive ? "font-medium text-primary" : "text-on-surface-variant"
-                  }`}
-                >
+                <span className="font-label">
                   {filter.label}
                 </span>
+                {isActive ? (
+                  <span className="h-2 w-2 rounded-full bg-primary" />
+                ) : null}
               </button>
             );
           })}
@@ -254,7 +243,7 @@ export default function ResultsStitch() {
         <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
           Estado
         </label>
-        <div className="space-y-3">
+        <div className="grid gap-2">
           {statusFilters.map((filter) => {
             const isActive = status === filter.id;
             return (
@@ -262,29 +251,18 @@ export default function ResultsStitch() {
                 key={filter.id}
                 type="button"
                 onClick={() => setStatus(filter.id)}
-                className="flex w-full items-center rounded-2xl px-2 py-1.5 text-left transition hover:bg-surface-container-low"
+                className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
+                  isActive
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-outline-variant/25 bg-surface-container-lowest text-on-surface-variant hover:border-primary/50 hover:text-primary"
+                }`}
               >
-                <div
-                  className={`mr-3 flex h-5 w-5 items-center justify-center rounded border transition-colors ${
-                    isActive ? "border-primary bg-primary" : "border-outline-variant"
-                  }`}
-                >
-                  <span
-                    className={`material-symbols-outlined text-[14px] ${
-                      isActive ? "text-on-primary" : "hidden text-primary"
-                    }`}
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    check
-                  </span>
-                </div>
-                <span
-                  className={`text-sm font-label transition-colors ${
-                    isActive ? "font-medium text-primary" : "text-on-surface-variant"
-                  }`}
-                >
+                <span className="font-label">
                   {filter.label}
                 </span>
+                {isActive ? (
+                  <span className="h-2 w-2 rounded-full bg-primary" />
+                ) : null}
               </button>
             );
           })}
@@ -322,7 +300,7 @@ export default function ResultsStitch() {
           <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
             {group.label}
           </label>
-          <div className="space-y-3">
+          <div className="flex flex-wrap gap-2">
             {group.options.map((option) => {
               const isActive = (attributeFilters[group.id] ?? []).includes(option);
               return (
@@ -334,25 +312,13 @@ export default function ResultsStitch() {
                       toggleAttributeSelection(group, option, prev)
                     )
                   }
-                  className="flex w-full items-center rounded-2xl px-2 py-1.5 text-left transition hover:bg-surface-container-low"
+                  className={`rounded-full border px-3.5 py-2 text-xs font-semibold transition ${
+                    isActive
+                      ? "border-primary bg-primary text-on-primary"
+                      : "border-outline-variant/30 bg-surface-container-lowest text-on-surface-variant hover:border-primary/60 hover:text-primary"
+                  }`}
                 >
-                  <div
-                    className={`mr-3 flex h-5 w-5 items-center justify-center rounded border transition-colors ${
-                      isActive ? "border-primary bg-primary" : "border-outline-variant"
-                    }`}
-                  >
-                    <span
-                      className={`material-symbols-outlined text-[14px] ${
-                        isActive ? "text-on-primary" : "hidden text-primary"
-                      }`}
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      check
-                    </span>
-                  </div>
-                  <span className="text-sm font-label text-on-surface-variant">
-                    {option}
-                  </span>
+                  {option}
                 </button>
               );
             })}

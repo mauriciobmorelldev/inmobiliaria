@@ -1,61 +1,82 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import FrontHeader from "@/components/inmo/FrontHeader";
-import { useInmoStore } from "@/lib/inmoStore";
+import type { ClientUser } from "@/lib/inmoData";
+import { loadState, useInmoStore } from "@/lib/inmoStore";
 import { writeClientSession } from "@/lib/session";
 import { buildThemeStyles } from "@/lib/theme";
 
-export default function ConfirmarEmailPage() {
+function ConfirmarEmailContent() {
   const { state, updateState } = useInmoStore();
+  const searchParams = useSearchParams();
   const { clientUsers, theme } = state;
   const themeStyles = buildThemeStyles(theme);
   const [status, setStatus] = useState<"pending" | "ok" | "error">("pending");
 
-  const token = useMemo(() => {
-    if (typeof window === "undefined") return "";
-    const params = new URLSearchParams(window.location.search);
-    return params.get("token") ?? "";
-  }, []);
+  const token = searchParams.get("token") ?? "";
 
   useEffect(() => {
-    const defer = (fn: () => void) => {
-      if (typeof queueMicrotask === "function") {
-        queueMicrotask(fn);
-      } else {
-        window.setTimeout(fn, 0);
+    if (status !== "pending") return;
+
+    let retry: number | undefined;
+
+    const initial = window.setTimeout(() => {
+      if (!token) {
+        setStatus("error");
+        return;
       }
+
+      const findTarget = (): ClientUser | undefined => {
+        const fromStore = clientUsers.find(
+          (client) => client.verificationToken === token
+        );
+        if (fromStore) return fromStore;
+        return loadState().clientUsers.find(
+          (client) => client.verificationToken === token
+        );
+      };
+
+      const confirmToken = () => {
+        const target = findTarget();
+        if (!target) return false;
+
+        updateState((prev) => ({
+          ...prev,
+          clientUsers: prev.clientUsers.map((client) =>
+            client.id === target.id || client.verificationToken === token
+              ? {
+                  ...client,
+                  emailVerified: true,
+                  verificationToken: undefined,
+                }
+              : client
+          ),
+        }));
+
+        writeClientSession({
+          clientId: target.id,
+          email: target.email,
+          issuedAt: new Date().toISOString(),
+        });
+        setStatus("ok");
+        return true;
+      };
+
+      if (confirmToken()) return;
+
+      retry = window.setTimeout(() => {
+        if (!confirmToken()) setStatus("error");
+      }, 500);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(initial);
+      if (retry) window.clearTimeout(retry);
     };
-
-    if (!token) {
-      defer(() => setStatus("error"));
-      return;
-    }
-
-    const target = clientUsers.find((client) => client.verificationToken === token);
-    if (!target) {
-      defer(() => setStatus("error"));
-      return;
-    }
-
-    updateState((prev) => ({
-      ...prev,
-      clientUsers: prev.clientUsers.map((client) =>
-        client.id === target.id
-          ? { ...client, emailVerified: true, verificationToken: undefined }
-          : client
-      ),
-    }));
-
-    writeClientSession({
-      clientId: target.id,
-      email: target.email,
-      issuedAt: new Date().toISOString(),
-    });
-
-    defer(() => setStatus("ok"));
-  }, [clientUsers, token, updateState]);
+  }, [clientUsers, status, token, updateState]);
 
   return (
     <div style={themeStyles} className="min-h-screen bg-background text-on-background">
@@ -104,7 +125,9 @@ export default function ConfirmarEmailPage() {
                 No pudimos confirmar tu email
               </h1>
               <p className="mt-2 text-sm text-on-surface-variant">
-                El link es inválido o ya fue utilizado.
+                No encontramos una cuenta pendiente para este link. Si abriste
+                el email en otro navegador, volvé al navegador donde creaste la
+                cuenta o solicitá un nuevo link.
               </p>
               <Link
                 href="/registro"
@@ -117,5 +140,34 @@ export default function ConfirmarEmailPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+function ConfirmarEmailFallback() {
+  return (
+    <div className="min-h-screen bg-background text-on-background">
+      <FrontHeader active="detail" />
+      <main className="mx-auto flex min-h-screen max-w-screen-md items-center px-6 pt-24">
+        <div className="w-full rounded-3xl bg-surface-container-lowest p-10 text-center shadow-[0_40px_60px_-15px_rgba(27,27,28,0.08)]">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant">
+            Confirmando
+          </p>
+          <h1 className="mt-4 text-3xl font-headline font-extrabold text-primary">
+            Validando email
+          </h1>
+          <p className="mt-2 text-sm text-on-surface-variant">
+            Un momento, estamos confirmando tu cuenta.
+          </p>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+export default function ConfirmarEmailPage() {
+  return (
+    <Suspense fallback={<ConfirmarEmailFallback />}>
+      <ConfirmarEmailContent />
+    </Suspense>
   );
 }
