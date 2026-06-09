@@ -72,7 +72,7 @@ export default function AdminShell({
   primaryAction,
   children,
 }: AdminShellProps) {
-  const { state, reset } = useInmoStore();
+  const { state } = useInmoStore();
   const { theme, adminUsers } = state;
   const [mounted, setMounted] = useState(false);
   const [session, setSession] = useState<AdminSession | null>(null);
@@ -179,32 +179,52 @@ export default function AdminShell({
     }).format(new Date());
   }, [subtitle]);
 
-  const handleLogin = (event: FormEvent) => {
+  const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
-    const admin = adminUsers.find(
-      (item) => item.active && item.email.trim().toLowerCase() === normalizedEmail
+    const response = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: normalizedEmail, password }),
+    });
+    const result = (await response.json().catch(() => null)) as {
+      ok?: boolean;
+      admin?: { id: string; email: string; role?: string };
+    } | null;
+    const localAdmin = adminUsers.find(
+      (item) =>
+        item.active &&
+        item.email.trim().toLowerCase() === normalizedEmail &&
+        item.password === password
     );
 
-    if (!admin || admin.password !== password) {
+    const loggedAdmin = response.ok && result?.ok && result.admin
+      ? result.admin
+      : localAdmin
+        ? { id: localAdmin.id, email: localAdmin.email, role: localAdmin.role }
+        : null;
+
+    if (!loggedAdmin) {
       setLoginError("Email o contraseña incorrectos.");
       return;
     }
 
     setLoginError("");
     const nextSession = {
-      adminId: admin.id,
-      email: admin.email,
+      adminId: loggedAdmin.id,
+      email: loggedAdmin.email,
       issuedAt: new Date().toISOString(),
     };
     writeAdminSession(nextSession);
     setSession(nextSession);
+    window.location.href = loggedAdmin.role === "colaborador" ? "/admin/propiedades" : "/admin";
   };
 
   const handleLogout = () => {
     clearAdminSession();
     setSession(null);
     setPassword("");
+    window.location.href = "/admin";
   };
 
   if (!authedAdmin) {
@@ -216,7 +236,6 @@ export default function AdminShell({
         />
       );
     }
-    const ownerDemo = adminUsers.find((item) => item.role === "owner") ?? adminUsers[0];
     return (
       <div
         style={themeStyles}
@@ -233,20 +252,8 @@ export default function AdminShell({
                   Acceso administrador
                 </h1>
                 <p className="mt-3 text-sm text-on-surface-variant">
-                  Ingresá con un usuario administrador para gestionar propiedades, agentes,
-                  branding, clientes y propiedades.
+                  Ingresá con un usuario autorizado para gestionar la operación inmobiliaria.
                 </p>
-                <div className="mt-8 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant">
-                    Credenciales demo
-                  </p>
-                  <p className="mt-2 text-sm text-primary">
-                    {ownerDemo ? ownerDemo.email : "admin@connexa.demo"}
-                  </p>
-                  <p className="text-sm text-primary">
-                    {ownerDemo ? ownerDemo.password : "demo123"}
-                  </p>
-                </div>
               </div>
 
               <form className="grid gap-4" onSubmit={handleLogin}>
@@ -258,7 +265,7 @@ export default function AdminShell({
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                    placeholder="admin@connexa.demo"
+                    placeholder="usuario@connexa.com"
                   />
                 </label>
                 <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
@@ -320,6 +327,8 @@ export default function AdminShell({
     );
   }
 
+  const isOwnerAdmin = authedAdmin.role === "owner";
+
   return (
     <div
       style={themeStyles}
@@ -368,7 +377,7 @@ export default function AdminShell({
             <span className="material-symbols-outlined text-sm" data-icon="add">
               add
             </span>
-            Nueva Propiedad
+            {isOwnerAdmin ? "Nueva Propiedad" : "Nuevo inmueble"}
           </Link>
         </div>
 
@@ -385,16 +394,6 @@ export default function AdminShell({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={reset}
-            className="w-full text-on-surface/70 px-4 py-2 ml-2 mr-2 flex items-center gap-3 text-xs font-semibold hover:bg-surface-container-lowest/60 transition-all"
-          >
-            <span className="material-symbols-outlined text-lg" data-icon="restart_alt">
-              restart_alt
-            </span>
-            Reset demo
-          </button>
           <Link
             className="text-on-surface/70 px-4 py-2 ml-2 mr-2 flex items-center gap-3 text-xs font-semibold hover:bg-surface-container-lowest/60 transition-all"
             href="/"
@@ -460,7 +459,8 @@ export default function AdminShell({
             </div>
 
             <div className="flex w-full flex-wrap items-center justify-between gap-2 sm:w-auto sm:justify-end sm:gap-3">
-            <div className="relative hidden sm:block">
+            {isOwnerAdmin ? (
+              <div className="relative hidden sm:block">
               <button
                 type="button"
                 onClick={() => setShowNotifications((prev) => !prev)}
@@ -511,8 +511,10 @@ export default function AdminShell({
                 </div>
               ) : null}
             </div>
+            ) : null}
 
-            <div className="relative sm:hidden">
+            {isOwnerAdmin ? (
+              <div className="relative sm:hidden">
               <button
                 type="button"
                 onClick={() => setShowNotifications((prev) => !prev)}
@@ -528,6 +530,7 @@ export default function AdminShell({
                 ) : null}
               </button>
             </div>
+            ) : null}
 
             <div className="hidden sm:flex items-center gap-2 rounded-full border border-outline-variant/30 px-3 py-2">
               <div className="h-8 w-8 overflow-hidden rounded-full bg-surface-container-high flex items-center justify-center text-primary font-semibold">
@@ -556,13 +559,6 @@ export default function AdminShell({
             >
               Ver front
             </Link>
-            <button
-              type="button"
-              onClick={reset}
-              className="hidden sm:flex items-center gap-2 rounded-full border border-outline-variant/30 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary"
-            >
-              Reset demo
-            </button>
             {primaryAction ? (
               <Link
                 href={primaryAction.href}

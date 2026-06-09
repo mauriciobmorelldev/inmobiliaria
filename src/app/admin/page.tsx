@@ -12,6 +12,7 @@ export default function AdminDashboardPage() {
   const { listings, agents, leads, propertyFavorites, propertyMetrics, toccoSyncLogs } =
     state;
   const [syncingTocco, setSyncingTocco] = useState(false);
+  const [toccoSyncNotice, setToccoSyncNotice] = useState("");
 
   const availableCount = listings.filter((item) => item.status === "disponible").length;
   const pausedCount = listings.filter((item) => item.status === "pausado").length;
@@ -154,12 +155,17 @@ export default function AdminDashboardPage() {
     .slice(0, 5);
   const handleToccoSync = async () => {
     setSyncingTocco(true);
+    setToccoSyncNotice("");
     try {
       const response = await fetch("/api/tocco/sync", { method: "POST" });
-      if (!response.ok) return;
+      if (!response.ok) {
+        setToccoSyncNotice("Sincronización protegida. Configurá TOCCO_SYNC_SECRET y credenciales reales para habilitarla.");
+        return;
+      }
       const stateResponse = await fetch("/api/inmo-state", { cache: "no-store" });
       if (!stateResponse.ok) return;
       updateState(await stateResponse.json());
+      setToccoSyncNotice("Sincronización ejecutada correctamente.");
     } finally {
       setSyncingTocco(false);
     }
@@ -483,7 +489,7 @@ export default function AdminDashboardPage() {
                 Sincronización Tocco
               </h3>
               <p className="mt-1 text-xs text-on-surface-variant">
-                Usa mock hasta configurar credenciales reales.
+                Requiere credenciales reales y secreto server-side para producción.
               </p>
             </div>
             <button
@@ -496,6 +502,11 @@ export default function AdminDashboardPage() {
               {syncingTocco ? "Sincronizando" : "Sincronizar"}
             </button>
           </div>
+          {toccoSyncNotice ? (
+            <p className="mt-4 rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
+              {toccoSyncNotice}
+            </p>
+          ) : null}
           <div className="mt-6 grid gap-3">
             {toccoSyncLogs.length === 0 ? (
               <p className="text-sm text-on-surface-variant">

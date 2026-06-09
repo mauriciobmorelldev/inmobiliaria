@@ -4,6 +4,11 @@ import {
   type InmoState,
 } from "./inmoData";
 
+const appendLocalOnly = <T extends { id: string }>(incoming: T[], base: T[]) => [
+  ...incoming,
+  ...base.filter((baseItem) => !incoming.some((item) => item.id === baseItem.id)),
+];
+
 export const mergeState = (
   base: InmoState = defaultState,
   incoming: Partial<InmoState>
@@ -26,8 +31,12 @@ export const mergeState = (
       : base.homeContent.banners,
   },
   adminUsers: Array.isArray(incoming.adminUsers)
-    ? incoming.adminUsers.map((admin) => ({
+    ? appendLocalOnly(incoming.adminUsers, base.adminUsers).map((admin) => ({
         ...admin,
+        password:
+          admin.password ||
+          base.adminUsers.find((item) => item.id === admin.id)?.password ||
+          "",
         role: admin.role === "owner" ? "owner" : "colaborador",
       }))
     : base.adminUsers,
@@ -64,7 +73,7 @@ export const mergeState = (
     ? incoming.filterGroups
     : base.filterGroups,
   listings: Array.isArray(incoming.listings)
-    ? incoming.listings.map((listing) => ({
+    ? appendLocalOnly(incoming.listings, base.listings).map((listing) => ({
         ...listing,
         createdByAdminId: listing.createdByAdminId,
       }))

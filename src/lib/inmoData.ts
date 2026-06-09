@@ -263,8 +263,8 @@ export const defaultState: InmoState = {
     {
       id: "admin-owner",
       name: "Admin Principal",
-      email: "admin@connexa.demo",
-      password: "demo123",
+      email: "admin@connexa.com",
+      password: "connexa-admin",
       role: "owner",
       active: true,
     },
@@ -287,7 +287,7 @@ export const defaultState: InmoState = {
   ],
   listings: [
     {
-      id: "demo-connexa-palermo",
+      id: "connexa-palermo-luminoso",
       title: "Departamento luminoso con balcón en Palermo",
       type: "tradicional",
       status: "disponible",
@@ -296,7 +296,7 @@ export const defaultState: InmoState = {
       neighborhood: "Palermo",
       area: 82,
       rooms: 3,
-      tag: "Demo",
+      tag: "Destacada",
       highlight: "Unidad lista para visitar, con balcón corrido, cochera y lavadero independiente.",
       description:
         "Departamento de tres ambientes con excelente luz natural, living comedor integrado, cocina funcional, dormitorio principal amplio y balcón con vista abierta. Ideal para ver cómo se muestra una ficha completa en Connexa.",

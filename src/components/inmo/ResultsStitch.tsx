@@ -452,9 +452,10 @@ export default function ResultsStitch() {
                   const cover = getCoverImage(item.images, item.coverIndex);
                   const video = item.videos?.[0];
                   return (
-                    <div
+                    <Link
                       key={item.id}
-                      className="group relative overflow-hidden rounded-3xl bg-surface-container-lowest editorial-shadow transition-transform duration-500 hover:-translate-y-2"
+                      href={`/propiedades/${item.id}`}
+                      className="group relative block overflow-hidden rounded-3xl bg-surface-container-lowest editorial-shadow transition-transform duration-500 hover:-translate-y-2"
                     >
                       <div className="relative h-64 overflow-hidden sm:h-80">
                         {video ? (
@@ -480,12 +481,9 @@ export default function ResultsStitch() {
                             {statusLabels[item.status]}
                           </span>
                         </div>
-                        <Link
-                          href={`/propiedades/${item.id}`}
-                          className="absolute inset-x-4 bottom-4 rounded-2xl bg-surface-container-lowest/95 py-3 text-center text-sm font-bold text-primary shadow-[0_20px_40px_-30px_rgba(27,54,93,0.45)] sm:inset-x-6 sm:bottom-6 lg:hidden lg:group-hover:block"
-                        >
+                        <span className="absolute inset-x-4 bottom-4 rounded-2xl bg-surface-container-lowest/95 py-3 text-center text-sm font-bold text-primary shadow-[0_20px_40px_-30px_rgba(27,54,93,0.45)] sm:inset-x-6 sm:bottom-6 lg:hidden lg:group-hover:block">
                           Ver ficha completa
-                        </Link>
+                        </span>
                       </div>
                       <div className="space-y-4 p-5 sm:p-6">
                         <div className="flex items-center justify-between text-xs uppercase tracking-widest text-on-surface-variant">
@@ -502,15 +500,12 @@ export default function ResultsStitch() {
                           <span className="text-lg font-semibold text-primary">
                             {formatPrice(item.price, item.priceUnit)}
                           </span>
-                          <Link
-                            href={`/propiedades/${item.id}`}
-                            className="text-sm font-semibold text-primary hover:text-primary-container"
-                          >
+                          <span className="text-sm font-semibold text-primary group-hover:text-primary-container">
                             Ver ficha →
-                          </Link>
+                          </span>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>

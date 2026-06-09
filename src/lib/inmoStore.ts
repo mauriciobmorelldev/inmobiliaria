@@ -105,7 +105,7 @@ export const useInmoStore = () => {
       setState(local);
       const remote = await fetchRemoteState();
       if (!remote) return;
-      const merged = mergeState(defaultState, remote);
+      const merged = mergeState(local, remote);
       inMemoryState = merged;
       writeStorage(JSON.stringify(merged));
       setState(merged);

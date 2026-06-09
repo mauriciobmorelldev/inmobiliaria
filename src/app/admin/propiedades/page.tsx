@@ -51,11 +51,15 @@ export default function AdminPropertiesPage() {
   const { listings, agents, filterGroups, adminUsers } = state;
   const [adminSession] = useState(() => readAdminSession());
   const authedAdmin = adminUsers.find((admin) => admin.id === adminSession?.adminId);
+  const isOwner = authedAdmin?.role === "owner";
+  const isCollaborator = authedAdmin?.role === "colaborador";
   const visibleListings =
-    authedAdmin?.role === "owner"
+    isOwner
       ? listings
-      : listings.filter((listing) => listing.createdByAdminId === authedAdmin?.id);
-  const assignableAgents = authedAdmin?.role === "owner" ? agents : [];
+      : authedAdmin
+        ? listings.filter((listing) => listing.createdByAdminId === authedAdmin.id)
+        : [];
+  const assignableAgents = isOwner ? agents : [];
 
   const [editingListingId, setEditingListingId] = useState<string | null>(null);
   const [listingForm, setListingForm] = useState<ListingFormState>(
@@ -78,6 +82,10 @@ export default function AdminPropertiesPage() {
 
   const handleListingSubmit = (event: FormEvent) => {
     event.preventDefault();
+    if (!authedAdmin) {
+      setFormError("Iniciá sesión para cargar propiedades.");
+      return;
+    }
     const errors = validateListingForm(listingForm);
     if (errors.length) {
       setFormError(errors[0]);
@@ -88,9 +96,9 @@ export default function AdminPropertiesPage() {
     const baseListing = normalizeListing(listingForm, id);
     const previousListing = listings.find((item) => item.id === id);
     const isOwnListing =
-      authedAdmin?.role === "owner" ||
+      isOwner ||
       previousListing?.createdByAdminId === authedAdmin?.id ||
-      (!editingListingId && authedAdmin?.role === "colaborador");
+      (!editingListingId && isCollaborator);
 
     if (!isOwnListing) {
       setFormError("Tu rol colaborador solo puede editar propiedades creadas por vos.");
@@ -99,10 +107,10 @@ export default function AdminPropertiesPage() {
 
     const normalized = {
       ...baseListing,
-      agentId: authedAdmin?.role === "owner" ? baseListing.agentId : undefined,
+      agentId: isOwner ? baseListing.agentId : undefined,
       createdByAdminId:
         previousListing?.createdByAdminId ??
-        (authedAdmin?.role === "owner" ? undefined : authedAdmin?.id),
+        (isOwner ? undefined : authedAdmin.id),
     };
 
     updateState((prev) => {
@@ -120,7 +128,7 @@ export default function AdminPropertiesPage() {
   };
 
   const handleListingEdit = (listing: Listing) => {
-    if (authedAdmin?.role !== "owner" && listing.createdByAdminId !== authedAdmin?.id) return;
+    if (!isOwner && listing.createdByAdminId !== authedAdmin?.id) return;
     setEditingListingId(listing.id);
     setListingForm(getListingForm(listing));
     setHighlightForm(true);
@@ -135,7 +143,7 @@ export default function AdminPropertiesPage() {
       listings: prev.listings.filter(
         (item) =>
           item.id !== listingId ||
-          (authedAdmin?.role !== "owner" && item.createdByAdminId !== authedAdmin?.id)
+          (!isOwner && item.createdByAdminId !== authedAdmin?.id)
       ),
     }));
   };
@@ -181,8 +189,13 @@ export default function AdminPropertiesPage() {
   return (
     <AdminShell
       activeSection="propiedades"
-      title="Inventario de Propiedades"
-      primaryAction={{ href: "#form-propiedad", label: "Nueva propiedad" }}
+      title={isCollaborator ? "Carga de inmuebles" : "Inventario de Propiedades"}
+      subtitle={
+        isCollaborator
+          ? "Cargá y actualizá únicamente los inmuebles creados con tu usuario."
+          : undefined
+      }
+      primaryAction={{ href: "#form-propiedad", label: isCollaborator ? "Nuevo inmueble" : "Nueva propiedad" }}
     >
       <section className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
         <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4">
@@ -211,9 +224,9 @@ export default function AdminPropertiesPage() {
       >
         <h3 className="text-xl font-headline font-bold text-primary">{editingListingId ? "Editar propiedad" : "Nueva propiedad"}</h3>
         <p className="mt-2 text-xs text-on-surface-variant">
-          {authedAdmin?.role === "owner"
+          {isOwner
             ? "Completá ficha, imágenes, corredor y atributos para mostrar esta unidad en el front."
-            : "Tu rol colaborador solo puede cargar y modificar propiedades creadas por vos. No podés asignar corredor ni teléfono."}
+            : "Vista básica de carga. Tu usuario queda asociado al inmueble y ningún otro colaborador puede verlo o editarlo. No podés asignar corredor ni cargar teléfonos."}
         </p>
 
         <form className="mt-6 grid gap-4" onSubmit={handleListingSubmit}>
@@ -322,7 +335,7 @@ export default function AdminPropertiesPage() {
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className={`grid gap-4 ${isOwner ? "sm:grid-cols-3" : "sm:grid-cols-1"}`}>
             <input
               className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
               placeholder="Ambientes"
@@ -335,28 +348,32 @@ export default function AdminPropertiesPage() {
               }
               required
             />
-            <input
-              className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-              placeholder="Tag"
-              value={listingForm.tag}
-              onChange={(event) =>
-                setListingForm((prev) => ({
-                  ...prev,
-                  tag: event.target.value,
-                }))
-              }
-            />
-            <input
-              className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-              placeholder="Highlight"
-              value={listingForm.highlight}
-              onChange={(event) =>
-                setListingForm((prev) => ({
-                  ...prev,
-                  highlight: event.target.value,
-                }))
-              }
-            />
+            {isOwner ? (
+              <>
+                <input
+                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                  placeholder="Tag"
+                  value={listingForm.tag}
+                  onChange={(event) =>
+                    setListingForm((prev) => ({
+                      ...prev,
+                      tag: event.target.value,
+                    }))
+                  }
+                />
+                <input
+                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                  placeholder="Highlight"
+                  value={listingForm.highlight}
+                  onChange={(event) =>
+                    setListingForm((prev) => ({
+                      ...prev,
+                      highlight: event.target.value,
+                    }))
+                  }
+                />
+              </>
+            ) : null}
           </div>
 
           <textarea
@@ -372,7 +389,7 @@ export default function AdminPropertiesPage() {
             required
           />
 
-          {authedAdmin?.role === "owner" ? (
+          {isOwner ? (
             <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
               Corredor asignado
               <select
@@ -459,7 +476,8 @@ export default function AdminPropertiesPage() {
             </div>
           </div>
 
-          <div className="grid gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
+          {isOwner ? (
+            <div className="grid gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
               Videos
             </p>
@@ -504,8 +522,10 @@ export default function AdminPropertiesPage() {
               </button>
             </div>
           </div>
+          ) : null}
 
-          <div className="grid gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
+          {isOwner ? (
+            <div className="grid gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
               Atributos
             </p>
@@ -549,6 +569,7 @@ export default function AdminPropertiesPage() {
               ))
             )}
           </div>
+          ) : null}
 
           <div className="flex flex-wrap items-center gap-3">
             {formError ? <p className="text-sm text-error">{formError}</p> : null}
@@ -575,9 +596,13 @@ export default function AdminPropertiesPage() {
       </section>
 
       <section className="mt-8 rounded-3xl bg-surface-container-lowest p-8 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)]">
-        <h3 className="text-xl font-headline font-bold text-primary">Listado cargado</h3>
+        <h3 className="text-xl font-headline font-bold text-primary">
+          {isCollaborator ? "Tus inmuebles cargados" : "Listado cargado"}
+        </h3>
         <p className="mt-2 text-xs text-on-surface-variant">
-          Estas propiedades ya se ven en el front y en resultados de búsqueda.
+          {isCollaborator
+            ? "Solo ves los inmuebles asociados a tu usuario colaborador."
+            : "Estas propiedades ya se ven en el front y en resultados de búsqueda."}
         </p>
 
         <div className="mt-6 grid gap-4">

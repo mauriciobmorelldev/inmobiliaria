@@ -22,6 +22,8 @@ const getCoverImage = (images: string[], coverIndex: number) => {
 const fallbackHeroImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDzWLJ1ZWYuCXv4uUt88LiRLMh6Kis0lEW9bZbHsLtWcsRCgtS5gGDYYDm3MEK1wSfzXnQIttSX6XW5vl8IyMI41AuH0r4TSctOX41XtfS0KEuaesTwOEQxFZ2wrNdo1BNdsgnmE5M3OJ-sO4yPFGYXZXUqaNLuH_jCe2MTLxpYuOf_L-7dDxXfImH4zAUslJI0QMbcb78l6j4xOPWyx_53wqiEyYTmTBUk_sucmOru6E9gt_HroO1fguRWslF7CchhD8Y-sBF9NQ";
 
+const MotionLink = motion.create(Link);
+
 const truncate = (value: string, max = 110) => {
   if (value.length <= max) return value;
   return `${value.slice(0, max).trimEnd()}...`;
@@ -488,14 +490,15 @@ export default function HomeStitch() {
                 );
 
                 return (
-                  <motion.article
+                  <MotionLink
                     key={item.id}
+                    href={`/propiedades/${item.id}`}
                     initial={{ opacity: 0, y: 36, scale: 0.97 }}
                     whileInView={{ opacity: 1, y: 0, scale: 1 }}
                     viewport={{ once: true, amount: 0.22 }}
                     transition={{ ...smoothSpring, delay: (featuredListings.indexOf(item) % 3) * 0.05 }}
                     whileHover={{ y: -10, scale: 1.012 }}
-                    className="group overflow-hidden rounded-3xl bg-surface-container-lowest pro-card will-change-transform"
+                    className="group block overflow-hidden rounded-3xl bg-surface-container-lowest pro-card will-change-transform"
                   >
                     <div className="relative aspect-[4/5] overflow-hidden">
                       {video ? (
@@ -572,24 +575,18 @@ export default function HomeStitch() {
 
                       <div className="mt-5 flex items-center justify-between">
                         <motion.div whileHover={{ x: 3 }} whileTap={{ scale: 0.98 }}>
-                          <Link
-                          href={`/propiedades/${item.id}`}
-                          className="text-sm font-semibold text-primary hover:text-primary-container"
-                          >
+                          <span className="text-sm font-semibold text-primary group-hover:text-primary-container">
                             Ver detalle completo
-                          </Link>
+                          </span>
                         </motion.div>
                         <motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.98 }}>
-                          <Link
-                          href={`/propiedades/${item.id}`}
-                            className="rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-widest text-on-primary"
-                          >
+                          <span className="rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-widest text-on-primary">
                             Agendar
-                          </Link>
+                          </span>
                         </motion.div>
                       </div>
                     </div>
-                  </motion.article>
+                  </MotionLink>
                 );
               })}
             </div>
