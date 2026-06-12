@@ -27,6 +27,11 @@ const ConnexaWordmark = ({ compact = false }: { compact?: boolean }) => (
   </span>
 );
 
+const normalizeWhatsAppPhone = (value?: string) =>
+  (value ?? "").replace(/[^\d]/g, "");
+
+const fallbackWhatsAppPhone = "5491123456789";
+
 export default function FrontHeader({
   active = "home",
   showSearch = false,
@@ -41,6 +46,14 @@ export default function FrontHeader({
   const [clientName, setClientName] = useState<string | null>(null);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const whatsappPhone =
+    normalizeWhatsAppPhone(theme.whatsappPhone) || fallbackWhatsAppPhone;
+  const whatsappUrl = whatsappPhone
+    ? `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(
+        theme.whatsappMessage?.trim() ||
+          "Hola, quiero consultar por una propiedad en Connexa."
+      )}`
+    : "";
 
   useEffect(() => {
     const hydrate = () => {
@@ -69,6 +82,7 @@ export default function FrontHeader({
   };
 
   return (
+    <>
     <nav
       style={themeStyles}
       className="fixed top-0 z-50 w-full bg-background/80 backdrop-blur-xl shadow-[0_40px_60px_-15px_rgba(27,27,28,0.06)]"
@@ -306,5 +320,24 @@ export default function FrontHeader({
         </div>
       </div>
     </nav>
+    {mounted && whatsappUrl ? (
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="fixed bottom-5 right-5 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_18px_35px_-16px_rgba(37,211,102,0.9)] ring-4 ring-white/85 transition hover:-translate-y-1 hover:shadow-[0_28px_55px_-20px_rgba(37,211,102,0.95)] sm:bottom-7 sm:right-7 sm:h-16 sm:w-16"
+        aria-label="Consultar por WhatsApp"
+      >
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 32 32"
+          className="h-7 w-7 sm:h-8 sm:w-8"
+          fill="currentColor"
+        >
+          <path d="M16.01 3.2c-7.03 0-12.75 5.63-12.75 12.56 0 2.21.59 4.37 1.71 6.26L3.2 28.8l6.98-1.73a12.9 12.9 0 0 0 5.83 1.42c7.03 0 12.75-5.63 12.75-12.56S23.04 3.2 16.01 3.2Zm0 22.98c-1.84 0-3.65-.48-5.23-1.39l-.38-.22-4.14 1.03 1.07-4.01-.25-.41a10.16 10.16 0 0 1-1.51-5.32c0-5.65 4.68-10.24 10.44-10.24s10.44 4.59 10.44 10.24-4.68 10.32-10.44 10.32Zm5.73-7.66c-.31-.15-1.85-.9-2.14-1-.29-.11-.5-.15-.71.15-.21.31-.82 1-.99 1.2-.18.21-.36.23-.67.08-.31-.15-1.31-.47-2.5-1.51-.92-.81-1.55-1.81-1.73-2.12-.18-.31-.02-.48.13-.63.14-.14.31-.36.47-.54.16-.18.21-.31.31-.52.1-.21.05-.39-.03-.54-.08-.15-.71-1.68-.97-2.3-.26-.6-.52-.52-.71-.53h-.61c-.21 0-.55.08-.84.39-.29.31-1.1 1.06-1.1 2.59 0 1.52 1.13 2.99 1.29 3.2.16.21 2.23 3.36 5.41 4.71.76.32 1.35.51 1.81.65.76.24 1.45.2 2 .12.61-.09 1.85-.75 2.11-1.47.26-.72.26-1.34.18-1.47-.08-.13-.29-.21-.6-.36Z" />
+        </svg>
+      </a>
+    ) : null}
+    </>
   );
 }

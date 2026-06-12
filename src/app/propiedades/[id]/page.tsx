@@ -5,10 +5,12 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { useInmoStore } from "@/lib/inmoStore";
 import { buildThemeStyles } from "@/lib/theme";
-import { propertyTypeLabels, statusLabels, type FilterGroup } from "@/lib/inmoData";
+import { propertyTypeLabels, type FilterGroup } from "@/lib/inmoData";
 import FrontHeader from "@/components/inmo/FrontHeader";
 import { createId, isValidEmail, normalizePhone } from "@/lib/adminForms";
 import { readClientSession } from "@/lib/session";
+import { generatePropertyPdf } from "@/lib/propertyPdf";
+import { getAvailability } from "@/lib/availability";
 
 const currencyFormatter = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -64,6 +66,8 @@ export default function DetallePropiedadPage() {
   const [leadMessage, setLeadMessage] = useState("");
   const [leadNotice, setLeadNotice] = useState("");
   const [leadError, setLeadError] = useState("");
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState("");
   const [clientSession] = useState(() => readClientSession());
 
   const agent = useMemo(
@@ -227,6 +231,7 @@ export default function DetallePropiedadPage() {
           favorite.clientId === client.id && favorite.propertyId === property.id
       )
   );
+  const availability = getAvailability(property.status);
 
   const toggleFavorite = () => {
     if (!client) {
@@ -334,6 +339,25 @@ export default function DetallePropiedadPage() {
     setLeadMessage("");
   };
 
+  const handleDownloadPdf = async () => {
+    setPdfError("");
+    setIsGeneratingPdf(true);
+    try {
+      await generatePropertyPdf({
+        property,
+        attributes,
+        images,
+        theme,
+        propertyUrl: window.location.href,
+      });
+    } catch (error) {
+      console.error("No se pudo generar la ficha PDF", error);
+      setPdfError("No pudimos generar el PDF. Probá nuevamente.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
   return (
     <div style={themeStyles} className="bg-background text-on-background font-body">
       <FrontHeader active="detail" />
@@ -372,8 +396,11 @@ export default function DetallePropiedadPage() {
                   <span className="rounded-full bg-surface-container-lowest/90 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest">
                     {propertyTypeLabels[property.type]}
                   </span>
-                  <span className="rounded-full bg-primary/90 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-on-primary">
-                    {statusLabels[property.status]}
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest shadow-sm ${availability.badgeClassName}`}
+                  >
+                    <span className={`h-1.5 w-1.5 rounded-full ${availability.dotClassName}`} />
+                    {availability.label}
                   </span>
                 </div>
                 {mainVideo ? (
@@ -467,35 +494,53 @@ export default function DetallePropiedadPage() {
                     {property.neighborhood}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="rounded-2xl bg-surface-container-lowest p-5 text-left md:text-right">
                   <p className="text-4xl font-headline font-bold text-primary">
                     {formatPrice(property.price, property.priceUnit)}
                   </p>
-                  <p className="text-sm font-medium uppercase tracking-widest text-on-surface-variant">
-                    {property.tag || "Disponible"}
-                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2 md:justify-end">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${availability.badgeClassName}`}
+                    >
+                      <span className={`h-1.5 w-1.5 rounded-full ${availability.dotClassName}`} />
+                      {availability.label}
+                    </span>
+                    {property.tag ? (
+                      <span className="rounded-full bg-surface-container-high px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                        {property.tag}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-8 border-b border-t border-outline-variant/15 py-8">
-                <div className="flex items-center space-x-3">
+              <div className="grid gap-3 border-b border-t border-outline-variant/15 py-8 sm:grid-cols-3">
+                <div className="flex items-center space-x-3 rounded-2xl bg-surface-container-lowest p-4">
                   <span className="material-symbols-outlined text-2xl text-primary">square_foot</span>
                   <div>
                     <p className="text-xs uppercase tracking-widest text-on-surface-variant">Espacio</p>
                     <p className="font-bold">{property.area} m²</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-3 rounded-2xl bg-surface-container-lowest p-4">
                   <span className="material-symbols-outlined text-2xl text-primary">bed</span>
                   <div>
                     <p className="text-xs uppercase tracking-widest text-on-surface-variant">Ambientes</p>
                     <p className="font-bold">{property.rooms}</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <span className="material-symbols-outlined text-2xl text-primary">verified</span>
+                <div className="flex items-center space-x-3 rounded-2xl bg-surface-container-lowest p-4">
+                  <span
+                    className={`flex h-10 w-10 items-center justify-center rounded-full ${availability.softClassName}`}
+                  >
+                    <span className="material-symbols-outlined text-2xl">
+                      {availability.isAvailable ? "verified" : "block"}
+                    </span>
+                  </span>
                   <div>
                     <p className="text-xs uppercase tracking-widest text-on-surface-variant">Estado</p>
-                    <p className="font-bold">{statusLabels[property.status]}</p>
+                    <p className={availability.isAvailable ? "font-bold text-emerald-700" : "font-bold text-red-700"}>
+                      {availability.label}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -625,6 +670,19 @@ export default function DetallePropiedadPage() {
                   <span className="font-semibold text-primary">{property.area} m²</span>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={handleDownloadPdf}
+                disabled={isGeneratingPdf}
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-on-primary transition hover:scale-[1.01] disabled:cursor-wait disabled:opacity-70"
+                style={{ color: "var(--color-on-primary)" }}
+              >
+                <span className="material-symbols-outlined text-lg">
+                  {isGeneratingPdf ? "progress_activity" : "download"}
+                </span>
+                {isGeneratingPdf ? "Armando ficha PDF" : "Descargar ficha PDF"}
+              </button>
+              {pdfError ? <p className="mt-3 text-sm text-error">{pdfError}</p> : null}
             </div>
           </div>
         </section>

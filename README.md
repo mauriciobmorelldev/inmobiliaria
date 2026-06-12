@@ -174,3 +174,5 @@ El build de Next puede requerir acceso de red para descargar Google Fonts.
 - Identidad visual aplicada con la paleta del documento.
 - Area de cliente final.
 - Documento de alcance y tareas: este README.
+- Documentacion completa tecnica, funcional y productiva: `DOCUMENTACION.md`.
+- Documento comercial para presentacion y venta de la plataforma: `PRESENTACION_COMERCIAL.md`.

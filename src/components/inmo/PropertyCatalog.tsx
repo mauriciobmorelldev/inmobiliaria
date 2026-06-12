@@ -5,20 +5,19 @@ import Link from "next/link";
 import { useInmoStore } from "@/lib/inmoStore";
 import {
   propertyTypeLabels,
-  statusLabels,
   type FilterGroup,
   type PropertyType,
-  type PropertyStatus,
 } from "@/lib/inmoData";
 import { buildThemeStyles } from "@/lib/theme";
 import FrontHeader from "@/components/inmo/FrontHeader";
+import { getAvailability } from "@/lib/availability";
 
 type PropertyCatalogProps = {
   showHero?: boolean;
 };
 
 type PropertyTypeFilter = "all" | PropertyType;
-type PropertyStatusFilter = "all" | PropertyStatus;
+type PropertyStatusFilter = "all" | "disponible" | "no-disponible";
 
 const typeFilters: Array<{ id: PropertyTypeFilter; label: string }> = [
   { id: "all", label: "Todos" },
@@ -30,9 +29,8 @@ const typeFilters: Array<{ id: PropertyTypeFilter; label: string }> = [
 
 const statusFilters: Array<{ id: PropertyStatusFilter; label: string }> = [
   { id: "all", label: "Todos" },
-  { id: "disponible", label: statusLabels.disponible },
-  { id: "reservado", label: statusLabels.reservado },
-  { id: "vendido", label: statusLabels.vendido },
+  { id: "disponible", label: "Disponible" },
+  { id: "no-disponible", label: "No disponible" },
 ];
 
 const currencyFormatter = new Intl.NumberFormat("es-AR", {
@@ -96,8 +94,11 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
     if (type !== "all") {
       items = items.filter((item) => item.type === type);
     }
-    if (status !== "all") {
+    if (status === "disponible") {
       items = items.filter((item) => item.status === status);
+    }
+    if (status === "no-disponible") {
+      items = items.filter((item) => item.status !== "disponible");
     }
     items = items.filter((item) =>
       filterGroups.every((group) => {
@@ -170,10 +171,10 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
                   </div>
                   <div className="rounded-xl bg-surface-container-low p-4">
                     <p className="text-xs uppercase tracking-widest text-on-surface-variant">
-                      Reservados
+                      No disponibles
                     </p>
                     <p className="mt-2 text-2xl font-semibold text-primary">
-                      {listings.filter((item) => item.status === "reservado").length}
+                      {listings.filter((item) => item.status !== "disponible").length}
                     </p>
                   </div>
                 </div>
@@ -328,6 +329,7 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
           <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
             {filteredListings.map((item) => {
               const cover = getCoverImage(item.images, item.coverIndex);
+              const availability = getAvailability(item.status);
               return (
                 <Link
                   key={item.id}
@@ -344,8 +346,11 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
                     ) : (
                       <div className="h-full w-full bg-gradient-to-br from-primary/20 via-surface-container-low to-secondary/20" />
                     )}
-                    <span className="absolute left-4 top-4 rounded-full bg-surface-container-lowest/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
-                      {statusLabels[item.status]}
+                    <span
+                      className={`absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm ${availability.badgeClassName}`}
+                    >
+                      <span className={`h-1.5 w-1.5 rounded-full ${availability.dotClassName}`} />
+                      {availability.label}
                     </span>
                   </div>
                   <div className="p-6">

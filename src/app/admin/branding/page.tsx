@@ -56,6 +56,8 @@ export default function AdminBrandingPage() {
         surface: themeForm.surface?.trim(),
         logo: themeForm.logo,
         heroImage: themeForm.heroImage,
+        whatsappPhone: themeForm.whatsappPhone?.trim(),
+        whatsappMessage: themeForm.whatsappMessage?.trim(),
       },
     }));
     setFormNotice("Branding actualizado.");
@@ -314,6 +316,36 @@ export default function AdminBrandingPage() {
                 </button>
               </div>
             ) : null}
+
+            <div className="grid gap-4 rounded-3xl bg-surface-container-low p-5 sm:grid-cols-2">
+              <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+                WhatsApp del sitio
+                <input
+                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                  placeholder="Ej: 5491123456789"
+                  value={themeForm.whatsappPhone ?? ""}
+                  onChange={(event) =>
+                    setThemeForm((prev) => ({
+                      ...prev,
+                      whatsappPhone: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+              <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+                Mensaje inicial
+                <input
+                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                  value={themeForm.whatsappMessage ?? ""}
+                  onChange={(event) =>
+                    setThemeForm((prev) => ({
+                      ...prev,
+                      whatsappMessage: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+            </div>
 
             <button
               type="submit"

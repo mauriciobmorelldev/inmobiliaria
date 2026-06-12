@@ -5,8 +5,9 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { useInmoStore } from "@/lib/inmoStore";
 import { buildThemeStyles } from "@/lib/theme";
-import { propertyTypeLabels, statusLabels } from "@/lib/inmoData";
+import { propertyTypeLabels } from "@/lib/inmoData";
 import FrontHeader from "@/components/inmo/FrontHeader";
+import { getAvailability } from "@/lib/availability";
 
 const currencyFormatter = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -480,6 +481,7 @@ export default function HomeStitch() {
                 const video = item.videos?.[0];
                 const agent = item.agentId ? agentsById[item.agentId] : undefined;
                 const features = getPropertyFeatures(item);
+                const availability = getAvailability(item.status);
                 const narrative = truncate(
                   item.highlight ||
                     item.description ||
@@ -526,8 +528,11 @@ export default function HomeStitch() {
                             {item.tag}
                           </span>
                         ) : null}
-                        <span className="rounded-full bg-primary/85 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-on-primary">
-                          {statusLabels[item.status]}
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm ${availability.badgeClassName}`}
+                        >
+                          <span className={`h-1.5 w-1.5 rounded-full ${availability.dotClassName}`} />
+                          {availability.label}
                         </span>
                       </div>
 
@@ -690,27 +695,33 @@ export default function HomeStitch() {
               {recentListings.length === 0 ? (
                 <p className="text-sm text-on-surface-variant">No hay nuevas incorporaciones aún.</p>
               ) : (
-                recentListings.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 18 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.45 }}
-                    transition={{ ...smoothSpring, delay: index * 0.06 }}
-                    whileHover={{ y: -5, scale: 1.01 }}
-                  >
-                    <Link
-                      href={`/propiedades/${item.id}`}
-                      className="block rounded-3xl bg-surface-container-low p-4"
+                recentListings.map((item, index) => {
+                  const availability = getAvailability(item.status);
+                  return (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 18 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, amount: 0.45 }}
+                      transition={{ ...smoothSpring, delay: index * 0.06 }}
+                      whileHover={{ y: -5, scale: 1.01 }}
                     >
-                      <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
-                        {statusLabels[item.status]}
-                      </p>
-                      <h3 className="mt-2 text-lg font-bold text-primary">{item.title}</h3>
-                      <p className="mt-1 text-sm text-on-surface-variant">{item.neighborhood}</p>
-                    </Link>
-                  </motion.div>
-                ))
+                      <Link
+                        href={`/propiedades/${item.id}`}
+                        className="block rounded-3xl bg-surface-container-low p-4"
+                      >
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${availability.badgeClassName}`}
+                        >
+                          <span className={`h-1.5 w-1.5 rounded-full ${availability.dotClassName}`} />
+                          {availability.label}
+                        </span>
+                        <h3 className="mt-2 text-lg font-bold text-primary">{item.title}</h3>
+                        <p className="mt-1 text-sm text-on-surface-variant">{item.neighborhood}</p>
+                      </Link>
+                    </motion.div>
+                  );
+                })
               )}
             </div>
           </motion.div>

@@ -29,6 +29,8 @@ export type ThemeSettings = {
   surface?: string;
   logo?: string;
   heroImage?: string;
+  whatsappPhone?: string;
+  whatsappMessage?: string;
 };
 
 export type HomeBanner = {
@@ -228,6 +230,8 @@ export const defaultState: InmoState = {
     neutral: "#e6c88f",
     surface: "#ffffff",
     heroImage: "",
+    whatsappPhone: "5491123456789",
+    whatsappMessage: "Hola, quiero consultar por una propiedad en Connexa.",
   },
   homeContent: {
     eyebrow: "Connexa Real Estate",
