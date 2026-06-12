@@ -352,141 +352,141 @@ export default function DetallePropiedadPage() {
 
       <main className="pt-20">
         <section className="mx-auto max-w-screen-2xl px-6 lg:px-8 pt-8">
-          <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
-            <div className="relative overflow-hidden rounded-2xl bg-surface-container-lowest">
-              <div className="relative aspect-[16/10] overflow-hidden">
-                {mainVideo ? (
-                  <video
-                    className="h-full w-full object-cover"
-                    src={mainVideo}
-                    controls
-                    playsInline
-                  />
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => openViewer(activeImage)}
-                    className="group block h-full w-full cursor-zoom-in"
-                    aria-label="Abrir galería de imágenes"
-                  >
-                    <img
-                      alt={property.title}
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                      src={mainImage}
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-start">
+            <div className="lg:sticky lg:top-24 lg:col-span-7 lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto lg:pr-2">
+              <div className="relative overflow-hidden rounded-2xl bg-surface-container-lowest">
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  {mainVideo ? (
+                    <video
+                      className="h-full w-full object-cover"
+                      src={mainVideo}
+                      controls
+                      playsInline
                     />
-                    <span className="absolute bottom-6 right-6 inline-flex items-center gap-2 rounded-full bg-surface-container-lowest/92 px-4 py-2 text-xs font-bold text-primary shadow-[0_20px_45px_-28px_rgba(27,54,93,0.55)] backdrop-blur">
-                      <span className="material-symbols-outlined text-base">zoom_in</span>
-                      Ver fotos
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => openViewer(activeImage)}
+                      className="group block h-full w-full cursor-zoom-in"
+                      aria-label="Abrir galería de imágenes"
+                    >
+                      <img
+                        alt={property.title}
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                        src={mainImage}
+                      />
+                      <span className="absolute bottom-6 right-6 inline-flex items-center gap-2 rounded-full bg-surface-container-lowest/92 px-4 py-2 text-xs font-bold text-primary shadow-[0_20px_45px_-28px_rgba(27,54,93,0.55)] backdrop-blur">
+                        <span className="material-symbols-outlined text-base">zoom_in</span>
+                        Ver fotos
+                      </span>
+                    </button>
+                  )}
+                  <div className="absolute left-6 top-6 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-surface-container-lowest/90 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest">
+                      {propertyTypeLabels[property.type]}
                     </span>
-                  </button>
-                )}
-                <div className="absolute left-6 top-6 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-surface-container-lowest/90 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest">
-                    {propertyTypeLabels[property.type]}
-                  </span>
-                  <span
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest shadow-sm ${availability.badgeClassName}`}
-                  >
-                    <span className={`h-1.5 w-1.5 rounded-full ${availability.dotClassName}`} />
-                    {availability.label}
-                  </span>
-                </div>
-                {mainVideo ? (
-                  <button
-                    type="button"
-                    onClick={() => openViewer(activeImage)}
-                    className="absolute bottom-6 right-6 inline-flex items-center gap-2 rounded-full bg-surface-container-lowest/92 px-4 py-2 text-xs font-bold text-primary shadow-[0_20px_45px_-28px_rgba(27,54,93,0.55)] backdrop-blur"
-                  >
-                    <span className="material-symbols-outlined text-base">photo_library</span>
-                    Ver fotos
-                  </button>
-                ) : null}
-              </div>
-              <div className="flex gap-3 overflow-x-auto p-4">
-                {images.map((image, index) => (
-                  <button
-                    key={`${image}-${index}`}
-                    type="button"
-                    onClick={() => {
-                      setActiveImage(index);
-                      openViewer(index);
-                    }}
-                    className={`relative shrink-0 overflow-hidden rounded-xl border ${
-                      activeImage === index
-                        ? "border-primary"
-                        : "border-outline-variant/30"
-                    }`}
-                  >
-                    <img
-                      src={image}
-                      alt={`Miniatura ${index + 1}`}
-                      className="h-20 w-28 object-cover"
-                    />
-                    {activeImage === index ? (
-                      <span className="absolute inset-0 border-2 border-primary" />
-                    ) : null}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid gap-4">
-              {sideImages.map((image, index) => (
-                <button
-                  key={image}
-                  type="button"
-                  onClick={() => openViewer(index + 1)}
-                  className="group relative overflow-hidden rounded-2xl bg-surface-container-lowest"
-                >
-                  <img
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    src={image}
-                    alt={`Imagen ${index + 2} de ${property.title}`}
-                  />
-                  <span className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-lowest/88 text-primary backdrop-blur">
-                    <span className="material-symbols-outlined text-lg">open_in_full</span>
-                  </span>
-                </button>
-              ))}
-              {extraCount > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => openViewer(2)}
-                  className="relative overflow-hidden rounded-2xl bg-surface-container-lowest text-left"
-                >
-                  <img className="h-full w-full object-cover" src={images[2]} alt="Más" />
-                  <div className="absolute inset-0 flex items-center justify-center bg-primary/40">
-                    <span className="text-lg font-headline font-bold text-on-primary">
-                      +{extraCount} Fotos
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest shadow-sm ${availability.badgeClassName}`}
+                    >
+                      <span className={`h-1.5 w-1.5 rounded-full ${availability.dotClassName}`} />
+                      {availability.label}
                     </span>
                   </div>
-                </button>
-              ) : (
-                <div className="rounded-2xl bg-surface-container-low p-6 text-sm text-on-surface-variant">
-                  Galería completa disponible en la ficha.
+                  {mainVideo ? (
+                    <button
+                      type="button"
+                      onClick={() => openViewer(activeImage)}
+                      className="absolute bottom-6 right-6 inline-flex items-center gap-2 rounded-full bg-surface-container-lowest/92 px-4 py-2 text-xs font-bold text-primary shadow-[0_20px_45px_-28px_rgba(27,54,93,0.55)] backdrop-blur"
+                    >
+                      <span className="material-symbols-outlined text-base">photo_library</span>
+                      Ver fotos
+                    </button>
+                  ) : null}
                 </div>
-              )}
-            </div>
-          </div>
-        </section>
+                <div className="flex gap-3 overflow-x-auto p-4">
+                  {images.map((image, index) => (
+                    <button
+                      key={`${image}-${index}`}
+                      type="button"
+                      onClick={() => {
+                        setActiveImage(index);
+                        openViewer(index);
+                      }}
+                      className={`relative shrink-0 overflow-hidden rounded-xl border ${
+                        activeImage === index
+                          ? "border-primary"
+                          : "border-outline-variant/30"
+                      }`}
+                    >
+                      <img
+                        src={image}
+                        alt={`Miniatura ${index + 1}`}
+                        className="h-20 w-28 object-cover"
+                      />
+                      {activeImage === index ? (
+                        <span className="absolute inset-0 border-2 border-primary" />
+                      ) : null}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-        <section className="mx-auto grid max-w-screen-2xl grid-cols-1 gap-16 px-8 py-16 lg:grid-cols-12">
-          <div className="lg:col-span-8 space-y-12">
-            <div className="space-y-4">
-              <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-                <div className="space-y-2">
-                  <h1 className="text-5xl font-headline font-extrabold tracking-tighter text-primary">
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {sideImages.map((image, index) => (
+                  <button
+                    key={image}
+                    type="button"
+                    onClick={() => openViewer(index + 1)}
+                    className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-surface-container-lowest"
+                  >
+                    <img
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      src={image}
+                      alt={`Imagen ${index + 2} de ${property.title}`}
+                    />
+                    <span className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-lowest/88 text-primary backdrop-blur">
+                      <span className="material-symbols-outlined text-lg">open_in_full</span>
+                    </span>
+                  </button>
+                ))}
+                {extraCount > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => openViewer(2)}
+                    className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-surface-container-lowest text-left"
+                  >
+                    <img className="h-full w-full object-cover" src={images[2]} alt="Más" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-primary/40">
+                      <span className="text-lg font-headline font-bold text-on-primary">
+                        +{extraCount} Fotos
+                      </span>
+                    </div>
+                  </button>
+                ) : (
+                  images.length <= 1 ? (
+                    <div className="rounded-2xl bg-surface-container-low p-6 text-sm text-on-surface-variant">
+                      Galería completa disponible en la ficha.
+                    </div>
+                  ) : null
+                )}
+              </div>
+            </div>
+
+            <div className="lg:col-span-5">
+              <div className="space-y-6 rounded-2xl bg-surface-container-lowest p-6 md:p-8">
+                <div className="space-y-3">
+                  <h1 className="text-4xl font-headline font-extrabold tracking-tighter text-primary md:text-5xl">
                     {property.title}
                   </h1>
-                  <p className="text-xl font-light text-on-surface-variant">
+                  <p className="text-lg font-light text-on-surface-variant">
                     {property.neighborhood}
                   </p>
                 </div>
-                <div className="rounded-2xl bg-surface-container-lowest p-5 text-left md:text-right">
+                <div className="rounded-2xl bg-surface-container-low p-5 text-left">
                   <p className="text-4xl font-headline font-bold text-primary">
                     {formatPrice(property.price, property.priceUnit, property.currency)}
                   </p>
-                  <div className="mt-3 flex flex-wrap items-center gap-2 md:justify-end">
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${availability.badgeClassName}`}
                     >
@@ -500,32 +500,22 @@ export default function DetallePropiedadPage() {
                     ) : null}
                   </div>
                 </div>
-              </div>
-              <div className="grid gap-3 border-b border-t border-outline-variant/15 py-8 sm:grid-cols-3">
-                <div className="flex items-center space-x-3 rounded-2xl bg-surface-container-lowest p-4">
-                  <span className="material-symbols-outlined text-2xl text-primary">square_foot</span>
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-on-surface-variant">Espacio</p>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-2xl bg-surface-container-low p-4">
+                    <span className="material-symbols-outlined text-2xl text-primary">square_foot</span>
+                    <p className="mt-2 text-xs uppercase tracking-widest text-on-surface-variant">Espacio</p>
                     <p className="font-bold">{property.area} m²</p>
                   </div>
-                </div>
-                <div className="flex items-center space-x-3 rounded-2xl bg-surface-container-lowest p-4">
-                  <span className="material-symbols-outlined text-2xl text-primary">bed</span>
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-on-surface-variant">Ambientes</p>
+                  <div className="rounded-2xl bg-surface-container-low p-4">
+                    <span className="material-symbols-outlined text-2xl text-primary">bed</span>
+                    <p className="mt-2 text-xs uppercase tracking-widest text-on-surface-variant">Ambientes</p>
                     <p className="font-bold">{property.rooms}</p>
                   </div>
-                </div>
-                <div className="flex items-center space-x-3 rounded-2xl bg-surface-container-lowest p-4">
-                  <span
-                    className={`flex h-10 w-10 items-center justify-center rounded-full ${availability.softClassName}`}
-                  >
-                    <span className="material-symbols-outlined text-2xl">
+                  <div className="rounded-2xl bg-surface-container-low p-4">
+                    <span className="material-symbols-outlined text-2xl text-primary">
                       {availability.isAvailable ? "verified" : "block"}
                     </span>
-                  </span>
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-on-surface-variant">Estado</p>
+                    <p className="mt-2 text-xs uppercase tracking-widest text-on-surface-variant">Estado</p>
                     <p className={availability.isAvailable ? "font-bold text-emerald-700" : "font-bold text-red-700"}>
                       {availability.label}
                     </p>
@@ -533,7 +523,11 @@ export default function DetallePropiedadPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
 
+        <section className="mx-auto grid max-w-screen-2xl grid-cols-1 gap-16 px-8 py-16 lg:grid-cols-12">
+          <div className="lg:col-span-8 space-y-12">
             <div className="space-y-6">
               <h2 className="text-2xl font-headline font-bold tracking-tight">
                 Sobre esta propiedad

@@ -1,4 +1,3 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   defaultState,
   STATE_VERSION,
@@ -66,20 +65,6 @@ const toPropertyImageRows = (property: Listing) =>
     url,
     sort_order: index,
   }));
-
-const deleteMissing = async (
-  supabase: SupabaseClient,
-  table: string,
-  ids: string[]
-) => {
-  if (!ids.length) {
-    const result = await supabase.from(table).delete().neq("id", "__keep_none__");
-    assertSupabaseOk(result, `deleteMissing ${table}`);
-    return;
-  }
-  const result = await supabase.from(table).delete().not("id", "in", `(${ids.join(",")})`);
-  assertSupabaseOk(result, `deleteMissing ${table}`);
-};
 
 export const readInmoState = async (): Promise<RepositoryResult<InmoState>> => {
   const supabase = getSupabaseServerClient();
@@ -296,7 +281,6 @@ export const writeInmoState = async (state: InmoState) => {
   if (adminRows.length) {
     assertSupabaseOk(await supabase.from("profiles").upsert(adminRows), "upsert profiles");
   }
-  await deleteMissing(supabase, "profiles", state.adminUsers.map((admin) => admin.id));
 
   if (state.agents.length) {
     assertSupabaseOk(await supabase.from("agents").upsert(
@@ -311,7 +295,6 @@ export const writeInmoState = async (state: InmoState) => {
       }))
     ), "upsert agents");
   }
-  await deleteMissing(supabase, "agents", state.agents.map((agent) => agent.id));
 
   if (state.clientUsers.length) {
     assertSupabaseOk(await supabase.from("clients").upsert(
@@ -329,14 +312,12 @@ export const writeInmoState = async (state: InmoState) => {
       }))
     ), "upsert clients");
   }
-  await deleteMissing(supabase, "clients", state.clientUsers.map((client) => client.id));
 
   if (state.listings.length) {
     assertSupabaseOk(await supabase.from("properties").upsert(
       state.listings.map(toPropertyRow)
     ), "upsert properties");
   }
-  await deleteMissing(supabase, "properties", state.listings.map((property) => property.id));
 
   const imageRows = state.listings.flatMap((property) =>
     toPropertyImageRows(property)
@@ -344,7 +325,6 @@ export const writeInmoState = async (state: InmoState) => {
   if (imageRows.length) {
     assertSupabaseOk(await supabase.from("property_images").upsert(imageRows), "upsert property_images");
   }
-  await deleteMissing(supabase, "property_images", imageRows.map((image) => image.id));
 
   if (state.propertyFavorites.length) {
     assertSupabaseOk(await supabase.from("property_favorites").upsert(
@@ -356,11 +336,6 @@ export const writeInmoState = async (state: InmoState) => {
       }))
     ), "upsert property_favorites");
   }
-  await deleteMissing(
-    supabase,
-    "property_favorites",
-    state.propertyFavorites.map((favorite) => favorite.id)
-  );
 
   if (state.leads.length) {
     assertSupabaseOk(await supabase.from("leads").upsert(
@@ -379,7 +354,6 @@ export const writeInmoState = async (state: InmoState) => {
       }))
     ), "upsert leads");
   }
-  await deleteMissing(supabase, "leads", state.leads.map((lead) => lead.id));
 
   if (state.leadEvents.length) {
     assertSupabaseOk(await supabase.from("lead_events").upsert(
@@ -393,7 +367,6 @@ export const writeInmoState = async (state: InmoState) => {
       }))
     ), "upsert lead_events");
   }
-  await deleteMissing(supabase, "lead_events", state.leadEvents.map((event) => event.id));
 
   if (state.propertyMetrics.length) {
     assertSupabaseOk(await supabase.from("property_metrics").upsert(
@@ -407,11 +380,6 @@ export const writeInmoState = async (state: InmoState) => {
       }))
     ), "upsert property_metrics");
   }
-  await deleteMissing(
-    supabase,
-    "property_metrics",
-    state.propertyMetrics.map((metric) => metric.id)
-  );
 
   if (state.toccoSyncLogs.length) {
     assertSupabaseOk(await supabase.from("tocco_sync_logs").upsert(
