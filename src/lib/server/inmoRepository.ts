@@ -22,16 +22,27 @@ type RepositoryResult<T> = {
 
 const ensureArray = <T>(value: T[] | null) => value ?? [];
 
+const assertSupabaseOk = (
+  result: { error?: { message?: string } | null },
+  action: string
+) => {
+  if (result.error) {
+    throw new Error(`${action}: ${result.error.message ?? "Error de Supabase"}`);
+  }
+};
+
 const deleteMissing = async (
   supabase: SupabaseClient,
   table: string,
   ids: string[]
 ) => {
   if (!ids.length) {
-    await supabase.from(table).delete().neq("id", "__keep_none__");
+    const result = await supabase.from(table).delete().neq("id", "__keep_none__");
+    assertSupabaseOk(result, `deleteMissing ${table}`);
     return;
   }
-  await supabase.from(table).delete().not("id", "in", `(${ids.join(",")})`);
+  const result = await supabase.from(table).delete().not("id", "in", `(${ids.join(",")})`);
+  assertSupabaseOk(result, `deleteMissing ${table}`);
 };
 
 export const readInmoState = async (): Promise<RepositoryResult<InmoState>> => {
@@ -66,8 +77,25 @@ export const readInmoState = async (): Promise<RepositoryResult<InmoState>> => {
     supabase.from("tocco_sync_logs").select("*").order("started_at", { ascending: false }),
   ]);
 
-  if (settings.error) {
-    console.warn("Supabase state read failed", settings.error.message);
+  const readErrors = [
+    ["platform_settings", settings.error?.message],
+    ["profiles", profiles.error?.message],
+    ["agents", agents.error?.message],
+    ["clients", clients.error?.message],
+    ["properties", properties.error?.message],
+    ["property_images", propertyImages.error?.message],
+    ["property_favorites", favorites.error?.message],
+    ["leads", leads.error?.message],
+    ["lead_events", leadEvents.error?.message],
+    ["property_metrics", metrics.error?.message],
+    ["tocco_sync_logs", toccoLogs.error?.message],
+  ].filter(([, error]) => error);
+
+  if (readErrors.length) {
+    console.warn(
+      "Supabase state read failed",
+      readErrors.map(([table, error]) => `${table}: ${error}`).join(" | ")
+    );
     return { data: defaultState, source: "fallback" };
   }
 
@@ -186,12 +214,12 @@ export const writeInmoState = async (state: InmoState) => {
     return { source: "fallback" as const };
   }
 
-  await supabase.from("platform_settings").upsert({
+  assertSupabaseOk(await supabase.from("platform_settings").upsert({
     id: SETTINGS_ID,
     theme: state.theme,
     home_content: state.homeContent,
     updated_at: new Date().toISOString(),
-  });
+  }), "upsert platform_settings");
 
   const adminRows = state.adminUsers.map((admin) => ({
     id: admin.id,
@@ -203,11 +231,13 @@ export const writeInmoState = async (state: InmoState) => {
     active: admin.active,
     updated_at: new Date().toISOString(),
   }));
-  if (adminRows.length) await supabase.from("profiles").upsert(adminRows);
+  if (adminRows.length) {
+    assertSupabaseOk(await supabase.from("profiles").upsert(adminRows), "upsert profiles");
+  }
   await deleteMissing(supabase, "profiles", state.adminUsers.map((admin) => admin.id));
 
   if (state.agents.length) {
-    await supabase.from("agents").upsert(
+    assertSupabaseOk(await supabase.from("agents").upsert(
       state.agents.map((agent) => ({
         id: agent.id,
         name: agent.name,
@@ -217,12 +247,12 @@ export const writeInmoState = async (state: InmoState) => {
         photo: agent.photo ?? null,
         updated_at: new Date().toISOString(),
       }))
-    );
+    ), "upsert agents");
   }
   await deleteMissing(supabase, "agents", state.agents.map((agent) => agent.id));
 
   if (state.clientUsers.length) {
-    await supabase.from("clients").upsert(
+    assertSupabaseOk(await supabase.from("clients").upsert(
       state.clientUsers.map((client) => ({
         id: client.id,
         name: client.name,
@@ -235,12 +265,12 @@ export const writeInmoState = async (state: InmoState) => {
         active: client.active,
         updated_at: new Date().toISOString(),
       }))
-    );
+    ), "upsert clients");
   }
   await deleteMissing(supabase, "clients", state.clientUsers.map((client) => client.id));
 
   if (state.listings.length) {
-    await supabase.from("properties").upsert(
+    assertSupabaseOk(await supabase.from("properties").upsert(
       state.listings.map((property) => ({
         id: property.id,
         title: property.title,
@@ -262,7 +292,7 @@ export const writeInmoState = async (state: InmoState) => {
         attributes: property.attributes,
         updated_at: new Date().toISOString(),
       }))
-    );
+    ), "upsert properties");
   }
   await deleteMissing(supabase, "properties", state.listings.map((property) => property.id));
 
@@ -274,18 +304,20 @@ export const writeInmoState = async (state: InmoState) => {
       sort_order: index,
     }))
   );
-  if (imageRows.length) await supabase.from("property_images").upsert(imageRows);
+  if (imageRows.length) {
+    assertSupabaseOk(await supabase.from("property_images").upsert(imageRows), "upsert property_images");
+  }
   await deleteMissing(supabase, "property_images", imageRows.map((image) => image.id));
 
   if (state.propertyFavorites.length) {
-    await supabase.from("property_favorites").upsert(
+    assertSupabaseOk(await supabase.from("property_favorites").upsert(
       state.propertyFavorites.map((favorite) => ({
         id: favorite.id,
         client_id: favorite.clientId,
         property_id: favorite.propertyId,
         created_at: favorite.createdAt,
       }))
-    );
+    ), "upsert property_favorites");
   }
   await deleteMissing(
     supabase,
@@ -294,7 +326,7 @@ export const writeInmoState = async (state: InmoState) => {
   );
 
   if (state.leads.length) {
-    await supabase.from("leads").upsert(
+    assertSupabaseOk(await supabase.from("leads").upsert(
       state.leads.map((lead) => ({
         id: lead.id,
         name: lead.name,
@@ -308,12 +340,12 @@ export const writeInmoState = async (state: InmoState) => {
         created_at: lead.createdAt,
         updated_at: lead.updatedAt,
       }))
-    );
+    ), "upsert leads");
   }
   await deleteMissing(supabase, "leads", state.leads.map((lead) => lead.id));
 
   if (state.leadEvents.length) {
-    await supabase.from("lead_events").upsert(
+    assertSupabaseOk(await supabase.from("lead_events").upsert(
       state.leadEvents.map((event) => ({
         id: event.id,
         lead_id: event.leadId,
@@ -322,12 +354,12 @@ export const writeInmoState = async (state: InmoState) => {
         note: event.note ?? null,
         created_at: event.createdAt,
       }))
-    );
+    ), "upsert lead_events");
   }
   await deleteMissing(supabase, "lead_events", state.leadEvents.map((event) => event.id));
 
   if (state.propertyMetrics.length) {
-    await supabase.from("property_metrics").upsert(
+    assertSupabaseOk(await supabase.from("property_metrics").upsert(
       state.propertyMetrics.map((metric) => ({
         id: metric.id,
         property_id: metric.propertyId,
@@ -336,7 +368,7 @@ export const writeInmoState = async (state: InmoState) => {
         favorites: metric.favorites,
         last_viewed_at: metric.lastViewedAt ?? null,
       }))
-    );
+    ), "upsert property_metrics");
   }
   await deleteMissing(
     supabase,
@@ -345,7 +377,7 @@ export const writeInmoState = async (state: InmoState) => {
   );
 
   if (state.toccoSyncLogs.length) {
-    await supabase.from("tocco_sync_logs").upsert(
+    assertSupabaseOk(await supabase.from("tocco_sync_logs").upsert(
       state.toccoSyncLogs.map((log) => ({
         id: log.id,
         status: log.status,
@@ -354,7 +386,7 @@ export const writeInmoState = async (state: InmoState) => {
         started_at: log.startedAt,
         finished_at: log.finishedAt,
       }))
-    );
+    ), "upsert tocco_sync_logs");
   }
 
   return { source: "supabase" as const };

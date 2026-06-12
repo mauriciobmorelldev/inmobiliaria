@@ -126,9 +126,17 @@ export default function AdminPropertiesPage() {
       },
       body: JSON.stringify(listing),
     });
+    const result = (await response.json().catch(() => null)) as {
+      error?: string;
+      source?: "supabase" | "fallback";
+    } | null;
     if (!response.ok) {
-      const result = (await response.json().catch(() => null)) as { error?: string } | null;
       throw new Error(result?.error ?? "No se pudo sincronizar la propiedad.");
+    }
+    if (result?.source !== "supabase") {
+      throw new Error(
+        "Supabase no está guardando datos. Revisá .env.local y ejecutá supabase.sql en la base."
+      );
     }
   };
 
@@ -167,18 +175,14 @@ export default function AdminPropertiesPage() {
 
     setIsSaving(true);
     try {
+      await syncListingToServer(normalized);
+
       updateState((prev) => {
         const nextListings = editingListingId
           ? prev.listings.map((item) => (item.id === id ? normalized : item))
           : [...prev.listings, normalized];
         return { ...prev, listings: nextListings };
       });
-
-      try {
-        await syncListingToServer(normalized);
-      } catch (error) {
-        console.warn("La propiedad quedó guardada localmente, pero no sincronizó remoto.", error);
-      }
 
       setEditingListingId(null);
       setListingForm(getEmptyListingForm(filterGroups, assignableAgents));
@@ -190,6 +194,12 @@ export default function AdminPropertiesPage() {
         editingListingId
           ? "Propiedad actualizada correctamente."
           : "Propiedad creada correctamente."
+      );
+    } catch (error) {
+      setFormError(
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar la propiedad en Supabase."
       );
     } finally {
       setIsSaving(false);
@@ -207,6 +217,36 @@ export default function AdminPropertiesPage() {
   };
 
   const handleListingDelete = async (listingId: string) => {
+    if (!authedAdmin) return;
+    const previousListings = listings;
+    try {
+      const response = await fetch(`/api/properties?id=${encodeURIComponent(listingId)}`, {
+        method: "DELETE",
+        headers: { "x-admin-id": authedAdmin.id },
+      });
+      const result = (await response.json().catch(() => null)) as {
+        error?: string;
+        source?: "supabase" | "fallback";
+      } | null;
+      if (!response.ok) {
+        throw new Error(result?.error ?? "No se pudo eliminar la propiedad.");
+      }
+      if (result?.source !== "supabase") {
+        throw new Error(
+          "Supabase no está eliminando datos. Revisá .env.local y ejecutá supabase.sql."
+        );
+      }
+      setSuccessNotice("Propiedad eliminada correctamente.");
+    } catch (error) {
+      setFormError(
+        error instanceof Error
+          ? error.message
+          : "No se pudo eliminar la propiedad en Supabase."
+      );
+      updateState((prev) => ({ ...prev, listings: previousListings }));
+      return;
+    }
+
     updateState((prev) => ({
       ...prev,
       listings: prev.listings.filter(
@@ -215,16 +255,6 @@ export default function AdminPropertiesPage() {
           (!isOwner && item.createdByAdminId !== authedAdmin?.id)
       ),
     }));
-    if (!authedAdmin) return;
-    try {
-      await fetch(`/api/properties?id=${encodeURIComponent(listingId)}`, {
-        method: "DELETE",
-        headers: { "x-admin-id": authedAdmin.id },
-      });
-      setSuccessNotice("Propiedad eliminada correctamente.");
-    } catch (error) {
-      console.warn("La propiedad se eliminó localmente, pero no sincronizó remoto.", error);
-    }
   };
 
   const handleListingImageUpload = async (files: FileList | null) => {
