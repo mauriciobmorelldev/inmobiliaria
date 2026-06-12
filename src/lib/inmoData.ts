@@ -1,6 +1,7 @@
 export type PropertyType = "tradicional" | "temporario" | "pozo" | "listo";
 export type PropertyStatus = "disponible" | "pausado" | "reservado" | "vendido";
 export type PriceUnit = "venta" | "mensual" | "noche";
+export type PriceCurrency = "ARS" | "USD";
 export type FilterMode = "single" | "multi";
 
 export type FilterGroup = {
@@ -31,6 +32,7 @@ export type ThemeSettings = {
   heroImage?: string;
   whatsappPhone?: string;
   whatsappMessage?: string;
+  usdToArsRate?: number;
 };
 
 export type HomeBanner = {
@@ -167,6 +169,7 @@ export type Listing = {
   status: PropertyStatus;
   price: number;
   priceUnit: PriceUnit;
+  currency: PriceCurrency;
   neighborhood: string;
   area: number;
   rooms: number;
@@ -232,6 +235,7 @@ export const defaultState: InmoState = {
     heroImage: "",
     whatsappPhone: "5491123456789",
     whatsappMessage: "Hola, quiero consultar por una propiedad en Connexa.",
+    usdToArsRate: 1000,
   },
   homeContent: {
     eyebrow: "Connexa Real Estate",
@@ -297,6 +301,7 @@ export const defaultState: InmoState = {
       status: "disponible",
       price: 185000,
       priceUnit: "venta",
+      currency: "USD",
       neighborhood: "Palermo",
       area: 82,
       rooms: 3,

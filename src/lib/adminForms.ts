@@ -8,10 +8,12 @@ import {
   type ClientContractType,
   type FilterGroup,
   type Listing,
+  type PriceCurrency,
   type PriceUnit,
   type PropertyStatus,
   type PropertyType,
 } from "./inmoData";
+import { currencyOptions } from "./pricing";
 
 export type ListingFormState = {
   title: string;
@@ -19,6 +21,7 @@ export type ListingFormState = {
   status: PropertyStatus;
   price: string;
   priceUnit: PriceUnit;
+  currency: PriceCurrency;
   neighborhood: string;
   area: string;
   rooms: string;
@@ -102,6 +105,8 @@ export const priceUnitOptions = Object.entries(priceUnitLabels).map(([id, label]
   label,
 }));
 
+export { currencyOptions };
+
 export const createId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
@@ -131,6 +136,7 @@ export const getListingForm = (listing: Listing): ListingFormState => ({
   status: listing.status,
   price: String(listing.price),
   priceUnit: listing.priceUnit,
+  currency: listing.currency ?? "ARS",
   neighborhood: listing.neighborhood,
   area: String(listing.area),
   rooms: String(listing.rooms),
@@ -151,6 +157,7 @@ export const normalizeListing = (form: ListingFormState, id: string): Listing =>
   status: form.status,
   price: toNumber(form.price),
   priceUnit: form.priceUnit,
+  currency: form.currency,
   neighborhood: form.neighborhood.trim(),
   area: toNumber(form.area),
   rooms: Math.max(0, Math.round(toNumber(form.rooms))),
@@ -176,6 +183,7 @@ export const getEmptyListingForm = (
   status: "disponible",
   price: "",
   priceUnit: "venta",
+  currency: "USD",
   neighborhood: "",
   area: "",
   rooms: "",

@@ -58,6 +58,10 @@ export default function AdminBrandingPage() {
         heroImage: themeForm.heroImage,
         whatsappPhone: themeForm.whatsappPhone?.trim(),
         whatsappMessage: themeForm.whatsappMessage?.trim(),
+        usdToArsRate:
+          Number.isFinite(Number(themeForm.usdToArsRate)) && Number(themeForm.usdToArsRate) > 0
+            ? Number(themeForm.usdToArsRate)
+            : prev.theme.usdToArsRate,
       },
     }));
     setFormNotice("Branding actualizado.");
@@ -345,6 +349,28 @@ export default function AdminBrandingPage() {
                   }
                 />
               </label>
+            </div>
+
+            <div className="grid gap-4 rounded-3xl bg-surface-container-low p-5 sm:grid-cols-[1fr_1.2fr]">
+              <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+                Tipo de cambio USD → ARS
+                <input
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                  value={themeForm.usdToArsRate ?? 1000}
+                  onChange={(event) =>
+                    setThemeForm((prev) => ({
+                      ...prev,
+                      usdToArsRate: Number(event.target.value),
+                    }))
+                  }
+                />
+              </label>
+              <p className="self-end rounded-2xl bg-surface-container-lowest p-4 text-xs text-on-surface-variant">
+                Se usa solamente para ordenar y calcular métricas cuando hay propiedades en USD y ARS. La ficha siempre muestra la moneda cargada en cada propiedad.
+              </p>
             </div>
 
             <button

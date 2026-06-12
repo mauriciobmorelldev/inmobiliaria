@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { InmoState } from "./inmoData";
 import { defaultState, STATE_VERSION } from "./inmoData";
+import { readAdminSession } from "./session";
 import { mergeState } from "./stateMerge";
 
 const STORAGE_KEY = "connexa-state/v4";
@@ -55,9 +56,13 @@ const fetchRemoteState = async () => {
 
 const persistRemoteState = async (state: InmoState) => {
   try {
+    const adminSession = readAdminSession();
     await fetch("/api/inmo-state", {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(adminSession?.adminId ? { "x-admin-id": adminSession.adminId } : {}),
+      },
       body: JSON.stringify(state),
     });
   } catch (error) {

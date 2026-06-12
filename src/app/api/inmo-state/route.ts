@@ -24,7 +24,15 @@ export async function GET() {
 export async function PUT(request: Request) {
   const writeSecret = process.env.INMO_STATE_WRITE_SECRET;
   const requestSecret = request.headers.get("x-inmo-write-secret");
-  if (!writeSecret || requestSecret !== writeSecret) {
+  const adminId = request.headers.get("x-admin-id");
+  const currentState = await readInmoState();
+  const owner = adminId
+    ? currentState.data.adminUsers.find(
+        (admin) => admin.id === adminId && admin.active && admin.role === "owner"
+      )
+    : null;
+
+  if ((!writeSecret || requestSecret !== writeSecret) && !owner) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 

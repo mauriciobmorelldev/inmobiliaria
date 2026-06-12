@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import AdminShell from "@/components/inmo/admin/AdminShell";
 import {
   createId,
-  currencyFormatter,
+  currencyOptions,
   getEmptyListingForm,
   getListingForm,
   normalizeListing,
@@ -16,6 +16,7 @@ import {
   validateListingForm,
   type ListingFormState,
 } from "@/lib/adminForms";
+import { formatPrice } from "@/lib/pricing";
 import {
   propertyTypeLabels,
   statusLabels,
@@ -69,6 +70,11 @@ export default function AdminPropertiesPage() {
   const [videoUrlDraft, setVideoUrlDraft] = useState("");
   const [formError, setFormError] = useState<string>("");
   const [highlightForm, setHighlightForm] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [successNotice, setSuccessNotice] = useState("");
+  const [mediaNotice, setMediaNotice] = useState("");
+  const imageFileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!highlightForm) return;
@@ -76,11 +82,57 @@ export default function AdminPropertiesPage() {
     return () => window.clearTimeout(timeout);
   }, [highlightForm]);
 
+  useEffect(() => {
+    if (!successNotice) return;
+    const timeout = window.setTimeout(() => setSuccessNotice(""), 3200);
+    return () => window.clearTimeout(timeout);
+  }, [successNotice]);
+
+  useEffect(() => {
+    if (!mediaNotice) return;
+    const timeout = window.setTimeout(() => setMediaNotice(""), 2200);
+    return () => window.clearTimeout(timeout);
+  }, [mediaNotice]);
+
   const availableCount = visibleListings.filter((item) => item.status === "disponible").length;
   const reservedCount = visibleListings.filter((item) => item.status === "reservado").length;
   const soldCount = visibleListings.filter((item) => item.status === "vendido").length;
 
-  const handleListingSubmit = (event: FormEvent) => {
+  const openNewListingForm = () => {
+    setEditingListingId(null);
+    setListingForm(getEmptyListingForm(filterGroups, assignableAgents));
+    setImageUrlDraft("");
+    setVideoUrlDraft("");
+    setFormError("");
+    setMediaNotice("");
+    setIsFormOpen(true);
+  };
+
+  const closeListingForm = () => {
+    if (isSaving) return;
+    setIsFormOpen(false);
+    setEditingListingId(null);
+    setFormError("");
+    setMediaNotice("");
+  };
+
+  const syncListingToServer = async (listing: Listing) => {
+    if (!authedAdmin) return;
+    const response = await fetch("/api/properties", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-id": authedAdmin.id,
+      },
+      body: JSON.stringify(listing),
+    });
+    if (!response.ok) {
+      const result = (await response.json().catch(() => null)) as { error?: string } | null;
+      throw new Error(result?.error ?? "No se pudo sincronizar la propiedad.");
+    }
+  };
+
+  const handleListingSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!authedAdmin) {
       setFormError("Iniciá sesión para cargar propiedades.");
@@ -113,31 +165,48 @@ export default function AdminPropertiesPage() {
         (isOwner ? undefined : authedAdmin.id),
     };
 
-    updateState((prev) => {
-      const nextListings = editingListingId
-        ? prev.listings.map((item) => (item.id === id ? normalized : item))
-        : [...prev.listings, normalized];
-      return { ...prev, listings: nextListings };
-    });
+    setIsSaving(true);
+    try {
+      updateState((prev) => {
+        const nextListings = editingListingId
+          ? prev.listings.map((item) => (item.id === id ? normalized : item))
+          : [...prev.listings, normalized];
+        return { ...prev, listings: nextListings };
+      });
 
-    setEditingListingId(null);
-    setListingForm(getEmptyListingForm(filterGroups, assignableAgents));
-    setImageUrlDraft("");
-    setVideoUrlDraft("");
-    setFormError("");
+      try {
+        await syncListingToServer(normalized);
+      } catch (error) {
+        console.warn("La propiedad quedó guardada localmente, pero no sincronizó remoto.", error);
+      }
+
+      setEditingListingId(null);
+      setListingForm(getEmptyListingForm(filterGroups, assignableAgents));
+      setImageUrlDraft("");
+      setVideoUrlDraft("");
+      setFormError("");
+      setIsFormOpen(false);
+      setSuccessNotice(
+        editingListingId
+          ? "Propiedad actualizada correctamente."
+          : "Propiedad creada correctamente."
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleListingEdit = (listing: Listing) => {
     if (!isOwner && listing.createdByAdminId !== authedAdmin?.id) return;
     setEditingListingId(listing.id);
     setListingForm(getListingForm(listing));
+    setFormError("");
+    setMediaNotice("");
+    setIsFormOpen(true);
     setHighlightForm(true);
-    document
-      .getElementById("form-propiedad")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const handleListingDelete = (listingId: string) => {
+  const handleListingDelete = async (listingId: string) => {
     updateState((prev) => ({
       ...prev,
       listings: prev.listings.filter(
@@ -146,29 +215,61 @@ export default function AdminPropertiesPage() {
           (!isOwner && item.createdByAdminId !== authedAdmin?.id)
       ),
     }));
+    if (!authedAdmin) return;
+    try {
+      await fetch(`/api/properties?id=${encodeURIComponent(listingId)}`, {
+        method: "DELETE",
+        headers: { "x-admin-id": authedAdmin.id },
+      });
+      setSuccessNotice("Propiedad eliminada correctamente.");
+    } catch (error) {
+      console.warn("La propiedad se eliminó localmente, pero no sincronizó remoto.", error);
+    }
   };
 
   const handleListingImageUpload = async (files: FileList | null) => {
     if (!files?.length) return;
-    const images = await Promise.all(Array.from(files).map(readFileAsDataUrl));
-    setListingForm((prev) => ({
-      ...prev,
-      images: [...prev.images, ...images],
-    }));
+    try {
+      const images = await Promise.all(Array.from(files).map(readFileAsDataUrl));
+      setListingForm((prev) => ({
+        ...prev,
+        images: [...prev.images, ...images],
+      }));
+      setMediaNotice(`${images.length} imagen${images.length === 1 ? "" : "es"} agregada${images.length === 1 ? "" : "s"}.`);
+      if (imageFileInputRef.current) imageFileInputRef.current.value = "";
+    } catch {
+      setFormError("No se pudieron cargar las imágenes. Probá con otro archivo.");
+    }
   };
 
   const handleListingImageAdd = () => {
     const value = imageUrlDraft.trim();
     if (!value) return;
+    try {
+      new URL(value);
+    } catch {
+      setFormError("Pegá un link de imagen válido.");
+      return;
+    }
     setListingForm((prev) => ({ ...prev, images: [...prev.images, value] }));
     setImageUrlDraft("");
+    setFormError("");
+    setMediaNotice("Imagen agregada.");
   };
 
   const handleListingVideoAdd = () => {
     const value = videoUrlDraft.trim();
     if (!value) return;
+    try {
+      new URL(value);
+    } catch {
+      setFormError("Pegá un link de video válido.");
+      return;
+    }
     setListingForm((prev) => ({ ...prev, videos: [...prev.videos, value] }));
     setVideoUrlDraft("");
+    setFormError("");
+    setMediaNotice("Video agregado.");
   };
 
   const handleListingImageRemove = (index: number) => {
@@ -195,8 +296,32 @@ export default function AdminPropertiesPage() {
           ? "Cargá y actualizá únicamente los inmuebles creados con tu usuario."
           : undefined
       }
-      primaryAction={{ href: "#form-propiedad", label: isCollaborator ? "Nuevo inmueble" : "Nueva propiedad" }}
     >
+      {successNotice ? (
+        <div className="fixed right-6 top-24 z-[80] animate-[inmo-toast_0.28s_ease-out] rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-semibold text-emerald-800 shadow-[0_24px_50px_-30px_rgba(16,185,129,0.55)]">
+          {successNotice}
+        </div>
+      ) : null}
+
+      <section className="mt-8 flex flex-col gap-4 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-5 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+            Gestión de inmuebles
+          </p>
+          <h3 className="mt-2 text-xl font-headline font-bold text-primary">
+            {isCollaborator ? "Cargar un inmueble propio" : "Administrar inventario"}
+          </h3>
+        </div>
+        <button
+          type="button"
+          onClick={openNewListingForm}
+          className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 text-xs font-semibold uppercase tracking-widest text-on-primary transition hover:-translate-y-0.5"
+          style={{ color: "var(--color-on-primary)" }}
+        >
+          {isCollaborator ? "Nuevo inmueble" : "Nueva propiedad"}
+        </button>
+      </section>
+
       <section className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
         <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4">
           <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Totales</p>
@@ -216,18 +341,43 @@ export default function AdminPropertiesPage() {
         </div>
       </section>
 
-      <section
-        id="form-propiedad"
-        className={`mt-8 rounded-3xl bg-surface-container-lowest p-8 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)] ${
-          highlightForm ? "inmo-edit-highlight" : ""
-        }`}
-      >
-        <h3 className="text-xl font-headline font-bold text-primary">{editingListingId ? "Editar propiedad" : "Nueva propiedad"}</h3>
-        <p className="mt-2 text-xs text-on-surface-variant">
-          {isOwner
-            ? "Completá ficha, imágenes, corredor y atributos para mostrar esta unidad en el front."
-            : "Vista básica de carga. Tu usuario queda asociado al inmueble y ningún otro colaborador puede verlo o editarlo. No podés asignar corredor ni cargar teléfonos."}
-        </p>
+      {isFormOpen ? (
+        <div className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-background/80 px-4 py-6 backdrop-blur-md md:py-10">
+          <button
+            type="button"
+            className="fixed inset-0 cursor-default"
+            aria-label="Cerrar formulario"
+            onClick={closeListingForm}
+          />
+          <section
+            id="form-propiedad"
+            className={`relative z-10 w-full max-w-5xl rounded-3xl bg-surface-container-lowest p-5 shadow-[0_40px_80px_-35px_rgba(27,27,28,0.35)] md:p-8 ${
+              highlightForm ? "inmo-edit-highlight" : ""
+            }`}
+          >
+            <div className="flex flex-col gap-4 border-b border-outline-variant/20 pb-5 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+                  {editingListingId ? "Edición" : "Nueva carga"}
+                </p>
+                <h3 className="mt-2 text-xl font-headline font-bold text-primary">
+                  {editingListingId ? "Editar propiedad" : "Nueva propiedad"}
+                </h3>
+                <p className="mt-2 max-w-2xl text-xs text-on-surface-variant">
+                  {isOwner
+                    ? "Completá ficha, imágenes, corredor y atributos para mostrar esta unidad en el front."
+                    : "Vista básica de carga. Tu usuario queda asociado al inmueble y ningún otro colaborador puede verlo o editarlo. No podés asignar corredor ni cargar teléfonos."}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeListingForm}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant/40 text-lg font-semibold text-primary"
+                aria-label="Cerrar"
+              >
+                ×
+              </button>
+            </div>
 
         <form className="mt-6 grid gap-4" onSubmit={handleListingSubmit}>
           <input
@@ -335,6 +485,31 @@ export default function AdminPropertiesPage() {
             />
           </div>
 
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+              Moneda
+              <select
+                className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                value={listingForm.currency}
+                onChange={(event) =>
+                  setListingForm((prev) => ({
+                    ...prev,
+                    currency: event.target.value as typeof listingForm.currency,
+                  }))
+                }
+              >
+                {currencyOptions.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="rounded-2xl bg-surface-container-low p-4 text-xs text-on-surface-variant">
+              El catálogo ordena USD y ARS convirtiendo internamente a pesos con el tipo de cambio configurado en Branding.
+            </div>
+          </div>
+
           <div className={`grid gap-4 ${isOwner ? "sm:grid-cols-3" : "sm:grid-cols-1"}`}>
             <input
               className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
@@ -416,6 +591,11 @@ export default function AdminPropertiesPage() {
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant">
               Imágenes
             </p>
+            {mediaNotice ? (
+              <p className="animate-[inmo-toast_0.28s_ease-out] rounded-xl bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800">
+                {mediaNotice}
+              </p>
+            ) : null}
 
             <div className="flex flex-wrap gap-2">
               {listingForm.images.map((image, index) => (
@@ -467,12 +647,20 @@ export default function AdminPropertiesPage() {
                 Agregar link
               </button>
               <input
+                ref={imageFileInputRef}
                 type="file"
                 accept="image/*"
                 multiple
                 onChange={(event) => handleListingImageUpload(event.target.files)}
-                className="text-sm"
+                className="hidden"
               />
+              <button
+                type="button"
+                onClick={() => imageFileInputRef.current?.click()}
+                className="rounded-full bg-surface-container-high px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-primary"
+              >
+                Subir imágenes
+              </button>
             </div>
           </div>
 
@@ -575,17 +763,16 @@ export default function AdminPropertiesPage() {
             {formError ? <p className="text-sm text-error">{formError}</p> : null}
             <button
               type="submit"
-              className="rounded-full bg-primary px-6 py-3 text-xs font-semibold uppercase tracking-widest text-on-primary"
+              disabled={isSaving}
+              className="rounded-full bg-primary px-6 py-3 text-xs font-semibold uppercase tracking-widest text-on-primary transition disabled:cursor-not-allowed disabled:opacity-60"
+              style={{ color: "var(--color-on-primary)" }}
             >
-              {editingListingId ? "Guardar cambios" : "Crear propiedad"}
+              {isSaving ? "Guardando..." : editingListingId ? "Guardar cambios" : "Crear propiedad"}
             </button>
             {editingListingId ? (
               <button
                 type="button"
-                onClick={() => {
-                  setEditingListingId(null);
-                  setListingForm(getEmptyListingForm(filterGroups, assignableAgents));
-                }}
+                onClick={closeListingForm}
                 className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant"
               >
                 Cancelar edición
@@ -594,6 +781,8 @@ export default function AdminPropertiesPage() {
           </div>
         </form>
       </section>
+      </div>
+      ) : null}
 
       <section className="mt-8 rounded-3xl bg-surface-container-lowest p-8 shadow-[0_40px_60px_-15px_rgba(27,27,28,0.04)]">
         <h3 className="text-xl font-headline font-bold text-primary">
@@ -617,7 +806,7 @@ export default function AdminPropertiesPage() {
                 <div>
                   <p className="text-sm font-semibold text-primary">{listing.title}</p>
                   <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
-                    {propertyTypeLabels[listing.type]} · {currencyFormatter.format(listing.price)}
+                    {propertyTypeLabels[listing.type]} · {formatPrice(listing.price, listing.priceUnit, listing.currency)}
                   </p>
                   <p className="mt-1 text-[10px] uppercase tracking-widest text-on-surface-variant">
                     {statusLabels[listing.status]}

@@ -79,6 +79,7 @@ export const mergeState = (
   listings: Array.isArray(incoming.listings)
     ? appendLocalOnly(incoming.listings, base.listings).map((listing) => ({
         ...listing,
+        currency: listing.currency ?? "ARS",
         createdByAdminId: listing.createdByAdminId,
       }))
     : base.listings,

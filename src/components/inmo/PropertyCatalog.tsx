@@ -11,6 +11,7 @@ import {
 import { buildThemeStyles } from "@/lib/theme";
 import FrontHeader from "@/components/inmo/FrontHeader";
 import { getAvailability } from "@/lib/availability";
+import { formatPrice, getListingComparablePriceInArs } from "@/lib/pricing";
 
 type PropertyCatalogProps = {
   showHero?: boolean;
@@ -32,19 +33,6 @@ const statusFilters: Array<{ id: PropertyStatusFilter; label: string }> = [
   { id: "disponible", label: "Disponible" },
   { id: "no-disponible", label: "No disponible" },
 ];
-
-const currencyFormatter = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  maximumFractionDigits: 0,
-});
-
-const formatPrice = (price: number, priceUnit: string) => {
-  const base = currencyFormatter.format(price);
-  if (priceUnit === "noche") return `${base} / noche`;
-  if (priceUnit === "mensual") return `${base} / mes`;
-  return base;
-};
 
 const getCoverImage = (images: string[], coverIndex: number) => {
   if (!images.length) return "";
@@ -109,13 +97,21 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
       })
     );
     if (sort === "price-asc") {
-      items.sort((a, b) => a.price - b.price);
+      items.sort(
+        (a, b) =>
+          getListingComparablePriceInArs(a, theme) -
+          getListingComparablePriceInArs(b, theme)
+      );
     }
     if (sort === "price-desc") {
-      items.sort((a, b) => b.price - a.price);
+      items.sort(
+        (a, b) =>
+          getListingComparablePriceInArs(b, theme) -
+          getListingComparablePriceInArs(a, theme)
+      );
     }
     return items;
-  }, [attributeFilters, filterGroups, listings, query, sort, status, type]);
+  }, [attributeFilters, filterGroups, listings, query, sort, status, theme, type]);
 
   const themeStyles = buildThemeStyles(theme);
 
@@ -184,9 +180,13 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
                   </p>
                   <p className="mt-2 text-2xl font-semibold text-primary">
                     {listings.length
-                      ? currencyFormatter.format(
-                          listings.reduce((acc, item) => acc + item.price, 0) /
-                            listings.length
+                      ? formatPrice(
+                          listings.reduce(
+                            (acc, item) => acc + getListingComparablePriceInArs(item, theme),
+                            0
+                          ) / listings.length,
+                          "venta",
+                          "ARS"
                         )
                       : "$0"}
                   </p>
@@ -366,7 +366,7 @@ export default function PropertyCatalog({ showHero = false }: PropertyCatalogPro
                     </p>
                     <div className="mt-5 flex items-center justify-between">
                       <span className="text-lg font-semibold text-primary">
-                        {formatPrice(item.price, item.priceUnit)}
+                        {formatPrice(item.price, item.priceUnit, item.currency)}
                       </span>
                       <span className="text-sm font-semibold text-primary group-hover:text-primary-container">
                         Ver ficha →

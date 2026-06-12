@@ -5,15 +5,10 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { useInmoStore } from "@/lib/inmoStore";
 import { buildThemeStyles } from "@/lib/theme";
+import { formatPrice } from "@/lib/pricing";
 import { propertyTypeLabels } from "@/lib/inmoData";
 import FrontHeader from "@/components/inmo/FrontHeader";
 import { getAvailability } from "@/lib/availability";
-
-const currencyFormatter = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  maximumFractionDigits: 0,
-});
 
 const getCoverImage = (images: string[], coverIndex: number) => {
   if (!images.length) return "";
@@ -542,7 +537,7 @@ export default function HomeStitch() {
                           <span>{item.area} m²</span>
                         </div>
                         <p className="mt-2 text-lg font-bold text-primary">
-                          {currencyFormatter.format(item.price)}
+                          {formatPrice(item.price, item.priceUnit, item.currency)}
                         </p>
                       </div>
                     </div>

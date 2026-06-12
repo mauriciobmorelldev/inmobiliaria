@@ -67,6 +67,7 @@ create table if not exists properties (
   status text not null check (status in ('disponible','pausado','reservado','vendido')),
   price numeric not null default 0,
   price_unit text not null check (price_unit in ('venta','mensual','noche')),
+  currency text not null default 'ARS' check (currency in ('ARS','USD')),
   neighborhood text not null default '',
   area numeric not null default 0,
   rooms integer not null default 0,
@@ -84,6 +85,9 @@ create table if not exists properties (
 
 alter table properties
   add column if not exists created_by_admin_id text references profiles(id) on delete set null;
+
+alter table properties
+  add column if not exists currency text not null default 'ARS';
 
 create table if not exists property_images (
   id text primary key,

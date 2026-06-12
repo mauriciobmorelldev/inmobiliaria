@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import AdminShell from "@/components/inmo/admin/AdminShell";
-import { currencyFormatter } from "@/lib/adminForms";
 import { propertyTypeLabels, statusLabels } from "@/lib/inmoData";
 import { useInmoStore } from "@/lib/inmoStore";
+import { formatPrice, getListingComparablePriceInArs } from "@/lib/pricing";
 
 export default function AdminDashboardPage() {
   const { state, updateState } = useInmoStore();
-  const { listings, agents, leads, propertyFavorites, propertyMetrics, toccoSyncLogs } =
+  const { listings, agents, leads, propertyFavorites, propertyMetrics, toccoSyncLogs, theme } =
     state;
   const [syncingTocco, setSyncingTocco] = useState(false);
   const [toccoSyncNotice, setToccoSyncNotice] = useState("");
@@ -20,7 +20,7 @@ export default function AdminDashboardPage() {
   const soldCount = listings.filter((item) => item.status === "vendido").length;
 
   const avgPrice = listings.length
-    ? listings.reduce((acc, item) => acc + item.price, 0) / listings.length
+    ? listings.reduce((acc, item) => acc + getListingComparablePriceInArs(item, theme), 0) / listings.length
     : 0;
 
   const rentalListings = listings.filter((item) => item.priceUnit !== "venta");
@@ -36,14 +36,14 @@ export default function AdminDashboardPage() {
 
   const estimatedMonthlyRevenue = listings.reduce((acc, listing) => {
     if (listing.status === "disponible") return acc;
-    if (listing.priceUnit === "mensual") return acc + listing.price;
-    if (listing.priceUnit === "noche") return acc + listing.price * 30;
+    if (listing.priceUnit === "mensual") return acc + getListingComparablePriceInArs(listing, theme);
+    if (listing.priceUnit === "noche") return acc + getListingComparablePriceInArs(listing, theme) * 30;
     return acc;
   }, 0);
 
   const closedSalesRevenue = listings
     .filter((item) => item.priceUnit === "venta" && item.status === "vendido")
-    .reduce((acc, item) => acc + item.price, 0);
+    .reduce((acc, item) => acc + getListingComparablePriceInArs(item, theme), 0);
 
   const inventoryChart = [
     { id: "disponible", label: "Disponibles", value: availableCount },
@@ -287,7 +287,7 @@ export default function AdminDashboardPage() {
               Precio Medio
             </p>
             <h3 className="text-2xl font-extrabold text-primary group-hover:text-on-primary">
-              {currencyFormatter.format(avgPrice || 0)}
+              {formatPrice(avgPrice || 0, "venta", "ARS")}
             </h3>
           </div>
         </div>
@@ -650,7 +650,7 @@ export default function AdminDashboardPage() {
               Ingreso potencial mensual
             </p>
             <p className="mt-2 text-2xl font-semibold text-primary">
-              {currencyFormatter.format(estimatedMonthlyRevenue)}
+              {formatPrice(estimatedMonthlyRevenue, "mensual", "ARS")}
             </p>
             <p className="mt-1 text-[10px] uppercase tracking-widest text-on-surface-variant">
               reservas y cerradas
@@ -671,7 +671,7 @@ export default function AdminDashboardPage() {
             </p>
             <p className="mt-2 text-2xl font-semibold text-primary">{occupancyRate}%</p>
             <p className="mt-1 text-[10px] uppercase tracking-widest text-on-surface-variant">
-              ventas cerradas {currencyFormatter.format(closedSalesRevenue)}
+              ventas cerradas {formatPrice(closedSalesRevenue, "venta", "ARS")}
             </p>
           </div>
         </div>
@@ -736,7 +736,7 @@ export default function AdminDashboardPage() {
                         {propertyTypeLabels[listing.type]}
                       </td>
                       <td className="py-5 text-sm font-medium">
-                        {currencyFormatter.format(listing.price)}
+                        {formatPrice(listing.price, listing.priceUnit, listing.currency)}
                       </td>
                       <td className="py-5">
                         <span className="inline-block px-4 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed text-[10px] font-bold uppercase tracking-wider">

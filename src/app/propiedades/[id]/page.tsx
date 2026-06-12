@@ -11,19 +11,7 @@ import { createId, isValidEmail, normalizePhone } from "@/lib/adminForms";
 import { readClientSession } from "@/lib/session";
 import { generatePropertyPdf } from "@/lib/propertyPdf";
 import { getAvailability } from "@/lib/availability";
-
-const currencyFormatter = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  maximumFractionDigits: 0,
-});
-
-const formatPrice = (price: number, priceUnit: string) => {
-  const base = currencyFormatter.format(price);
-  if (priceUnit === "noche") return `${base} / noche`;
-  if (priceUnit === "mensual") return `${base} / mes`;
-  return base;
-};
+import { formatPrice } from "@/lib/pricing";
 
 const resolveAttributes = (
   groups: FilterGroup[],
@@ -496,7 +484,7 @@ export default function DetallePropiedadPage() {
                 </div>
                 <div className="rounded-2xl bg-surface-container-lowest p-5 text-left md:text-right">
                   <p className="text-4xl font-headline font-bold text-primary">
-                    {formatPrice(property.price, property.priceUnit)}
+                    {formatPrice(property.price, property.priceUnit, property.currency)}
                   </p>
                   <div className="mt-3 flex flex-wrap items-center gap-2 md:justify-end">
                     <span
@@ -659,7 +647,7 @@ export default function DetallePropiedadPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Precio</span>
-                  <span className="font-semibold text-primary">{formatPrice(property.price, property.priceUnit)}</span>
+                  <span className="font-semibold text-primary">{formatPrice(property.price, property.priceUnit, property.currency)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Ambientes</span>

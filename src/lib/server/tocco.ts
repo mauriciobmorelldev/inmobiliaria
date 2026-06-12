@@ -7,6 +7,7 @@ type ToccoProperty = Partial<{
   status: string;
   price: number;
   priceUnit: string;
+  currency: string;
   neighborhood: string;
   area: number;
   rooms: number;
@@ -21,6 +22,7 @@ const normalizeToccoProperty = (item: ToccoProperty): Listing => ({
   status: item.status === "paused" ? "pausado" : "disponible",
   price: Number(item.price ?? 0),
   priceUnit: item.priceUnit === "night" ? "noche" : item.priceUnit === "rent" ? "mensual" : "venta",
+  currency: item.currency === "ARS" ? "ARS" : "USD",
   neighborhood: item.neighborhood ?? "Sin barrio",
   area: Number(item.area ?? 0),
   rooms: Number(item.rooms ?? 1),

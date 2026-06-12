@@ -1,6 +1,7 @@
 import type { FilterGroup, Listing, ThemeSettings } from "@/lib/inmoData";
 import { propertyTypeLabels } from "@/lib/inmoData";
 import { getAvailability } from "@/lib/availability";
+import { formatPrice } from "@/lib/pricing";
 
 type PropertyAttribute = {
   label: string;
@@ -14,12 +15,6 @@ type PropertyPdfInput = {
   theme: ThemeSettings;
   propertyUrl: string;
 };
-
-const currencyFormatter = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  maximumFractionDigits: 0,
-});
 
 const mmToPx = (mm: number) => Math.round(mm * 6);
 
@@ -40,13 +35,6 @@ const hexToRgb = (hex: string) => {
     g: (value >> 8) & 255,
     b: value & 255,
   };
-};
-
-const formatPrice = (price: number, priceUnit: string) => {
-  const base = currencyFormatter.format(price);
-  if (priceUnit === "noche") return `${base} / noche`;
-  if (priceUnit === "mensual") return `${base} / mes`;
-  return base;
 };
 
 const sanitizeFileName = (value: string) =>
@@ -233,7 +221,7 @@ export const generatePropertyPdf = async ({
     ? await renderImage(pdfImages[0], pageWidth - margin * 2, 124, "cover")
     : "";
 
-  const price = formatPrice(property.price, property.priceUnit);
+  const price = formatPrice(property.price, property.priceUnit, property.currency);
 
   doc.setFillColor(252, 250, 245);
   doc.rect(0, 0, pageWidth, pageHeight, "F");

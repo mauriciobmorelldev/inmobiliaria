@@ -11,6 +11,7 @@ import {
 import { buildThemeStyles } from "@/lib/theme";
 import FrontHeader from "@/components/inmo/FrontHeader";
 import { getAvailability } from "@/lib/availability";
+import { formatPrice, getListingComparablePriceInArs } from "@/lib/pricing";
 
 type PropertyTypeFilter = "all" | PropertyType;
 type PropertyStatusFilter = "all" | "disponible" | "no-disponible";
@@ -29,19 +30,6 @@ const statusFilters: Array<{ id: PropertyStatusFilter; label: string }> = [
   { id: "disponible", label: "Disponible" },
   { id: "no-disponible", label: "No disponible" },
 ];
-
-const currencyFormatter = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  maximumFractionDigits: 0,
-});
-
-const formatPrice = (price: number, priceUnit: string) => {
-  const base = currencyFormatter.format(price);
-  if (priceUnit === "noche") return `${base} / noche`;
-  if (priceUnit === "mensual") return `${base} / mes`;
-  return base;
-};
 
 const getCoverImage = (images: string[], coverIndex: number) => {
   if (!images.length) return "";
@@ -134,13 +122,21 @@ export default function ResultsStitch() {
       })
     );
     if (sort === "price-asc") {
-      items.sort((a, b) => a.price - b.price);
+      items.sort(
+        (a, b) =>
+          getListingComparablePriceInArs(a, theme) -
+          getListingComparablePriceInArs(b, theme)
+      );
     }
     if (sort === "price-desc") {
-      items.sort((a, b) => b.price - a.price);
+      items.sort(
+        (a, b) =>
+          getListingComparablePriceInArs(b, theme) -
+          getListingComparablePriceInArs(a, theme)
+      );
     }
     return items;
-  }, [attributeFilters, filterGroups, listings, minRooms, operation, query, sort, status, type]);
+  }, [attributeFilters, filterGroups, listings, minRooms, operation, query, sort, status, theme, type]);
 
   const activeFilterCount = [
     query.trim() ? 1 : 0,
@@ -468,7 +464,7 @@ export default function ResultsStitch() {
                         </p>
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <span className="text-lg font-semibold text-primary">
-                            {formatPrice(item.price, item.priceUnit)}
+                            {formatPrice(item.price, item.priceUnit, item.currency)}
                           </span>
                           <span className="text-sm font-semibold text-primary group-hover:text-primary-container">
                             Ver ficha →
