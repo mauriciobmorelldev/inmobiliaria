@@ -234,13 +234,23 @@ export const writeInmoState = async (state: InmoState) => {
     return { source: "fallback" as const };
   }
 
-  assertSupabaseOk(await supabase.from("platform_settings").upsert({
+  const settingsWithFilters = await supabase.from("platform_settings").upsert({
     id: SETTINGS_ID,
     theme: state.theme,
     home_content: state.homeContent,
     filter_groups: state.filterGroups,
     updated_at: new Date().toISOString(),
-  }), "upsert platform_settings");
+  });
+  if (settingsWithFilters.error?.message.includes("filter_groups")) {
+    assertSupabaseOk(await supabase.from("platform_settings").upsert({
+      id: SETTINGS_ID,
+      theme: state.theme,
+      home_content: state.homeContent,
+      updated_at: new Date().toISOString(),
+    }), "upsert platform_settings");
+  } else {
+    assertSupabaseOk(settingsWithFilters, "upsert platform_settings");
+  }
 
   const adminRows = state.adminUsers.map((admin) => ({
     id: admin.id,

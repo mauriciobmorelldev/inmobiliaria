@@ -43,9 +43,23 @@ export async function GET() {
       };
     })
   );
+  const filterGroupsColumn = await supabase
+    .from("platform_settings")
+    .select("filter_groups")
+    .limit(1);
+  const columnChecks = [
+    {
+      column: "platform_settings.filter_groups",
+      ok: !filterGroupsColumn.error,
+      error: filterGroupsColumn.error?.message,
+    },
+  ];
 
   return NextResponse.json({
-    ok: checks.every((check) => check.ok) && isSupabaseWriteConfigured(),
+    ok:
+      checks.every((check) => check.ok) &&
+      columnChecks.every((check) => check.ok) &&
+      isSupabaseWriteConfigured(),
     configured: true,
     usingServiceRole: isSupabaseWriteConfigured(),
     writeReady: isSupabaseWriteConfigured(),
@@ -53,5 +67,6 @@ export async function GET() {
       ? undefined
       : "Lectura OK, pero falta SUPABASE_SERVICE_ROLE_KEY. Las escrituras del admin van a fallar por RLS.",
     tables: checks,
+    columns: columnChecks,
   });
 }
