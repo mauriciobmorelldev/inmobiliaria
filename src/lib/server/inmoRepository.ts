@@ -10,7 +10,12 @@ import {
   type PropertyStatus,
   type PropertyType,
 } from "@/lib/inmoData";
-import { getSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import {
+  getSupabaseServerClient,
+  getSupabaseWriteClient,
+  isSupabaseConfigured,
+  isSupabaseWriteConfigured,
+} from "@/lib/supabase/server";
 import { mergeState } from "@/lib/stateMerge";
 
 const SETTINGS_ID = "default";
@@ -209,8 +214,8 @@ export const readInmoState = async (): Promise<RepositoryResult<InmoState>> => {
 };
 
 export const writeInmoState = async (state: InmoState) => {
-  const supabase = getSupabaseServerClient();
-  if (!supabase || !isSupabaseConfigured()) {
+  const supabase = getSupabaseWriteClient();
+  if (!supabase || !isSupabaseWriteConfigured()) {
     return { source: "fallback" as const };
   }
 

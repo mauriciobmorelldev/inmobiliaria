@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { getSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import {
+  getSupabaseServerClient,
+  isSupabaseConfigured,
+  isSupabaseWriteConfigured,
+} from "@/lib/supabase/server";
 
 const tables = [
   "platform_settings",
@@ -41,9 +45,13 @@ export async function GET() {
   );
 
   return NextResponse.json({
-    ok: checks.every((check) => check.ok),
+    ok: checks.every((check) => check.ok) && isSupabaseWriteConfigured(),
     configured: true,
-    usingServiceRole: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+    usingServiceRole: isSupabaseWriteConfigured(),
+    writeReady: isSupabaseWriteConfigured(),
+    error: isSupabaseWriteConfigured()
+      ? undefined
+      : "Lectura OK, pero falta SUPABASE_SERVICE_ROLE_KEY. Las escrituras del admin van a fallar por RLS.",
     tables: checks,
   });
 }

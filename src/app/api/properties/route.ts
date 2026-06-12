@@ -48,6 +48,17 @@ export async function POST(request: Request) {
     };
 
     const result = await writeInmoState(nextState);
+    if (result.source !== "supabase") {
+      return NextResponse.json(
+        {
+          ok: false,
+          source: result.source,
+          error:
+            "Supabase está conectado para lectura, pero falta SUPABASE_SERVICE_ROLE_KEY para guardar sin bloqueo de RLS.",
+        },
+        { status: 500 }
+      );
+    }
     return NextResponse.json({ ok: true, source: result.source, property: listing });
   } catch (error) {
     return NextResponse.json(
@@ -89,6 +100,17 @@ export async function DELETE(request: Request) {
     };
 
     const result = await writeInmoState(nextState);
+    if (result.source !== "supabase") {
+      return NextResponse.json(
+        {
+          ok: false,
+          source: result.source,
+          error:
+            "Supabase está conectado para lectura, pero falta SUPABASE_SERVICE_ROLE_KEY para eliminar sin bloqueo de RLS.",
+        },
+        { status: 500 }
+      );
+    }
     return NextResponse.json({ ok: true, source: result.source });
   } catch (error) {
     return NextResponse.json(
