@@ -47,7 +47,10 @@ const fetchRemoteState = async () => {
       cache: "no-store",
     });
     if (!response.ok) return null;
-    return (await response.json()) as Partial<InmoState>;
+    return {
+      data: (await response.json()) as Partial<InmoState>,
+      source: response.headers.get("x-inmo-state-source") as "supabase" | "fallback" | null,
+    };
   } catch (error) {
     console.warn("No se pudo cargar estado remoto, usando fallback local", error);
     return null;
@@ -110,7 +113,10 @@ export const useInmoStore = () => {
       setState(local);
       const remote = await fetchRemoteState();
       if (!remote) return;
-      const merged = mergeState(local, remote);
+      const merged =
+        remote.source === "supabase"
+          ? mergeState(defaultState, remote.data)
+          : mergeState(local, remote.data);
       inMemoryState = merged;
       writeStorage(JSON.stringify(merged));
       setState(merged);

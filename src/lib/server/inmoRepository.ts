@@ -115,6 +115,7 @@ export const readInmoState = async (): Promise<RepositoryResult<InmoState>> => {
     version: STATE_VERSION,
     theme: settings.data?.theme ?? defaultState.theme,
     homeContent: settings.data?.home_content ?? defaultState.homeContent,
+    filterGroups: settings.data?.filter_groups ?? defaultState.filterGroups,
     adminUsers: ensureArray(profiles.data)
       .filter((profile) => profile.kind === "admin")
       .map((profile) => ({
@@ -210,7 +211,21 @@ export const readInmoState = async (): Promise<RepositoryResult<InmoState>> => {
     })),
   };
 
-  return { data: mergeState(defaultState, incoming), source: "supabase" };
+  const merged = mergeState(defaultState, incoming);
+  return {
+    data: {
+      ...merged,
+      listings: incoming.listings ?? [],
+      agents: incoming.agents ?? [],
+      clientUsers: incoming.clientUsers ?? [],
+      propertyFavorites: incoming.propertyFavorites ?? [],
+      leads: incoming.leads ?? [],
+      leadEvents: incoming.leadEvents ?? [],
+      propertyMetrics: incoming.propertyMetrics ?? [],
+      toccoSyncLogs: incoming.toccoSyncLogs ?? [],
+    },
+    source: "supabase",
+  };
 };
 
 export const writeInmoState = async (state: InmoState) => {
@@ -223,6 +238,7 @@ export const writeInmoState = async (state: InmoState) => {
     id: SETTINGS_ID,
     theme: state.theme,
     home_content: state.homeContent,
+    filter_groups: state.filterGroups,
     updated_at: new Date().toISOString(),
   }), "upsert platform_settings");
 

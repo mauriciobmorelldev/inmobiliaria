@@ -4,11 +4,15 @@ create table if not exists platform_settings (
   id text primary key,
   theme jsonb not null default '{}'::jsonb,
   home_content jsonb not null default '{}'::jsonb,
+  filter_groups jsonb not null default '[]'::jsonb,
   updated_at timestamptz not null default now()
 );
 
 alter table platform_settings
   add column if not exists home_content jsonb not null default '{}'::jsonb;
+
+alter table platform_settings
+  add column if not exists filter_groups jsonb not null default '[]'::jsonb;
 
 create table if not exists roles (
   id text primary key,
