@@ -65,6 +65,8 @@ const navItems: Array<{
   { id: "filtros", label: "Filtros", href: "/admin/filtros", icon: "tune" },
 ];
 
+const ADMIN_IDLE_TIMEOUT_MS = 10 * 60 * 1000;
+
 export default function AdminShell({
   activeSection,
   title,
@@ -226,6 +228,28 @@ export default function AdminShell({
     setPassword("");
     window.location.href = "/admin";
   };
+
+  useEffect(() => {
+    if (!session) return;
+    let timeout: number | undefined;
+    const logoutForInactivity = () => {
+      clearAdminSession();
+      setSession(null);
+      setPassword("");
+      window.location.href = "/admin";
+    };
+    const resetTimer = () => {
+      if (timeout) window.clearTimeout(timeout);
+      timeout = window.setTimeout(logoutForInactivity, ADMIN_IDLE_TIMEOUT_MS);
+    };
+    const events = ["mousemove", "mousedown", "keydown", "scroll", "touchstart"];
+    resetTimer();
+    events.forEach((event) => window.addEventListener(event, resetTimer, { passive: true }));
+    return () => {
+      if (timeout) window.clearTimeout(timeout);
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+    };
+  }, [session]);
 
   if (!authedAdmin) {
     if (!mounted) {

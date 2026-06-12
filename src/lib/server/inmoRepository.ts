@@ -4,6 +4,7 @@ import {
   STATE_VERSION,
   type AdminRole,
   type InmoState,
+  type Listing,
   type LeadStatus,
   type PriceCurrency,
   type PriceUnit,
@@ -35,6 +36,36 @@ const assertSupabaseOk = (
     throw new Error(`${action}: ${result.error.message ?? "Error de Supabase"}`);
   }
 };
+
+const toPropertyRow = (property: Listing) => ({
+  id: property.id,
+  title: property.title,
+  type: property.type,
+  status: property.status,
+  price: property.price,
+  price_unit: property.priceUnit,
+  currency: property.currency ?? "ARS",
+  neighborhood: property.neighborhood,
+  area: property.area,
+  rooms: property.rooms,
+  tag: property.tag,
+  highlight: property.highlight,
+  description: property.description,
+  videos: property.videos ?? [],
+  cover_index: property.coverIndex,
+  agent_id: property.agentId ?? null,
+  created_by_admin_id: property.createdByAdminId ?? null,
+  attributes: property.attributes,
+  updated_at: new Date().toISOString(),
+});
+
+const toPropertyImageRows = (property: Listing) =>
+  property.images.map((url, index) => ({
+    id: `${property.id}-${index}`,
+    property_id: property.id,
+    url,
+    sort_order: index,
+  }));
 
 const deleteMissing = async (
   supabase: SupabaseClient,
@@ -302,38 +333,13 @@ export const writeInmoState = async (state: InmoState) => {
 
   if (state.listings.length) {
     assertSupabaseOk(await supabase.from("properties").upsert(
-      state.listings.map((property) => ({
-        id: property.id,
-        title: property.title,
-        type: property.type,
-        status: property.status,
-        price: property.price,
-        price_unit: property.priceUnit,
-        currency: property.currency ?? "ARS",
-        neighborhood: property.neighborhood,
-        area: property.area,
-        rooms: property.rooms,
-        tag: property.tag,
-        highlight: property.highlight,
-        description: property.description,
-        videos: property.videos ?? [],
-        cover_index: property.coverIndex,
-        agent_id: property.agentId ?? null,
-        created_by_admin_id: property.createdByAdminId ?? null,
-        attributes: property.attributes,
-        updated_at: new Date().toISOString(),
-      }))
+      state.listings.map(toPropertyRow)
     ), "upsert properties");
   }
   await deleteMissing(supabase, "properties", state.listings.map((property) => property.id));
 
   const imageRows = state.listings.flatMap((property) =>
-    property.images.map((url, index) => ({
-      id: `${property.id}-${index}`,
-      property_id: property.id,
-      url,
-      sort_order: index,
-    }))
+    toPropertyImageRows(property)
   );
   if (imageRows.length) {
     assertSupabaseOk(await supabase.from("property_images").upsert(imageRows), "upsert property_images");
@@ -419,6 +425,47 @@ export const writeInmoState = async (state: InmoState) => {
       }))
     ), "upsert tocco_sync_logs");
   }
+
+  return { source: "supabase" as const };
+};
+
+export const upsertListing = async (property: Listing) => {
+  const supabase = getSupabaseWriteClient();
+  if (!supabase || !isSupabaseWriteConfigured()) {
+    return { source: "fallback" as const };
+  }
+
+  assertSupabaseOk(
+    await supabase.from("properties").upsert(toPropertyRow(property)),
+    "upsert property"
+  );
+
+  assertSupabaseOk(
+    await supabase.from("property_images").delete().eq("property_id", property.id),
+    "replace property_images"
+  );
+
+  const imageRows = toPropertyImageRows(property);
+  if (imageRows.length) {
+    assertSupabaseOk(
+      await supabase.from("property_images").insert(imageRows),
+      "insert property_images"
+    );
+  }
+
+  return { source: "supabase" as const };
+};
+
+export const deleteListing = async (propertyId: string) => {
+  const supabase = getSupabaseWriteClient();
+  if (!supabase || !isSupabaseWriteConfigured()) {
+    return { source: "fallback" as const };
+  }
+
+  assertSupabaseOk(
+    await supabase.from("properties").delete().eq("id", propertyId),
+    "delete property"
+  );
 
   return { source: "supabase" as const };
 };

@@ -9,8 +9,9 @@ import {
   getEmptyListingForm,
   getListingForm,
   normalizeListing,
+  optimizeImageDataUrl,
   priceUnitOptions,
-  readFileAsDataUrl,
+  readImageFileAsOptimizedDataUrl,
   statusOptions,
   typeOptions,
   validateListingForm,
@@ -153,7 +154,10 @@ export default function AdminPropertiesPage() {
     }
 
     const id = editingListingId ?? createId();
-    const baseListing = normalizeListing(listingForm, id);
+    const optimizedImages = await Promise.all(
+      listingForm.images.map((image) => optimizeImageDataUrl(image))
+    );
+    const baseListing = normalizeListing({ ...listingForm, images: optimizedImages }, id);
     const previousListing = listings.find((item) => item.id === id);
     const isOwnListing =
       isOwner ||
@@ -260,7 +264,9 @@ export default function AdminPropertiesPage() {
   const handleListingImageUpload = async (files: FileList | null) => {
     if (!files?.length) return;
     try {
-      const images = await Promise.all(Array.from(files).map(readFileAsDataUrl));
+      const images = await Promise.all(
+        Array.from(files).map((file) => readImageFileAsOptimizedDataUrl(file))
+      );
       setListingForm((prev) => ({
         ...prev,
         images: [...prev.images, ...images],
@@ -843,7 +849,12 @@ export default function AdminPropertiesPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-widest">
-                  <Link href={`/propiedades/${listing.id}`} className="text-on-surface-variant">
+                  <Link
+                    href={`/propiedades/${listing.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-on-surface-variant"
+                  >
                     Ver front
                   </Link>
                   <button

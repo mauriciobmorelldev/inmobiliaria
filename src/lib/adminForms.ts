@@ -122,6 +122,59 @@ export const readFileAsDataUrl = (file: File) =>
     reader.readAsDataURL(file);
   });
 
+export const optimizeImageDataUrl = (
+  source: string,
+  opts: { maxSize?: number; quality?: number } = {}
+) =>
+  new Promise<string>((resolve, reject) => {
+    if (typeof document === "undefined" || !source.startsWith("data:image/")) {
+      resolve(source);
+      return;
+    }
+
+    const image = new Image();
+    image.onload = () => {
+      const maxSize = opts.maxSize ?? 1600;
+      const quality = opts.quality ?? 0.82;
+      const scale = Math.min(1, maxSize / Math.max(image.naturalWidth, image.naturalHeight));
+      if (scale === 1 && source.length < 450_000) {
+        resolve(source);
+        return;
+      }
+      const width = Math.max(1, Math.round(image.naturalWidth * scale));
+      const height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d");
+      if (!context) {
+        resolve(source);
+        return;
+      }
+      context.drawImage(image, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", quality));
+    };
+    image.onerror = () => reject(new Error("No se pudo procesar la imagen."));
+    image.src = source;
+  });
+
+export const readImageFileAsOptimizedDataUrl = (
+  file: File,
+  opts: { maxSize?: number; quality?: number } = {}
+) =>
+  new Promise<string>((resolve, reject) => {
+    if (typeof URL === "undefined" || !file.type.startsWith("image/")) {
+      readFileAsDataUrl(file).then(resolve).catch(reject);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      optimizeImageDataUrl(String(reader.result ?? ""), opts).then(resolve).catch(reject);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+
 const toNumber = (value: string) => {
   const parsed = Number(value.replace(",", "."));
   return Number.isFinite(parsed) ? parsed : 0;

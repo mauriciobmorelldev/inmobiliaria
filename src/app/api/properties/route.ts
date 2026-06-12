@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { Listing } from "@/lib/inmoData";
-import { readInmoState, writeInmoState } from "@/lib/server/inmoRepository";
+import { deleteListing, readInmoState, upsertListing } from "@/lib/server/inmoRepository";
 
 const getAdmin = async (request: Request) => {
   const adminId = request.headers.get("x-admin-id");
@@ -40,14 +40,7 @@ export async function POST(request: Request) {
         (isOwner ? incoming.createdByAdminId : context.admin.id),
     };
 
-    const nextState = {
-      ...context.state,
-      listings: previous
-        ? context.state.listings.map((item) => (item.id === listing.id ? listing : item))
-        : [...context.state.listings, listing],
-    };
-
-    const result = await writeInmoState(nextState);
+    const result = await upsertListing(listing);
     if (result.source !== "supabase") {
       return NextResponse.json(
         {
@@ -94,12 +87,7 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const nextState = {
-      ...context.state,
-      listings: context.state.listings.filter((item) => item.id !== propertyId),
-    };
-
-    const result = await writeInmoState(nextState);
+    const result = await deleteListing(propertyId);
     if (result.source !== "supabase") {
       return NextResponse.json(
         {
