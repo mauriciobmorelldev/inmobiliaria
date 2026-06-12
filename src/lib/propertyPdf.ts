@@ -97,17 +97,68 @@ const renderImage = async (
   return canvas.toDataURL("image/jpeg", 0.92);
 };
 
-const addWrappedText = (
+const drawLimitedWrappedText = (
   doc: import("jspdf").jsPDF,
   text: string,
   x: number,
   y: number,
   maxWidth: number,
-  lineHeight: number
+  lineHeight: number,
+  maxLines: number
 ) => {
   const lines = doc.splitTextToSize(text, maxWidth) as string[];
-  doc.text(lines, x, y);
-  return y + lines.length * lineHeight;
+  const visibleLines = lines.slice(0, maxLines);
+  if (visibleLines.length) doc.text(visibleLines, x, y);
+  return {
+    nextY: y + visibleLines.length * lineHeight,
+    remainingLines: lines.slice(maxLines),
+  };
+};
+
+const drawOverflowTextPages = (
+  doc: import("jspdf").jsPDF,
+  lines: string[],
+  {
+    title,
+    theme,
+    pageWidth,
+    pageHeight,
+    primary,
+    neutral,
+    margin,
+    maxWidth,
+    lineHeight,
+  }: {
+    title: string;
+    theme: ThemeSettings;
+    pageWidth: number;
+    pageHeight: number;
+    primary: { r: number; g: number; b: number };
+    neutral: { r: number; g: number; b: number };
+    margin: number;
+    maxWidth: number;
+    lineHeight: number;
+  }
+) => {
+  if (!lines.length) return;
+  const startY = 50;
+  const maxLinesPerPage = Math.floor((pageHeight - startY - 22) / lineHeight);
+  for (let index = 0; index < lines.length; index += maxLinesPerPage) {
+    doc.addPage();
+    doc.setFillColor(252, 250, 245);
+    doc.rect(0, 0, pageWidth, pageHeight, "F");
+    drawPremiumHeader(doc, title, theme, pageWidth, primary, neutral, margin);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(primary.r, primary.g, primary.b);
+    doc.text(title, margin, 38);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
+    doc.setTextColor(74, 70, 63);
+    doc.text(lines.slice(index, index + maxLinesPerPage), margin, startY, {
+      maxWidth,
+    });
+  }
 };
 
 const drawPremiumHeader = (
@@ -313,14 +364,24 @@ export const generatePropertyPdf = async ({
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9.5);
   doc.setTextColor(74, 70, 63);
-  y = addWrappedText(
+  const descriptionPreview = drawLimitedWrappedText(
     doc,
     property.description || "Descripcion pendiente.",
     margin,
     y,
     108,
-    5.5
+    5.5,
+    8
   );
+  y = descriptionPreview.nextY;
+  const overflowDescriptionLines = descriptionPreview.remainingLines;
+  if (overflowDescriptionLines.length) {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7);
+    doc.setTextColor(primary.r, primary.g, primary.b);
+    doc.text("La descripcion completa continua en la pagina siguiente.", margin, y + 5);
+    y += 8;
+  }
   if (property.highlight) {
     y += 8;
     doc.setDrawColor(neutral.r, neutral.g, neutral.b);
@@ -333,7 +394,7 @@ export const generatePropertyPdf = async ({
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(74, 70, 63);
-    doc.text(doc.splitTextToSize(property.highlight, 108), margin, y + 16);
+    doc.text((doc.splitTextToSize(property.highlight, 108) as string[]).slice(0, 3), margin, y + 16);
   }
 
   const sideX = 138;
@@ -413,6 +474,18 @@ export const generatePropertyPdf = async ({
     { maxWidth: pageWidth - margin * 2 - 55 }
   );
   drawTextLink(doc, "Abrir ficha web", pageWidth - margin - 48, 259, primary, propertyUrl);
+
+  drawOverflowTextPages(doc, overflowDescriptionLines, {
+    title: "Descripcion completa",
+    theme,
+    pageWidth,
+    pageHeight,
+    primary,
+    neutral,
+    margin,
+    maxWidth: pageWidth - margin * 2,
+    lineHeight: 5.5,
+  });
 
   if (pdfImages.length) {
     const imageSlots = [
